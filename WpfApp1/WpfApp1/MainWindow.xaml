@@ -5,24 +5,46 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="Information Retrieval" Height="249.5" Width="525">
-    <Canvas HorizontalAlignment="Left" Height="224"  VerticalAlignment="Top" Width="515" RenderTransformOrigin="-0.608,-0.831">
-        <Button Content="Browse" Canvas.Left="239" Canvas.Top="49" Width="82" RenderTransformOrigin="0.608,0.618" Height="30" Click="Button_Click_1"/>
-        <Button Content="Browse" Canvas.Left="239" Canvas.Top="110" Width="82" RenderTransformOrigin="0.608,0.618" Height="31" Click="Button_Click_2"/>
-        <TextBox Height="30" TextWrapping="Wrap" Canvas.Top="49" Width="220" TextChanged="TextBox_TextChanged"/>
-        <TextBox Height="30" TextWrapping="Wrap" Canvas.Top="110" Width="220" TextChanged="TextBox_TextChanged_1"/>
-        <CheckBox Content="stemming" Canvas.Top="125" Checked="CheckBox_Checked" Canvas.Left="340"/>
-        <Label Content="language" Height="27" Canvas.Left="339" Canvas.Top="33" Width="73" RenderTransformOrigin="0.5,0.5"/>
-        <ComboBox Canvas.Top="55" Width="160" Height="24" Canvas.Left="340" SelectionChanged="ComboBox_SelectionChanged">
-            <ComboBoxItem>ComboBox Item #1</ComboBoxItem>
-            <ComboBoxItem IsSelected="True">ComboBox Item #2</ComboBoxItem>
-            <ComboBoxItem>ComboBox Item #3</ComboBoxItem>
-        </ComboBox>
-        <Button Content="Start" Canvas.Top="158" Width="79"/>
-        <Button Content="Reset" Canvas.Top="179" Width="79"/>
-        <Button Content="Show Dictionary" Canvas.Left="99" Canvas.Top="179" Width="121"/>
-        <Button Content="Load Dictionary" Canvas.Left="99" Canvas.Top="158" Width="121"/>
+        Title="Information Retrieval" Height="249.5" Width="525"
+        ResizeMode="NoResize">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        
+        
+        <TextBox Margin="10" Grid.Row="0" Grid.ColumnSpan="2" Name="path_from" Height="30" />
+        <Button Margin="10" Content="Browse" Grid.Row="0" Grid.Column="2" Name="browse_from" Height="30" Click="browse_from_Click" />
 
-    </Canvas>
+        <TextBox Margin="10" Grid.Row="1" Grid.ColumnSpan="2" Height="30" Name="path_to" />
+        <Button Margin="10" Content="Browse" Grid.Row="1" Grid.Column="2" Height="30" Name="browse_to" Click="browse_to_Click"/>
+
+        <StackPanel Margin="10" Grid.IsSharedSizeScope="True" Grid.RowSpan="2" Grid.Column="3">
+            <Label Content="Language" />
+            <ComboBox>
+                <!-- shuld be out of function -->
+                <ComboBoxItem>aa</ComboBoxItem>
+                <ComboBoxItem>bb</ComboBoxItem>
+                <ComboBoxItem>cc</ComboBoxItem>
+                <ComboBoxItem>dd</ComboBoxItem>
+            </ComboBox>
+            <CheckBox Margin="5" Content="stemming" IsChecked="False" Name="is_stemming"/>
+        </StackPanel>
+
+        <Button Margin="10" Content="Start" Grid.Row="2" Grid.Column="0" Name="start" Click="start_Click"/>
+        <Button Margin="10" Content="Reset" Grid.Row="2" Grid.Column="1" Name="reset" Click="reset_Click"  />
+        <Button Margin="10" Content="Load Dictionary" Grid.Row="2" Grid.Column="2" Name="load_dictionary" Click="load_dictionary_Click" />
+        <Button Margin="10" Content="Show Dictionary" Grid.Row="2" Grid.Column="3" Name="show_dictionary" Click="show_dictionary_Click" />
+
+    </Grid>
 
 </Window>
