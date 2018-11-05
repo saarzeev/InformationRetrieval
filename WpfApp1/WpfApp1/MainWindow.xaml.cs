@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Forms;
 
@@ -13,6 +14,42 @@ namespace WpfApp1
         public MainWindow()
         {
             InitializeComponent();
+            isOkEnabled();
+        }
+
+        private void isOkEnabled()
+        {
+           if (path_to.Text == "" || path_from.Text == "")
+            {
+                start.IsEnabled = false;
+            }
+            else
+            {
+                start.IsEnabled = true;
+            }
+        }
+
+        private void OnTextChanged(object sender, EventArgs e)
+        {
+            System.Windows.Controls.TextBox textBox = sender as System.Windows.Controls.TextBox;
+            try
+            {
+                FileAttributes attr = File.GetAttributes(textBox.Text);
+
+                if (!((attr & FileAttributes.Directory) == FileAttributes.Directory))
+                {
+                    start.IsEnabled = false;
+                }
+                else
+                {
+                    isOkEnabled();
+                }
+            }
+            catch
+            {
+                start.IsEnabled = false;
+            };
+
         }
 
         private void browse_from_Click(object sender, RoutedEventArgs e)
@@ -29,6 +66,7 @@ namespace WpfApp1
             var dialog = new FolderBrowserDialog();
             dialog.ShowDialog();
             textBox.Text = dialog.SelectedPath;
+            isOkEnabled();
         }
 
         private void start_Click(object sender, RoutedEventArgs e)
@@ -63,9 +101,11 @@ namespace WpfApp1
 
         public void MyMessageBox()
         {
-            var dialog = System.Windows.Forms.MessageBox.Show("please choose the path of the folder containing the files to index and " +
+            var dialog = System.Windows.Forms.MessageBox.Show("Please choose the path of the folder containing the files to index and " +
                 "the path of the folder for posting files", "Missing path!", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Stop);
         }
+
+
     }
 
 }

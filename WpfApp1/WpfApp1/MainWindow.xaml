@@ -12,6 +12,8 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
             
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -20,15 +22,17 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        
-        
-        <TextBox Margin="10" Grid.Row="0" Grid.ColumnSpan="2" Name="path_from" Height="30" />
-        <Button Margin="10" Content="Browse" Grid.Row="0" Grid.Column="2" Name="browse_from" Height="30" Click="browse_from_Click" />
 
-        <TextBox Margin="10" Grid.Row="1" Grid.ColumnSpan="2" Height="30" Name="path_to" />
-        <Button Margin="10" Content="Browse" Grid.Row="1" Grid.Column="2" Height="30" Name="browse_to" Click="browse_to_Click"/>
+        <Label Content="Source:" Grid.Column="0" Grid.Row="0" VerticalContentAlignment="Bottom" />
+        <TextBox Margin="4" Grid.Row="1" Grid.ColumnSpan="2" Name="path_from" Height="30" VerticalContentAlignment="Center" TextChanged="OnTextChanged"/>
+        <Button Margin="4" Content="Browse" Grid.Row="1" Grid.Column="2" Name="browse_from" Height="30" Click="browse_from_Click" />
 
-        <StackPanel Margin="10" Grid.IsSharedSizeScope="True" Grid.RowSpan="2" Grid.Column="3">
+
+        <Label Content="Destination:" Grid.Column="0" Grid.Row="2" VerticalContentAlignment="Bottom"/>
+        <TextBox Margin="4" Grid.Row="3" Grid.ColumnSpan="2" Height="30" Name="path_to" VerticalContentAlignment="Center" TextChanged="OnTextChanged" />
+        <Button Margin="4" Content="Browse" Grid.Row="3" Grid.Column="2" Height="30" Name="browse_to" Click="browse_to_Click"/>
+
+        <StackPanel Margin="10" Grid.IsSharedSizeScope="True" Grid.RowSpan="3" Grid.Column="3">
             <Label Content="Language" />
             <ComboBox>
                 <!-- shuld be out of function -->
@@ -40,10 +44,11 @@
             <CheckBox Margin="5" Content="stemming" IsChecked="False" Name="is_stemming"/>
         </StackPanel>
 
-        <Button Margin="10" Content="Start" Grid.Row="2" Grid.Column="0" Name="start" Click="start_Click"/>
-        <Button Margin="10" Content="Reset" Grid.Row="2" Grid.Column="1" Name="reset" Click="reset_Click"  />
-        <Button Margin="10" Content="Load Dictionary" Grid.Row="2" Grid.Column="2" Name="load_dictionary" Click="load_dictionary_Click" />
-        <Button Margin="10" Content="Show Dictionary" Grid.Row="2" Grid.Column="3" Name="show_dictionary" Click="show_dictionary_Click" />
+        
+        <Button Margin="10" Content="Start" Grid.Row="4" Grid.Column="0" Name="start" Click="start_Click" ToolTip="Start Indexing" />
+        <Button Margin="10" Content="Reset" Grid.Row="4" Grid.Column="1" Name="reset" Click="reset_Click"  />
+        <Button Margin="10" Content="Load Dictionary" Grid.Row="4" Grid.Column="2" Name="load_dictionary" Click="load_dictionary_Click" />
+        <Button Margin="10" Content="Show Dictionary" Grid.Row="4" Grid.Column="3" Name="show_dictionary" Click="show_dictionary_Click" />
 
     </Grid>
 
