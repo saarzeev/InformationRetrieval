@@ -24,8 +24,10 @@ namespace Model2
             }
         }
 
-        public string ReadNextDoc()
+        public Doc ReadNextDoc()
         {
+            Doc retVal;
+            bool endOfFile = false;
             if (_currentFile == "")
             {
                 _currentFile = _files.Dequeue();
@@ -39,29 +41,38 @@ namespace Model2
             using (var fileStream = File.OpenRead(_currentFile))
             using (var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, BufferSize))
             {
+                fileStream.Seek(_currentPosition, 0);
                 String line;
                 while (!streamReader.EndOfStream && (line = streamReader.ReadLine()) != null && line.CompareTo("</DOC>") != 0)
                 {
                     doc += line;
                 }
-
-                doc += "</DOC>";
-                // Process line
-                _currentPosition = fileStream.Position;
+                if (!streamReader.EndOfStream)
+                {
+                    doc += "</DOC>";
+                    retVal = new Doc(this._currentFile, doc, this._currentPosition);
+                    // Process line
+                    _currentPosition = fileStream.Position;
+                }
+                else
+                {
+                    retVal = null;
+                    endOfFile = true;
+                }
             }
 
+            
 
-            if (_currentPosition == fs.Length)
+            if (endOfFile)
             {
                 _currentFile = "";
             }
-
-            return doc;
+            return retVal;
         }
 
         public bool HasNext()
         {
-            return _files.Count != 0; //THIS IS SHITTY
+            return !(_files.Count == 0 && _currentFile == ""); //THIS IS SHITTY
         }
     }
 }

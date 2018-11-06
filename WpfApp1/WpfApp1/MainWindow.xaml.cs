@@ -21,7 +21,7 @@ namespace WpfApp1
         {
            if (path_to.Text == "" || path_from.Text == "")
             {
-                start.IsEnabled = false;
+                start.IsEnabled = true;
             }
             else
             {
