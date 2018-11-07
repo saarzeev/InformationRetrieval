@@ -45,7 +45,7 @@ namespace Model2
                 String line;
                 while (!streamReader.EndOfStream && (line = streamReader.ReadLine()) != null && line.CompareTo("</DOC>") != 0)
                 {
-                    doc += line;
+                    doc += line += "\\n";
                 }
                 if (!streamReader.EndOfStream)
                 {
