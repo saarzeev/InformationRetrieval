@@ -34,7 +34,7 @@ namespace Model2
                 _currentPosition = 0;
             }
 
-            string doc = "";
+            StringBuilder doc = new StringBuilder("");
 
             FileStream fs = new FileStream(_currentFile, FileMode.Open, FileAccess.Read);
             const Int32 BufferSize = 4096;
@@ -45,11 +45,12 @@ namespace Model2
                 String line;
                 while (!streamReader.EndOfStream && (line = streamReader.ReadLine()) != null && line.CompareTo("</DOC>") != 0)
                 {
-                    doc += line += "\\n";
+                    doc.Append(line);
+                    doc.Append("\\n");
                 }
                 if (!streamReader.EndOfStream)
                 {
-                    doc += "</DOC>";
+                    doc.Append("</DOC>");
                     retVal = new Doc(this._currentFile, doc, this._currentPosition);
                     // Process line
                     _currentPosition = fileStream.Position;
