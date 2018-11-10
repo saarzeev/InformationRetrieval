@@ -108,16 +108,16 @@ namespace Model2
                 {
                     dates.Enqueue(pos);
                 }
-                else if (word.ToLower().Contains(Resources.Resource.dollars.ToLower()) || word.Contains("$"))
+                if (word.ToLower().Contains(Resources.Resource.dollars.ToLower()) || word.Contains("$"))
                 {
                     money.Enqueue(pos);
                 }
-                else if (word.ToLower() == Resources.Resource.thousand || word.ToLower() == Resources.Resource.million || 
+                if (word.ToLower() == Resources.Resource.thousand || word.ToLower() == Resources.Resource.million || 
                     word.ToLower() == Resources.Resource.billion || word.ToLower() == Resources.Resource.trillion)
                 {
                     specificBigNums.Enqueue(pos);
                 }
-                else if (Regex.IsMatch(word, Resources.Resource.regexNumbers))
+                if (Regex.IsMatch(word, Resources.Resource.regexNumbers))
                 {
                     bigNums.Enqueue(pos);
                 }
@@ -141,7 +141,7 @@ namespace Model2
                 splitedText = ParseNumbers(bigNums.Dequeue(), splitedText);
             }
 
-            Console.WriteLine(String.Join(" ", splitedText));
+            Console.WriteLine(doc._path+"\n"+ String.Join(" ", splitedText));
             
         }
 
@@ -231,32 +231,29 @@ namespace Model2
             {
                 string parsed = splitedText[pos];
                 string representativeLetter = "B";
-                double divider = 1000000000.0;
 
                 if (splitedText[pos].ToLower() == Resources.Resource.thousand)
                 {
-                    divider = 1000.0;
                     representativeLetter = "K";
                 }
 
                 if (splitedText[pos].ToLower() == Resources.Resource.million)
                 {
-                    divider = 1000000.0;
                     representativeLetter = "M";
                 }
-
+                
                 if (pos - 1 >= 0)
                 {
                     if (int.TryParse(splitedText[pos - 1], out int number))
                     {
-                        parsed = numberBuilder(number,divider,representativeLetter,parsed);
+                        parsed = number + representativeLetter;
                         splitedText[pos - 1] = parsed;
                         splitedText[pos] = " ";
                         return splitedText;
                     }
                     else if (double.TryParse(splitedText[pos - 1], out double doubleNumber))
                     {
-                        parsed = numberBuilder(doubleNumber,divider,representativeLetter,parsed);
+                        parsed = doubleNumber + representativeLetter;
                         splitedText[pos - 1] = parsed;
                         splitedText[pos] = " ";
                         return splitedText;
