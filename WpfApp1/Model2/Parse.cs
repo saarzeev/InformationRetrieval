@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Model2
 {
 
-    class Parse
+    public partial class Parse
     {
 
         static private ConcurrentQueue<Doc> _docs = new ConcurrentQueue<Doc>();
@@ -19,16 +19,18 @@ namespace Model2
         static private Mutex mutex = new Mutex();
         static private bool done = false;
 
+
+
         static void Main(string[] args)
         {
             //FileReader fr = new FileReader("C:\\Users\\nastia\\source\\repos\\saarzeev\\corpus");
             //_semaphore.Release(11);
             //while (fr.HasNext()) { }
             //Console.WriteLine( fr.ReadNextDoc());
-            string s = ParsePresents("<<90 percent, bfdgfdgsj 1555" +
-                "ddsfssfsfsfs   90      percent");
+            string s = ParsePresents("<<90 percent , bfdgfdgsj 1555" +
+                "ddsfssfsfsfs   90             percent----");
             //string t = ParseRange("Between number and number (for example: between 18 and 24)");
-            FromFilesToDocs("C:\\Users\\nastia\\source\\repos\\saarzeev\\corpus");
+            FromFilesToDocs("C:\\corpus");
           
 
         }
@@ -88,9 +90,9 @@ namespace Model2
                 .Where((word) => String.Compare(word, "") != 0);
 
             string toParse = String.Join(" ", onlyText);
-            ParsePresents(toParse);
-            ParseRange(toParse);
-            char[] delimiters = { ' ', '"' };
+            toParse = ParsePresents(toParse);
+            toParse = ParseRange(toParse);
+            char[] delimiters = { ' ' };
             splitedText = toParse.ToString().Split(delimiters);
 
             Queue<int> dates = new Queue<int>();
@@ -98,6 +100,8 @@ namespace Model2
             Queue<int> specificBigNums = new Queue<int>();
             Queue<int> bigNums = new Queue<int>();
             
+
+            //Substitute month' names with numbers
             int pos = 0;
             foreach (string word in splitedText)
             {
@@ -105,11 +109,11 @@ namespace Model2
                 {
                     dates.Enqueue(pos);
                 }
-                else if (word == "Dollars" || word == "dollars" || word.Contains("$"))
+                else if (word.ToLower() == "dollars"|| word.Contains("$"))
                 {
                     money.Enqueue(pos);
                 }
-                else if (word == "Thousand" || word == "Million" || word == "Billion" || word == "Trillion")
+                else if (word.ToLower() == "thousand" || word.ToLower() == "million" || word.ToLower() == "billion" || word.ToLower() == "trillion")
                 {
                     specificBigNums.Enqueue(pos);
                 }
@@ -224,11 +228,13 @@ namespace Model2
                 string parsed;
                 string representativeLetter = "B";
                 double divider = 1000000000.0;
+
                 if (splitedText[pos] == "Thousand")
                 {
                     divider = 1000.0;
                     representativeLetter = "K";
                 }
+
                 if (splitedText[pos] == "Million")
                 {
                     divider = 1000000.0;
@@ -271,11 +277,6 @@ namespace Model2
                     }
                 }
             }
-            return splitedText;
-        }
-
-        private static string[] ParseMoney(int pos, string[] splitedText)
-        {
             return splitedText;
         }
 
@@ -345,7 +346,7 @@ namespace Model2
                             }
                         }
                     
-                        if (res >= 10 && res <=31)
+                        if (res >= 10 && res <= 31)
                         {
                             parsed = format + "-" + res;
                         }
@@ -373,14 +374,14 @@ namespace Model2
        
         private static string ParsePresents(string text)
         {
-            string pattern = "(?<number>([0-9])+([.][0-9]+)*)(\\s)+(percentage|percent)";
+            string pattern = "(?<number>([0-9])+([.][0-9]+)*)(\\s|-)+(percentage|percent)";
             string replacement = "${number}%";
             return Regex.Replace(text, pattern, replacement, RegexOptions.IgnoreCase);
         }
 
         private static string ParseRange(string text)
         {
-            string pattern = "(between)\\s(?<number>([0-9])+([.][0-9]+)*)\\s(and)\\s(?<number2>([0-9])+([.][0-9]+)*)";
+            string pattern = "(between)\\s(?<number>([0-9])+([.][0-9]+)*)\\s\\w+(and)\\s(?<number2>([0-9])+([.][0-9]+)*)";
             string replacement = "${number}-${number2}";
             return Regex.Replace(text, pattern, replacement, RegexOptions.IgnoreCase);
         }
