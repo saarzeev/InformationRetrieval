@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
+
 namespace Model2
 {
 
@@ -68,7 +69,6 @@ namespace Model2
                 Parser(currentDoc);
                 _semaphore2.Release();
             }
-
             task.Wait();
         }
         private static void Parser(Doc doc)
@@ -77,22 +77,21 @@ namespace Model2
             text = text.Replace(",", "");
             string[] splitedText = text.ToString().Split(' ');
 
+             //Substitute month' names with numbers
             Dictionary<string, string> months = new Dictionary<string, string>();
-            months.Add("Jan", "01"); months.Add("Feb", "02"); months.Add("Mar", "03"); months.Add("Apr", "04"); months.Add("May", "05"); months.Add("Jun", "06"); months.Add("Jul", "07"); months.Add("Aug", "08"); months.Add("Sep", "09"); months.Add("Oct", "10"); months.Add("Nov", "11"); months.Add("Dec", "12");
-            months.Add("January", "01"); months.Add("February", "02"); months.Add("March", "03"); months.Add("April", "04"); months.Add("June", "06"); months.Add("July", "07"); months.Add("August", "08"); months.Add("September", "09"); months.Add("October", "10"); months.Add("November", "11"); months.Add("December", "12");
-            months.Add("JAN", "01"); months.Add("FEB", "02"); months.Add("MAR", "03"); months.Add("APR", "04"); months.Add("MAY", "05"); months.Add("JUN", "06"); months.Add("JUL", "07"); months.Add("AUG", "08"); months.Add("SEP", "09"); months.Add("OCT", "10"); months.Add("NOV", "11"); months.Add("DEC", "12");
-            months.Add("JANUARY", "01"); months.Add("FEBRUARY", "02"); months.Add("MARCH", "03"); months.Add("APRIL", "04"); months.Add("JUNE", "06"); months.Add("JULY", "07"); months.Add("AUGUST", "08"); months.Add("SEPTEMBER", "09"); months.Add("OCTOBER", "10"); months.Add("NOVEMBER", "11"); months.Add("DECEMBER", "12");
-
+            months.Add("jan", "01"); months.Add("feb", "02"); months.Add("mar", "03"); months.Add("apr", "04"); months.Add("may", "05"); months.Add("jun", "06"); months.Add("jul", "07"); months.Add("aug", "08"); months.Add("sep", "09"); months.Add("oct", "10"); months.Add("nov", "11"); months.Add("dec", "12");
+            months.Add("january", "01"); months.Add("february", "02"); months.Add("march", "03");months.Add("april", "04"); months.Add("june", "06"); months.Add("july", "07"); months.Add("august", "08"); months.Add("september", "09"); months.Add("october", "10"); months.Add("november", "11"); months.Add("december", "12");
+            
             IEnumerable<String> onlyText =
                 splitedText
-                .SkipWhile((word) => String.Compare(word, "<TEXT>") != 0)
-                .TakeWhile((word) => String.Compare(word, "</TEXT>") != 0)
+                .SkipWhile((word) => String.Compare(word, Resources.Resource.openText) != 0)
+                .TakeWhile((word) => String.Compare(word, Resources.Resource.closeText) != 0)
                 .Where((word) => String.Compare(word, "") != 0);
 
             string toParse = String.Join(" ", onlyText);
             toParse = ParsePresents(toParse);
             toParse = ParseRange(toParse);
-            char[] delimiters = { ' ' };
+            char[] delimiters = {' '};
             splitedText = toParse.ToString().Split(delimiters);
 
             Queue<int> dates = new Queue<int>();
@@ -101,23 +100,24 @@ namespace Model2
             Queue<int> bigNums = new Queue<int>();
             
 
-            //Substitute month' names with numbers
+           
             int pos = 0;
             foreach (string word in splitedText)
             {
-                if (months.ContainsKey(word))
+                if (months.ContainsKey(word.ToLower()))
                 {
                     dates.Enqueue(pos);
                 }
-                else if (word.ToLower() == "dollars"|| word.Contains("$"))
+                else if (word.ToLower().Contains(Resources.Resource.dollars.ToLower()) || word.Contains("$"))
                 {
                     money.Enqueue(pos);
                 }
-                else if (word.ToLower() == "thousand" || word.ToLower() == "million" || word.ToLower() == "billion" || word.ToLower() == "trillion")
+                else if (word.ToLower() == Resources.Resource.thousand || word.ToLower() == Resources.Resource.million || 
+                    word.ToLower() == Resources.Resource.billion || word.ToLower() == Resources.Resource.trillion)
                 {
                     specificBigNums.Enqueue(pos);
                 }
-                else if (int.TryParse(word, out int iRes) || double.TryParse(word, out double dRes))
+                else if (Regex.IsMatch(word, Resources.Resource.regexNumbers))
                 {
                     bigNums.Enqueue(pos);
                 }
@@ -126,7 +126,7 @@ namespace Model2
             while (dates.Count != 0)
             {
                 int position = dates.Dequeue();
-                splitedText = ParseDate(position, months[splitedText[position]], splitedText);
+                splitedText = ParseDate(position, months[splitedText[position].ToLower()], splitedText);
             }
             while (money.Count != 0)
             {
@@ -145,6 +145,24 @@ namespace Model2
             
         }
 
+        private static string numberBuilder(double number, double divider, string representativeLetter, string parsed ){
+
+            double doubleFormat = number / divider;
+            int intFormat = (int)doubleFormat;
+
+            if (doubleFormat == intFormat)
+            {
+                parsed = intFormat + representativeLetter;
+            }
+            else
+            {
+                parsed = doubleFormat + representativeLetter;
+            }
+
+            return parsed;
+
+        }                     
+        
         private static string[] ParseNumbers(int pos, string[] splitedText)
         {
             if (splitedText[pos] != " ")
@@ -152,68 +170,54 @@ namespace Model2
                 string parsed = splitedText[pos];
                 double divider = 1.0;
                 string representativeLetter = "";
-                if (int.TryParse(splitedText[pos], out int iRes))
+
+                if (int.TryParse(splitedText[pos], out int number))
                 {
-                    if (iRes >= 1000 && iRes < 1000000)
+                    if (number >= 1000 && number < 1000000)
                     {
                         divider = 1000.0;
                         representativeLetter = "K";
                     }
 
-                    else if (iRes >= 1000000 && iRes < 1000000000)
+                    else if (number >= 1000000 && number < 1000000000)
                     {
                         divider = 1000000.0;
                         representativeLetter = "M";
                     }
 
-                    else if (iRes >= 1000000000)
+                    else if (number >= 1000000000)
                     {
                         divider = 1000000000.0;
                         representativeLetter = "B";
                     }
-                    double doubleFormat = iRes / divider;
-                    int intFormat = (int)doubleFormat;
-                    if (doubleFormat == intFormat)
-                    {
-                        parsed = intFormat + representativeLetter;
-                    }
-                    else
-                    {
-                        parsed = doubleFormat + representativeLetter;
-                    }
+
+                    parsed = numberBuilder(number,divider,representativeLetter,parsed);
                     splitedText[pos] = parsed;
                     return splitedText;
                 }
-                else if (double.TryParse(splitedText[pos], out double dRes))
+
+                else if (double.TryParse(splitedText[pos], out double doubleNumber))
                 {
 
-                    if (dRes >= 1000 && dRes < 1000000)
+                    if (doubleNumber >= 1000 && doubleNumber < 1000000)
                     {
                         divider = 1000.0;
                         representativeLetter = "K";
                     }
 
-                    else if (dRes >= 1000000 && dRes < 1000000000)
+                    else if (doubleNumber >= 1000000 && doubleNumber < 1000000000)
                     {
                         divider = 1000000.0;
                         representativeLetter = "M";
                     }
 
-                    else if (dRes >= 1000000000)
+                    else if (doubleNumber >= 1000000000)
                     {
                         divider = 1000000000.0;
                         representativeLetter = "B";
                     }
-                    double doubleFormat = dRes / divider;
-                    int intFormat = (int)doubleFormat;
-                    if (doubleFormat == intFormat)
-                    {
-                        parsed = intFormat + representativeLetter;
-                    }
-                    else
-                    {
-                        parsed = doubleFormat + representativeLetter;
-                    }
+
+                    parsed = numberBuilder(doubleNumber,divider,representativeLetter,parsed);
                     splitedText[pos] = parsed;
                     return splitedText;
                 }
@@ -225,17 +229,17 @@ namespace Model2
         {
             if (splitedText[pos] != " ")
             {
-                string parsed;
+                string parsed = splitedText[pos];
                 string representativeLetter = "B";
                 double divider = 1000000000.0;
 
-                if (splitedText[pos] == "Thousand")
+                if (splitedText[pos].ToLower() == Resources.Resource.thousand)
                 {
                     divider = 1000.0;
                     representativeLetter = "K";
                 }
 
-                if (splitedText[pos] == "Million")
+                if (splitedText[pos].ToLower() == Resources.Resource.million)
                 {
                     divider = 1000000.0;
                     representativeLetter = "M";
@@ -243,34 +247,16 @@ namespace Model2
 
                 if (pos - 1 >= 0)
                 {
-                    if (int.TryParse(splitedText[pos - 1], out int iRes))
+                    if (int.TryParse(splitedText[pos - 1], out int number))
                     {
-                        double doubleFormat = iRes / divider;
-                        int intFormat = (int)doubleFormat;
-                        if (doubleFormat == intFormat)
-                        {
-                            parsed = intFormat + representativeLetter;
-                        }
-                        else
-                        {
-                            parsed = doubleFormat + representativeLetter;
-                        }
+                        parsed = numberBuilder(number,divider,representativeLetter,parsed);
                         splitedText[pos - 1] = parsed;
                         splitedText[pos] = " ";
                         return splitedText;
                     }
-                    else if (double.TryParse(splitedText[pos - 1], out double dRes))
+                    else if (double.TryParse(splitedText[pos - 1], out double doubleNumber))
                     {
-                        double doubleFormat = dRes / divider;
-                        int intFormat = (int)doubleFormat;
-                        if (doubleFormat == intFormat)
-                        {
-                            parsed = intFormat + representativeLetter;
-                        }
-                        else
-                        {
-                            parsed = doubleFormat + representativeLetter;
-                        }
+                        parsed = numberBuilder(doubleNumber,divider,representativeLetter,parsed);
                         splitedText[pos - 1] = parsed;
                         splitedText[pos] = " ";
                         return splitedText;
@@ -280,14 +266,46 @@ namespace Model2
             return splitedText;
         }
 
-        private static string[] ParseDate(int pos, string format, string[] splitedText)
+        private static string BuildDayAndYear(int day, int year, string month, string parsed){
+
+            if (day >= 10)
+            {
+                parsed = year + "-" + month + "-" + day;
+            }
+            else
+            {
+                parsed = year + "-" + month + "-" + "0" + day;
+            }
+             return parsed;
+        }
+
+        private static string BuildDayOrYear(int dayOrYear, string month, string parsed){
+            
+             if (dayOrYear >= 10 && dayOrYear <= 31)
+             {
+                parsed = month + "-" + dayOrYear;
+             }
+
+             else if(dayOrYear >= 1000 && dayOrYear <= 4000)
+             {
+                parsed = dayOrYear + "-" + month;
+             }
+
+             else if (dayOrYear < 10)
+             {
+                parsed = month + "-0" + dayOrYear;
+             }
+             return parsed;
+        }
+
+        private static string[] ParseDate(int pos, string month, string[] splitedText)
         {
             if (splitedText[pos] != " ")
             {
-                string parsed;
+                string parsed = splitedText[pos];
                 if (pos - 1 >= 0)
                 {
-                    if (int.TryParse(splitedText[pos - 1], out int res))
+                    if (int.TryParse(splitedText[pos - 1], out int day))
                     {
                         if (pos + 1 < splitedText.Length)
                         {
@@ -295,14 +313,8 @@ namespace Model2
                             {
                                 if (year >= 1000 && year < 4000)
                                 {
-                                    if (res >= 10)
-                                    {
-                                        parsed = year + "-" + format + "-" + res;
-                                    }
-                                    else
-                                    {
-                                        parsed = year + "-" + format + "-" + "0" + res;
-                                    }
+                                    parsed = BuildDayAndYear(day,year,month,parsed);
+
                                     splitedText[pos - 1] = parsed;
                                     splitedText[pos] = " ";
                                     splitedText[pos + 1] = " ";
@@ -310,14 +322,9 @@ namespace Model2
                                 }
                             }
                         }
-                        if (res >= 10)
-                        {
-                            parsed = format + "-" + res;
-                        }
-                        else
-                        {
-                            parsed = format + "-0" + res ;
-                        }
+
+                        parsed = BuildDayOrYear(day,month,parsed);
+
                         splitedText[pos - 1] = parsed;
                         splitedText[pos] = " ";
                         return splitedText;
@@ -326,43 +333,25 @@ namespace Model2
 
                 if (pos + 1 < splitedText.Length)
                 {
-                    if (int.TryParse(splitedText[pos + 1], out int res))
+                    if (int.TryParse(splitedText[pos + 1], out int day))
                     {
                         if ((pos + 2) < splitedText.Length) {
+
                             if (int.TryParse(splitedText[pos + 2], out int year))
-                            {
-                                if (res >= 10)
-                                {
-                                    parsed = year + "-" + format + "-" + res;
+                            {    
+                                if (year >= 1000 && year < 4000){
+
+                                    parsed = BuildDayAndYear(day,year,month,parsed);
+
+                                    splitedText[pos] = parsed;
+                                    splitedText[pos + 1] = " ";
+                                    splitedText[pos + 2] = " ";
+                                    return splitedText;
                                 }
-                                else
-                                {
-                                    parsed = year + "-" + format + "-0" + res;
-                                }
-                                splitedText[pos] = parsed;
-                                splitedText[pos + 1] = " ";
-                                splitedText[pos + 2] = " ";
-                                return splitedText;
                             }
                         }
-                    
-                        if (res >= 10 && res <= 31)
-                        {
-                            parsed = format + "-" + res;
-                        }
-                        else if( res >= 1000 && res <= 4000)
-                        {
-                            parsed = res + "-" + format;
-                        }
+                        parsed = BuildDayOrYear(day,month,parsed);
 
-                        else if (res < 10)
-                        {
-                            parsed = format + "-0" + res ;
-                        }
-                        else
-                        {
-                            return splitedText;
-                        }
                         splitedText[pos] = parsed;
                         splitedText[pos + 1] = " ";
                         return splitedText;
