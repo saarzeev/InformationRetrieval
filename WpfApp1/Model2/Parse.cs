@@ -31,12 +31,12 @@ namespace Model2
             string s = ParsePresents("<<90 percent , bfdgfdgsj 1555" +
                 "ddsfssfsfsfs   90             percent----");
             //string t = ParseRange("Between number and number (for example: between 18 and 24)");
-            FromFilesToDocs("C:\\corpus");
+            FromFilesToDocs(@"C:\Users\nastia\Source\Repos\saarzeev\corpus");
           
 
         }
 
-        public static void FromFilesToDocs(string path)
+          public static void FromFilesToDocs(string path)
         {
             Task task;
 
@@ -46,21 +46,18 @@ namespace Model2
 
                 while (fr.HasNext())
                 {
-                    _semaphore2.Wait();
-                    Doc doc = fr.ReadNextDoc();
-                    if (doc != null)
-                    {
+                   
+                    List<Doc> docs = fr.ReadNextDoc();
+                    foreach(Doc doc in docs) {
+                        _semaphore2.Wait();
                         _docs.Enqueue(doc);
                         _semaphore1.Release();
                     }
-                    else
-                    {
-                        _semaphore2.Release();
-                    }
+                 
                 }
                 done = true;
             });
-
+            //TO-DO
             while (!done)
             {
                 _semaphore1.Wait();
@@ -71,6 +68,7 @@ namespace Model2
             }
             task.Wait();
         }
+
         private static void Parser(Doc doc)
         {
             StringBuilder text = doc._text.Replace("\\n", " ");
