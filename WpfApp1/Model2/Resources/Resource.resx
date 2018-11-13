@@ -126,6 +126,9 @@
   <data name="dollars" xml:space="preserve">
     <value>Dollars</value>
   </data>
+  <data name="hundred" xml:space="preserve">
+    <value>hundred</value>
+  </data>
   <data name="million" xml:space="preserve">
     <value>million</value>
   </data>

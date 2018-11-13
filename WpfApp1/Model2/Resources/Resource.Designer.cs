@@ -88,6 +88,15 @@ namespace Model2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to hundred.
+        /// </summary>
+        internal static string hundred {
+            get {
+                return ResourceManager.GetString("hundred", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to million.
         /// </summary>
         internal static string million {

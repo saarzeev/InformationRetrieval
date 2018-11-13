@@ -20,23 +20,23 @@ namespace Model2
             string inPos = splitedText[pos];
             if ( double.TryParse(splitedMoneyExpr[0], out sum) )
             {
-                if ( splitedMoneyExpr[1] == "hundred" )
+                if ( splitedMoneyExpr[1] == Resources.Resource.hundred )
                 {
                     sum = sum * 100;
                 }
-                else if ( splitedMoneyExpr[1] == "thousand" )
+                else if ( splitedMoneyExpr[1] == Resources.Resource.thousand )
                 {
                     sum = sum * 1000;
                 }
-                else if ( splitedMoneyExpr[1] == "million" )
+                else if ( splitedMoneyExpr[1] == Resources.Resource.million )
                 {
                     sum = sum * 1000000;
                 }
-                else if ( splitedMoneyExpr[1] == "billion" )
+                else if ( splitedMoneyExpr[1] == Resources.Resource.billion )
                 {
                     sum = sum * 1000000000;
                 }
-                else if ( splitedMoneyExpr[1] == "trillion" )
+                else if ( splitedMoneyExpr[1] == Resources.Resource.trillion )
                 {
                     sum = sum * 1000000000000;
                 }
@@ -44,15 +44,16 @@ namespace Model2
                 if ( sum >= 1000000 )
                 {
                     sum = sum / 1000000;
-                    splitedText[pos] = sum.ToString() + " M Dollars";
+                    splitedText[pos] = sum.ToString() + " M " + Resources.Resource.dollars;
                 }
                 else
                 {
-                    splitedText[pos] = sum.ToString() + " Dollars";
+                    splitedText[pos] = sum.ToString() + " " + Resources.Resource.dollars;
                 }
                 inPos = splitedText[pos];
             }
-
+           
+            
             return splitedText;
 
         }
@@ -60,11 +61,11 @@ namespace Model2
         private static string[] DollarSignToCanonicalForm ( ref int pos, string[] splitedText ) //Canonical form == NUMBER (counter) Dollars
         {
             List<String> counters = new List<string>();
-            counters.Add("hunderd");
-            counters.Add("thousand");
-            counters.Add("million");
-            counters.Add("billion");
-            counters.Add("trillion");
+            counters.Add(Resources.Resource.hundred);
+            counters.Add(Resources.Resource.thousand);
+            counters.Add(Resources.Resource.million);
+            counters.Add(Resources.Resource.billion);
+            counters.Add(Resources.Resource.trillion);
 
             if ( splitedText[pos].Contains('$') )
             {
@@ -77,7 +78,7 @@ namespace Model2
                     splitedText[pos] = " ";
                 }
 
-                splitedText[pos - 1] = splitedText[pos - 1] + " Dollars";
+                splitedText[pos - 1] = splitedText[pos - 1] + " "+ Resources.Resource.dollars;
 
                 pos--;
             }
@@ -89,14 +90,14 @@ namespace Model2
                     splitedText[pos - 1] = " "; //Remove U.S.
                     if ( pos - 3 >= 0 && counters.Contains(splitedText[pos - 2]) )
                     { //has a counter, it is of form NUM billion U.S. Dollars
-                        splitedText[pos - 3] = splitedText[pos - 3] + " " + splitedText[pos - 2] + " " + " Dollars";
+                        splitedText[pos - 3] = splitedText[pos - 3] + " " + splitedText[pos - 2] + " " + " " + Resources.Resource.dollars;
                         splitedText[pos - 2] = " "; //Remove Counter
 
                         pos = pos - 3;
                     }
                     else if ( pos - 2 >= 0 ) //Does't have a counter. It is of form NUM U.S. Dollars
                     {
-                        splitedText[pos - 2] = splitedText[pos - 2] + " Dollars";
+                        splitedText[pos - 2] = splitedText[pos - 2] + " " + Resources.Resource.dollars;
                         pos = pos - 2;
                     }
                 }
@@ -104,26 +105,27 @@ namespace Model2
                 {
                     splitedText[pos] = " ";
                     splitedText[pos - 1] = " ";
-                    splitedText[pos - 2] = splitedText[pos - 2] + " million Dollars";
+                    splitedText[pos - 2] = splitedText[pos - 2] + " " + " " + Resources.Resource.million + " " + Resources.Resource.dollars;
                     pos = pos - 2;
                 }
                 else if ( pos - 2 >= 0 && splitedText[pos - 1].ToLower() == "bn" )
                 {
                     splitedText[pos] = " ";
                     splitedText[pos - 1] = " ";
-                    splitedText[pos - 2] = splitedText[pos - 2] + " billion Dollars";
+                    splitedText[pos - 2] = splitedText[pos - 2] + " " + Resources.Resource.billion + " " + Resources.Resource.dollars;
                     pos = pos - 2;
                 }
-                else if ( pos - 2 >= 0 && ( splitedText[pos - 1].ToLower() == "billion" || splitedText[pos - 1].ToLower() == "trillion" || splitedText[pos - 1].ToLower() == "million" ) )
+                else if ( pos - 2 >= 0 && ( splitedText[pos - 1].ToLower() == Resources.Resource.billion || 
+                    splitedText[pos - 1].ToLower() == Resources.Resource.trillion || splitedText[pos - 1].ToLower() == Resources.Resource.million) )
                 {
-                    splitedText[pos - 2] = splitedText[pos - 2] + " " + splitedText[pos - 1] + " Dollars";
+                    splitedText[pos - 2] = splitedText[pos - 2] + " " + splitedText[pos - 1] + " " + Resources.Resource.dollars;
                     splitedText[pos] = " ";
                     splitedText[pos - 1] = " ";
                     pos = pos - 2;
                 }
-                else if ( pos - 1 >= 0 && Regex.IsMatch(splitedText[pos - 1], "([0-9])+([.][0-9]+)*") )
+                else if ( pos - 1 >= 0 && Regex.IsMatch(splitedText[pos - 1], " " + Resources.Resource.regexNumbers) )
                 {
-                    splitedText[pos - 1] = splitedText[pos - 1] + " Dollars";
+                    splitedText[pos - 1] = splitedText[pos - 1] + " " + Resources.Resource.dollars;
                     splitedText[pos] = " ";
                 }
 

@@ -96,9 +96,7 @@ namespace Model2
             Queue<int> money = new Queue<int>();
             Queue<int> specificBigNums = new Queue<int>();
             Queue<int> bigNums = new Queue<int>();
-            
 
-           
             int pos = 0;
             foreach (string word in splitedText)
             {
