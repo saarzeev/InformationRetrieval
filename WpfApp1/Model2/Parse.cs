@@ -43,21 +43,18 @@ namespace Model2
 
                 while (fr.HasNext())
                 {
-                    _semaphore2.Wait();
-                    Doc doc = fr.ReadNextDoc();
-                    if (doc != null)
-                    {
+                   
+                    List<Doc> docs = fr.ReadNextDoc();
+                    foreach(Doc doc in docs) {
+                        _semaphore2.Wait();
                         _docs.Enqueue(doc);
                         _semaphore1.Release();
                     }
-                    else
-                    {
-                        _semaphore2.Release();
-                    }
+                 
                 }
                 done = true;
             });
-
+            //TO-DO
             while (!done)
             {
                 _semaphore1.Wait();
@@ -137,8 +134,13 @@ namespace Model2
                 splitedText = ParseNumbers(bigNums.Dequeue(), splitedText);
             }
 
-            Console.WriteLine(String.Join(" ", splitedText));
-            
+            Console.WriteLine("sucsses");
+            for (int i = 0; i<=5 && i<splitedText.Length; i++)
+            {
+                Console.Write(splitedText[i] + ",");
+            }
+            Console.WriteLine("");
+
         }
 
         private static string[] ParseNumbers(int pos, string[] splitedText)

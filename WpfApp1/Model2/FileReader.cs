@@ -24,51 +24,46 @@ namespace Model2
             }
         }
 
-        public Doc ReadNextDoc()
+        public List<Doc> ReadNextDoc()
         {
             Doc retVal;
-            bool endOfFile = false;
+            List<Doc> retValList = new List<Doc>();
             if (_currentFile == "")
             {
                 _currentFile = _files.Dequeue();
-                _currentPosition = 0;
+                //_currentPosition = 0;
             }
 
             StringBuilder doc = new StringBuilder("");
 
-            FileStream fs = new FileStream(_currentFile, FileMode.Open, FileAccess.Read);
-            const Int32 BufferSize = 4096;
-            using (var fileStream = File.OpenRead(_currentFile))
-            using (var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, BufferSize))
+           // FileStream fs = new FileStream(_currentFile, FileMode.Open, FileAccess.Read);
+          //  const Int32 BufferSize = 4096;
+            //using (var fileStream = File.OpenRead(_currentFile))
+            using (var streamReader = new StreamReader(_currentFile))
             {
-                fileStream.Seek(_currentPosition, 0);
+
                 String line;
-                while (!streamReader.EndOfStream && (line = streamReader.ReadLine()) != null && line.CompareTo("</DOC>") != 0)
+                while (!streamReader.EndOfStream )
                 {
-                    doc.Append(line);
-                    doc.Append("\\n");
-                }
-                if (!streamReader.EndOfStream)
-                {
-                    doc.Append("</DOC>");
-                    retVal = new Doc(this._currentFile, doc, this._currentPosition);
-                    // Process line
-                    _currentPosition = fileStream.Position;
-                }
-                else
-                {
-                    retVal = null;
-                    endOfFile = true;
+                    while ( (line = streamReader.ReadLine()) != null && line.CompareTo("</DOC>") != 0)
+                    {
+                        doc.Append(line);
+                        doc.Append("\\n");
+                    }
+
+                    if (line != null )
+                    {
+                        doc.Append("</DOC>");
+                        retVal = new Doc(this._currentFile, doc, this._currentPosition);
+                        retValList.Add(retVal);
+                        doc = new StringBuilder();
+                    }
                 }
             }
 
+            _currentFile = "";
             
-
-            if (endOfFile)
-            {
-                _currentFile = "";
-            }
-            return retVal;
+            return retValList;
         }
 
         public bool HasNext()
