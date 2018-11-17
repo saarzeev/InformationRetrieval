@@ -104,6 +104,7 @@ namespace Model2
             Queue<int> money = new Queue<int>();
             Queue<int> specificBigNums = new Queue<int>();
             Queue<int> bigNums = new Queue<int>();
+            Queue<int> betweens = new Queue<int>();
 
             int pos = 0;
             foreach (string word in splitedText)
@@ -125,7 +126,15 @@ namespace Model2
                 {
                     bigNums.Enqueue(pos);
                 }
+                if (word.ToLower().Contains("between") || word.ToLower().Contains("-"))
+                {
+                    betweens.Enqueue(pos);
+                }
                 pos++;
+            }
+            while(betweens.Count != 0)
+            {
+                splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText);
             }
             while (dates.Count != 0)
             {

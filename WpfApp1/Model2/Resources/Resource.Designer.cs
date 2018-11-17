@@ -61,6 +61,15 @@ namespace Model2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to between.
+        /// </summary>
+        internal static string between {
+            get {
+                return ResourceManager.GetString("between", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to billion.
         /// </summary>
         internal static string billion {
