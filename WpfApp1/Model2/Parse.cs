@@ -471,10 +471,17 @@ namespace Model2
                 }
                 inPos = splitedText[pos];
             }
-
+            else if (Regex.IsMatch(splitedMoneyExpr[0], Resources.Resource.regex_Fraction))
+            {
+                splitedText = temp;
+                if (Regex.IsMatch(splitedText[pos-1], Resources.Resource.regex_Numbers))
+                {
+                    splitedText[pos - 1] = splitedText[pos - 1] + " " + splitedText[pos];
+                    splitedText[pos] = " ";
+                }
+            }
 
             return splitedText;
-
         }
 
         private static string[] DollarSignToCanonicalForm(ref int pos, string[] splitedText) //Canonical form == NUMBER (counter) Dollars
@@ -491,8 +498,6 @@ namespace Model2
             {
                 splitedText[pos] = splitedText[pos].Remove(splitedText[pos].IndexOf("$"), 1);
                 pos++; //skip the figure after the $ sign
-
-
 
                 if (pos < splitedText.Length && counters.Contains(splitedText[pos].ToLower()))
                 { //this limits counters to 1.
@@ -550,6 +555,7 @@ namespace Model2
                 {
                     splitedText[pos - 1] = splitedText[pos - 1] + " " + Resources.Resource.dollars;
                     splitedText[pos] = " ";
+                    pos = pos - 1;
                 }
 
                else if (pos - 1 >= 0 && Regex.IsMatch(splitedText[pos - 1], " " + Resources.Resource.regex_Fraction))
@@ -558,6 +564,7 @@ namespace Model2
                         splitedText[pos - 2] = splitedText[pos - 2] + " " + splitedText[pos - 1] + " " + Resources.Resource.dollars;
                         splitedText[pos] = " ";
                         splitedText[pos-1] = " ";
+                        pos = pos - 2;
                     }
                 }
 
