@@ -43,7 +43,7 @@ namespace Model2
             Console.WriteLine(Regex.IsMatch(n, Resources.Resource.regex_Fraction));
             Console.WriteLine(Regex.IsMatch(sa, Resources.Resource.regex_Fraction));
             Console.WriteLine(Regex.IsMatch(ss, Resources.Resource.regex_Fraction));
-            Parser(new Doc("ngnngngg", new StringBuilder(Resources.Resource.openText+ " " + "11/14 dsdsd 1444 1/4 fdfdf 100 1/4 billion U.S. dollars 1/55 xscscc 1555 5/4 Million" + " " + Resources.Resource.closeText), 0));
+            Parser(new Doc("ngnngngg", new StringBuilder(Resources.Resource.openText+ " " + "3/4 Dollars 10 3/4 dollars  1.7320 Dollars  22 3/4 Dollars $450,000 1,000,000 Dollars $450,000,000 54/88 million dollars 20.6 m Dollars $100 billion 100 bn Dollars 100/555 billion U.S. dollars 320 million U.S. dollars 1 trillion U.S. dollars" + " " + Resources.Resource.closeText), 0));
         }
 
           public static void FromFilesToDocs(string path)
@@ -442,11 +442,26 @@ namespace Model2
             Array.Copy(splitedText, temp, splitedText.Length);
             temp = DollarSignToCanonicalForm(ref pos, temp);
             string[] splitedMoneyExpr = temp[pos].Split(' ');
-            double sum = 0;
-            string inPos = temp[pos];
-            if (Regex.IsMatch(splitedMoneyExpr[0], Resources.Resource.regex_Numbers) && double.TryParse(splitedMoneyExpr[0], out sum))
+            string frac = "";
+            if(Regex.IsMatch(splitedMoneyExpr[0], Resources.Resource.regex_Fraction))
             {
+                frac = " " + splitedMoneyExpr[0];
+                if(pos - 1 >= 0)
+                {
+                    splitedMoneyExpr[0] = temp[pos - 1];
+                }
                 splitedText = temp;
+            }
+            double sum = 0;
+
+            if (Regex.IsMatch(splitedMoneyExpr[0], Resources.Resource.regex_Numbers) && double.TryParse(splitedMoneyExpr[0], out sum))
+            { 
+                splitedText = temp;
+                if (frac != "")
+                {
+                    splitedText[pos] = " ";
+                    pos = pos - 1; 
+                }
                 if (splitedMoneyExpr[1] == Resources.Resource.hundred)
                 {
                     sum = sum * 100;
@@ -471,27 +486,16 @@ namespace Model2
                 if (sum >= 1000000)
                 {
                     sum = sum / 1000000;
-                    splitedText[pos] = sum.ToString() + " M " + Resources.Resource.dollars;
+                    splitedText[pos] = sum.ToString() + frac +  " M " + Resources.Resource.dollars;
                 }
                 else
                 {
-                    splitedText[pos] = sum.ToString() + " " + Resources.Resource.dollars;
-                }
-                inPos = splitedText[pos];
-            }
-            else if (Regex.IsMatch(splitedMoneyExpr[0], Resources.Resource.regex_Fraction))
-            {
-                splitedText = temp;
-                if (Regex.IsMatch(splitedText[pos-1], Resources.Resource.regex_Numbers))
-                {
-                    splitedText[pos - 1] = splitedText[pos - 1] + " " + splitedText[pos];
-                    splitedText[pos] = " ";
+                    splitedText[pos] = sum.ToString() + frac +  " " + Resources.Resource.dollars;
                 }
             }
-
             return splitedText;
         }
-
+        //to-do fraction dollars && fraction milion/billion... dollars
         private static string[] DollarSignToCanonicalForm(ref int pos, string[] splitedText) //Canonical form == NUMBER (counter) Dollars
         {
             List<String> counters = new List<string>();
@@ -558,22 +562,22 @@ namespace Model2
                     pos = pos - 2;
                 }
 
-                else if (pos - 1 >= 0 && (Regex.IsMatch(splitedText[pos - 1], " " + Resources.Resource.regex_Numbers)||
-                    Regex.IsMatch(splitedText[pos - 1], " " + Resources.Resource.regex_Fraction)))
+               else if (pos - 1 >= 0 && Regex.IsMatch(splitedText[pos - 1],Resources.Resource.regex_Fraction))
+                {
+                    if(pos - 2 >= 0 && Regex.IsMatch(splitedText[pos - 2], Resources.Resource.regex_Numbers)) {
+                        splitedText[pos - 1] = splitedText[pos - 1] + " " + Resources.Resource.dollars;
+                        splitedText[pos] = " ";
+                       
+                        pos = pos - 1;
+                    }
+                }
+
+                else if (pos - 1 >= 0 && (Regex.IsMatch(splitedText[pos - 1], Resources.Resource.regex_Numbers) ||
+                  Regex.IsMatch(splitedText[pos - 1], Resources.Resource.regex_Fraction)))
                 {
                     splitedText[pos - 1] = splitedText[pos - 1] + " " + Resources.Resource.dollars;
                     splitedText[pos] = " ";
                     pos = pos - 1;
-                }
-
-               else if (pos - 1 >= 0 && Regex.IsMatch(splitedText[pos - 1], " " + Resources.Resource.regex_Fraction))
-                {
-                    if(pos - 2 >= 0 && Regex.IsMatch(splitedText[pos - 2], " " + Resources.Resource.regex_Numbers)) {
-                        splitedText[pos - 2] = splitedText[pos - 2] + " " + splitedText[pos - 1] + " " + Resources.Resource.dollars;
-                        splitedText[pos] = " ";
-                        splitedText[pos-1] = " ";
-                        pos = pos - 2;
-                    }
                 }
 
             }
