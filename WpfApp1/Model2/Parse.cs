@@ -19,8 +19,7 @@ namespace Model2
         static private SemaphoreSlim _semaphore2 = new SemaphoreSlim(10, 10);
         static private Mutex mutex = new Mutex();
         static private bool done = false;
-
-
+        static private HashSet<int> numPositions = new HashSet<int>();
 
         static void Main(string[] args)
         {
@@ -31,7 +30,7 @@ namespace Model2
             string s = ParsePresents("<<90 percent , bfdgfdgsj 1555" +
                 "ddsfssfsfsfs   90             percent----");
             //string t = ParseRange("Between number and number (for example: between 18 and 24)");
-            //  FromFilesToDocs(@"C:\Users\nastia\Source\Repos\saarzeev\corpus");
+            FromFilesToDocs(@"C:\Users\nastia\Source\Repos\saarzeev\corpus");
             string k = " 44444/24545";
             string t = "1/2";
             string n = "11.55/111";
@@ -96,7 +95,7 @@ namespace Model2
 
             string toParse = String.Join(" ", onlyText);
             toParse = ParsePresents(toParse);
-            toParse = ParseRange(toParse);
+            
             char[] delimiters = {' '};
             splitedText = toParse.ToString().Split(delimiters);
 
@@ -132,10 +131,10 @@ namespace Model2
                 }
                 pos++;
             }
-            while(betweens.Count != 0)
-            {
-                splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText);
-            }
+            //while(betweens.Count != 0)
+            //{
+            //  //  splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText);
+            //}
             while (dates.Count != 0)
             {
                 int position = dates.Dequeue();
@@ -154,13 +153,13 @@ namespace Model2
                 splitedText = ParseNumbers(bigNums.Dequeue(), splitedText);
             }
 
+            numPositions = null;
             Console.WriteLine(doc._path+"\n"+ String.Join(" ", splitedText));
             
         }
         private static bool isFraction(string suspect)
         {
            return Regex.IsMatch(suspect, Resources.Resource.regex_Fraction);
-           
         }
 
         private static string numberBuilder(double number, double divider, string frac ,string representativeString ){
@@ -190,7 +189,14 @@ namespace Model2
                 string representativeLetter = "";
                 string frac = "";
 
-               
+                if(pos+1 < splitedText.Length)
+                {
+                    if (isFraction(splitedText[pos + 1]))
+                    {
+                        frac = splitedText[pos + 1];
+                        splitedText[pos + 1] = " ";
+                    }
+                }
 
                 if (int.TryParse(splitedText[pos], out int number))
                 {
@@ -214,14 +220,11 @@ namespace Model2
 
                     parsed = numberBuilder(number,divider,frac,representativeLetter);
                     splitedText[pos] = parsed;
-                    if(frac != "")
-                    {
-                        splitedText[pos + 1] = " ";
-                    }
+                    numPositions.Add(pos);
                     return splitedText;
                 }
 
-                else if (double.TryParse(splitedText[pos], out double doubleNumber))
+                else if (frac == "" && double.TryParse(splitedText[pos], out double doubleNumber))
                 {
 
                     if (doubleNumber >= 1000 && doubleNumber < 1000000)
@@ -242,8 +245,9 @@ namespace Model2
                         representativeLetter = "B";
                     }
 
-                    parsed = numberBuilder(doubleNumber,divider,representativeLetter,parsed);
+                    parsed = numberBuilder(doubleNumber,divider,frac,representativeLetter);
                     splitedText[pos] = parsed;
+                    numPositions.Add(pos);
                     return splitedText;
                 }
             }
@@ -252,6 +256,7 @@ namespace Model2
 
         private static string[] ParseSpecificNumbers(int pos, string[] splitedText)
         {
+            string frac = "";
             if (splitedText[pos] != " ")
             {
                 string parsed = splitedText[pos];
@@ -269,11 +274,30 @@ namespace Model2
                 
                 if (pos - 1 >= 0)
                 {
-                    if (int.TryParse(splitedText[pos - 1], out int number))
+                    if (isFraction(splitedText[pos - 1]))
+                    {
+                        frac = splitedText[pos - 1];
+
+                        if (pos - 2 >= 0)
+                        {
+                            if (int.TryParse(splitedText[pos - 1], out int numberBeforeFrac))
+                            {
+                                parsed = numberBuilder(numberBeforeFrac, 1.0, frac, representativeLetter);
+                                splitedText[pos-2] = parsed;
+                                splitedText[pos-1] = " ";
+                                splitedText[pos] = " ";
+                                numPositions.Add(pos-2);
+                                return splitedText;
+                            }
+                        }
+                    }
+
+                   else if (int.TryParse(splitedText[pos - 1], out int number))
                     {
                         parsed = number + representativeLetter;
                         splitedText[pos - 1] = parsed;
                         splitedText[pos] = " ";
+                        numPositions.Add(pos-1);
                         return splitedText;
                     }
                     else if (double.TryParse(splitedText[pos - 1], out double doubleNumber))
@@ -281,6 +305,7 @@ namespace Model2
                         parsed = doubleNumber + representativeLetter;
                         splitedText[pos - 1] = parsed;
                         splitedText[pos] = " ";
+                        numPositions.Add(pos - 1);
                         return splitedText;
                     }
                 }
@@ -390,10 +415,10 @@ namespace Model2
             return Regex.Replace(text, pattern, replacement, RegexOptions.IgnoreCase);
         }
 
-        private static string ParseRange(string text)
+        private static string ReplaceDots(string text)
         {
-            string pattern = "(between)\\s(?<number>([0-9])+([.][0-9]+)*)\\s\\w+(and)\\s(?<number2>([0-9])+([.][0-9]+)*)";
-            string replacement = "${number}-${number2}";
+            string pattern = "";
+            string replacement = "";
             return Regex.Replace(text, pattern, replacement, RegexOptions.IgnoreCase);
         }
 
