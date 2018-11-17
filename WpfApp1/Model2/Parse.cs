@@ -31,8 +31,17 @@ namespace Model2
             string s = ParsePresents("<<90 percent , bfdgfdgsj 1555" +
                 "ddsfssfsfsfs   90             percent----");
             //string t = ParseRange("Between number and number (for example: between 18 and 24)");
-            FromFilesToDocs(@"C:\Users\nastia\Source\Repos\saarzeev\corpus");
-          
+            //  FromFilesToDocs(@"C:\Users\nastia\Source\Repos\saarzeev\corpus");
+            string k = " 44444/24545";
+            string t = "1/2";
+            string n = "11.55/111";
+            string sa = "k/1";
+            string ss = "11/12/22";
+            Console.WriteLine(Regex.IsMatch(k, Resources.Resource.regex_Fraction));
+            Console.WriteLine(Regex.IsMatch(t, Resources.Resource.regex_Fraction));
+            Console.WriteLine(Regex.IsMatch(n, Resources.Resource.regex_Fraction));
+            Console.WriteLine(Regex.IsMatch(sa, Resources.Resource.regex_Fraction));
+            Console.WriteLine(Regex.IsMatch(ss, Resources.Resource.regex_Fraction));
 
         }
 
@@ -43,7 +52,6 @@ namespace Model2
             FileReader fr = new FileReader(path);
             task = Task.Run(() =>
             {
-
                 while (fr.HasNext())
                 {
                    
@@ -58,7 +66,7 @@ namespace Model2
                 done = true;
             });
             //TO-DO
-            while (!done)
+            while (!done || _docs.Count > 0 )
             {
                 _semaphore1.Wait();
                 Doc currentDoc;
@@ -113,7 +121,7 @@ namespace Model2
                 {
                     specificBigNums.Enqueue(pos);
                 }
-                if (Regex.IsMatch(word, Resources.Resource.regexNumbers))
+                if (Regex.IsMatch(word, Resources.Resource.regex_Numbers))
                 {
                     bigNums.Enqueue(pos);
                 }
@@ -141,18 +149,18 @@ namespace Model2
             
         }
 
-        private static string numberBuilder(double number, double divider, string representativeLetter, string parsed ){
+        private static string numberBuilder(double number, double divider, string frac ,string representativeLetter ){
 
             double doubleFormat = number / divider;
             int intFormat = (int)doubleFormat;
-
+            string parsed = "";
             if (doubleFormat == intFormat)
             {
-                parsed = intFormat + representativeLetter;
+                parsed = intFormat + frac + representativeLetter;
             }
             else
             {
-                parsed = doubleFormat + representativeLetter;
+                parsed = doubleFormat + frac + representativeLetter;
             }
 
             return parsed;
@@ -366,6 +374,128 @@ namespace Model2
             string pattern = "(between)\\s(?<number>([0-9])+([.][0-9]+)*)\\s\\w+(and)\\s(?<number2>([0-9])+([.][0-9]+)*)";
             string replacement = "${number}-${number2}";
             return Regex.Replace(text, pattern, replacement, RegexOptions.IgnoreCase);
+        }
+        public static string[] ParseMoney(int pos, string[] splitedText)
+        {
+            splitedText = DollarSignToCanonicalForm(ref pos, splitedText);
+            string[] splitedMoneyExpr = splitedText[pos].Split(' ');
+            double sum = 0;
+            string inPos = splitedText[pos];
+            if (double.TryParse(splitedMoneyExpr[0], out sum))
+            {
+                if (splitedMoneyExpr[1] == Resources.Resource.hundred)
+                {
+                    sum = sum * 100;
+                }
+                else if (splitedMoneyExpr[1] == Resources.Resource.thousand)
+                {
+                    sum = sum * 1000;
+                }
+                else if (splitedMoneyExpr[1] == Resources.Resource.million)
+                {
+                    sum = sum * 1000000;
+                }
+                else if (splitedMoneyExpr[1] == Resources.Resource.billion)
+                {
+                    sum = sum * 1000000000;
+                }
+                else if (splitedMoneyExpr[1] == Resources.Resource.trillion)
+                {
+                    sum = sum * 1000000000000;
+                }
+
+                if (sum >= 1000000)
+                {
+                    sum = sum / 1000000;
+                    splitedText[pos] = sum.ToString() + " M " + Resources.Resource.dollars;
+                }
+                else
+                {
+                    splitedText[pos] = sum.ToString() + " " + Resources.Resource.dollars;
+                }
+                inPos = splitedText[pos];
+            }
+
+
+            return splitedText;
+
+        }
+
+        private static string[] DollarSignToCanonicalForm(ref int pos, string[] splitedText) //Canonical form == NUMBER (counter) Dollars
+        {
+            List<String> counters = new List<string>();
+            counters.Add(Resources.Resource.hundred);
+            counters.Add(Resources.Resource.thousand);
+            counters.Add(Resources.Resource.million);
+            counters.Add(Resources.Resource.billion);
+            counters.Add(Resources.Resource.trillion);
+
+            if (splitedText[pos].Contains('$'))
+            {
+                splitedText[pos] = splitedText[pos].Remove(splitedText[pos].IndexOf("$"), 1);
+                pos++; //skip the figure after the $ sign
+
+                if (pos < splitedText.Length && counters.Contains(splitedText[pos].ToLower()))
+                { //this limits counters to 1.
+                    splitedText[pos - 1] = splitedText[pos - 1] + " " + splitedText[pos];
+                    splitedText[pos] = " ";
+                }
+
+                splitedText[pos - 1] = splitedText[pos - 1] + " " + Resources.Resource.dollars;
+
+                pos--;
+            }
+            else if (pos - 1 >= 0)
+            {
+                if (splitedText[pos - 1].ToLower() == "u.s.")
+                {
+                    splitedText[pos] = " "; //Remove Dollar
+                    splitedText[pos - 1] = " "; //Remove U.S.
+                    if (pos - 3 >= 0 && counters.Contains(splitedText[pos - 2]))
+                    { //has a counter, it is of form NUM billion U.S. Dollars
+                        splitedText[pos - 3] = splitedText[pos - 3] + " " + splitedText[pos - 2] + " " + " " + Resources.Resource.dollars;
+                        splitedText[pos - 2] = " "; //Remove Counter
+
+                        pos = pos - 3;
+                    }
+                    else if (pos - 2 >= 0) //Does't have a counter. It is of form NUM U.S. Dollars
+                    {
+                        splitedText[pos - 2] = splitedText[pos - 2] + " " + Resources.Resource.dollars;
+                        pos = pos - 2;
+                    }
+                }
+                else if (pos - 2 >= 0 && splitedText[pos - 1].ToLower() == "m")
+                {
+                    splitedText[pos] = " ";
+                    splitedText[pos - 1] = " ";
+                    splitedText[pos - 2] = splitedText[pos - 2] + " " + " " + Resources.Resource.million + " " + Resources.Resource.dollars;
+                    pos = pos - 2;
+                }
+                else if (pos - 2 >= 0 && splitedText[pos - 1].ToLower() == "bn")
+                {
+                    splitedText[pos] = " ";
+                    splitedText[pos - 1] = " ";
+                    splitedText[pos - 2] = splitedText[pos - 2] + " " + Resources.Resource.billion + " " + Resources.Resource.dollars;
+                    pos = pos - 2;
+                }
+                else if (pos - 2 >= 0 && (splitedText[pos - 1].ToLower() == Resources.Resource.billion ||
+                    splitedText[pos - 1].ToLower() == Resources.Resource.trillion || splitedText[pos - 1].ToLower() == Resources.Resource.million))
+                {
+                    splitedText[pos - 2] = splitedText[pos - 2] + " " + splitedText[pos - 1] + " " + Resources.Resource.dollars;
+                    splitedText[pos] = " ";
+                    splitedText[pos - 1] = " ";
+                    pos = pos - 2;
+                }
+                else if (pos - 1 >= 0 && Regex.IsMatch(splitedText[pos - 1], " " + Resources.Resource.regex_Numbers))
+                {
+                    splitedText[pos - 1] = splitedText[pos - 1] + " " + Resources.Resource.dollars;
+                    splitedText[pos] = " ";
+                }
+
+
+            }
+
+            return splitedText;
         }
 
     }

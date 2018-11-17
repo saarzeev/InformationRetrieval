@@ -135,7 +135,10 @@
   <data name="openText" xml:space="preserve">
     <value>&lt;TEXT&gt;</value>
   </data>
-  <data name="regexNumbers" xml:space="preserve">
+  <data name="regex_Fraction" xml:space="preserve">
+    <value>(\s|^)([0-9])+/([0-9])+</value>
+  </data>
+  <data name="regex_Numbers" xml:space="preserve">
     <value>([0-9])+([.][0-9]+)*</value>
   </data>
   <data name="thousand" xml:space="preserve">

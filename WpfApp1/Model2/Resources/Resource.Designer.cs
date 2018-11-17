@@ -115,11 +115,20 @@ namespace Model2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (\s|^)([0-9])+/([0-9])+.
+        /// </summary>
+        internal static string regex_Fraction {
+            get {
+                return ResourceManager.GetString("regex_Fraction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ([0-9])+([.][0-9]+)*.
         /// </summary>
-        internal static string regexNumbers {
+        internal static string regex_Numbers {
             get {
-                return ResourceManager.GetString("regexNumbers", resourceCulture);
+                return ResourceManager.GetString("regex_Numbers", resourceCulture);
             }
         }
         
