@@ -34,10 +34,35 @@ namespace Model2
                 (Regex.IsMatch(hyphenExpr[0], Resources.Resource.regex_Numbers) ||
                 Regex.IsMatch(hyphenExpr[1], Resources.Resource.regex_Numbers) ||
                 Regex.IsMatch(hyphenExpr[2], Resources.Resource.regex_Numbers)))*/){
+                string[] substr = { splitedText[pos - 1], hyphenExpr[0], hyphenExpr[1], splitedText[pos + 1] };
+                Queue<int> specificBigNums = new Queue<int>();
+                Queue<int> bigNums = new Queue<int>();
+
+                PopulateQueueWithPositions(substr, null, null, null, specificBigNums, bigNums, null);
+
+                while (specificBigNums.Count != 0)
+                {
+                    substr = ParseSpecificNumbers(specificBigNums.Dequeue(), substr);
+                }
+
+                while (bigNums.Count != 0)
+                {
+                    substr = ParseNumbers(bigNums.Dequeue(), substr);
+                }
+
+                for (int i = 0;  i < substr.Length; i++)
+                {
+                    if (substr[i] == " ")
+                    {
+                        substr[i] = "";
+                    }
+                 hyphenExpr[i] = String.Join(" ", substr);
+                }
+
+                
 
                 for (int i = 0; i < hyphenExpr.Length; i++)
                 {
-                    hyphenExpr = ParseNumbers(i, hyphenExpr);
                     concatHyphenTerm += (i + 1 < hyphenExpr.Length) ? hyphenExpr[i] + '-' : hyphenExpr[i];
                 }
 
