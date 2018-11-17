@@ -89,13 +89,13 @@ namespace Model2
             
             IEnumerable<String> onlyText =
                 splitedText
-                .SkipWhile((word) => String.Compare(word, Resources.Resource.openText) != 0)
-                .TakeWhile((word) => String.Compare(word, Resources.Resource.closeText) != 0)
-                .Where((word) => String.Compare(word, "") != 0);
+                .SkipWhile((newWord) => String.Compare(newWord, Resources.Resource.openText) != 0)
+                .TakeWhile((newWord) => String.Compare(newWord, Resources.Resource.closeText) != 0)
+                .Where((newWord) => String.Compare(newWord, "") != 0);
 
             string toParse = String.Join(" ", onlyText);
             toParse = ParsePresents(toParse);
-            
+            //toParse = ReplaceDots(toParse);
             char[] delimiters = {' '};
             splitedText = toParse.ToString().Split(delimiters);
 
@@ -108,24 +108,32 @@ namespace Model2
             int pos = 0;
             foreach (string word in splitedText)
             {
-                if (months.ContainsKey(word.ToLower()))
+               string newWord = word;
+
+               if(word[word.Length-1] == '.' && (word.Length - 1 >= 0))
+                {
+                    newWord = word.Substring(0, word.Length - 1);
+                    splitedText[pos] = newWord;
+                }
+
+                if (months.ContainsKey(newWord.ToLower()))
                 {
                     dates.Enqueue(pos);
                 }
-                if (word.ToLower().Contains(Resources.Resource.dollars.ToLower()) || word.Contains("$"))
+                if (newWord.ToLower().Contains(Resources.Resource.dollars.ToLower()) || newWord.Contains("$"))
                 {
                     money.Enqueue(pos);
                 }
-                if (word.ToLower() == Resources.Resource.thousand || word.ToLower() == Resources.Resource.million || 
-                    word.ToLower() == Resources.Resource.billion || word.ToLower() == Resources.Resource.trillion)
+                if (newWord.ToLower() == Resources.Resource.thousand || newWord.ToLower() == Resources.Resource.million || 
+                    newWord.ToLower() == Resources.Resource.billion || newWord.ToLower() == Resources.Resource.trillion)
                 {
                     specificBigNums.Enqueue(pos);
                 }
-                if (Regex.IsMatch(word, Resources.Resource.regex_Numbers))
+                if (Regex.IsMatch(newWord, Resources.Resource.regex_Numbers))
                 {
                     bigNums.Enqueue(pos);
                 }
-                if (word.ToLower().Contains("between") || word.ToLower().Contains("-"))
+                if (newWord.ToLower().Contains("between") || newWord.ToLower().Contains("-"))
                 {
                     betweens.Enqueue(pos);
                 }
@@ -153,7 +161,7 @@ namespace Model2
                 splitedText = ParseNumbers(bigNums.Dequeue(), splitedText);
             }
 
-            numPositions = null;
+            numPositions.Clear();
             Console.WriteLine(doc._path+"\n"+ String.Join(" ", splitedText));
             
         }
@@ -415,12 +423,16 @@ namespace Model2
             return Regex.Replace(text, pattern, replacement, RegexOptions.IgnoreCase);
         }
 
-        private static string ReplaceDots(string text)
-        {
-            string pattern = "";
-            string replacement = "";
-            return Regex.Replace(text, pattern, replacement, RegexOptions.IgnoreCase);
-        }
+        //private static string ReplaceDots(string text)
+        //{
+        //    string pattern = "(?<number>([0-9])+([.][0-9]+)*).\\s";
+        //    string replacement = "${number} ";
+        //    string res = Regex.Replace(text, pattern, replacement, RegexOptions.IgnoreCase);
+        //    pattern = "(?<newWord>([a-z]+)).\\s";
+        //    replacement = "${newWord} ";
+        //    return Regex.Replace(res, pattern, replacement, RegexOptions.IgnoreCase);
+
+        //}
 
         public static string[] ParseMoney(int pos, string[] splitedText)
         {
