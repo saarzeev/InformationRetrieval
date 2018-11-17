@@ -43,7 +43,7 @@ namespace Model2
             Console.WriteLine(Regex.IsMatch(n, Resources.Resource.regex_Fraction));
             Console.WriteLine(Regex.IsMatch(sa, Resources.Resource.regex_Fraction));
             Console.WriteLine(Regex.IsMatch(ss, Resources.Resource.regex_Fraction));
-            Parser(new Doc("ngnngngg", new StringBuilder(Resources.Resource.openText+ " " + "3/4 Dollars 10 3/4 dollars  1.7320 Dollars  22 3/4 Dollars $450,000 1,000,000 Dollars $450,000,000 54/88 million dollars 20.6 m Dollars $100 billion 100 bn Dollars 100/555 billion U.S. dollars 320 million U.S. dollars 1 trillion U.S. dollars" + " " + Resources.Resource.closeText), 0));
+            Parser(new Doc("ngnngngg", new StringBuilder(Resources.Resource.openText+ " " + "3/4 Dollars 10 3/4 dollars  1.7320 Dollars  22 3/4 Dollars $450,000 1,000,000 Dollars $450,000,000 54/88 million dollars 20.6 m Dollars $100 billion 100 bn Dollars 5 100/555 billion U.S. dollars 320 million U.S. dollars 1 trillion U.S. dollars" + " " + Resources.Resource.closeText), 0));
         }
 
           public static void FromFilesToDocs(string path)
@@ -543,7 +543,7 @@ namespace Model2
                 {
                     splitedText[pos] = " ";
                     splitedText[pos - 1] = " ";
-                     splitedText[pos - 2] = splitedText[pos - 2] + " " + " " + Resources.Resource.million + " " + Resources.Resource.dollars;
+                     splitedText[pos - 2] = splitedText[pos - 2] + " " + Resources.Resource.million + " " + Resources.Resource.dollars;
                     pos = pos - 2;
                 }
                 else if (pos - 2 >= 0 && splitedText[pos - 1].ToLower() == "bn")
@@ -564,12 +564,10 @@ namespace Model2
 
                else if (pos - 1 >= 0 && Regex.IsMatch(splitedText[pos - 1],Resources.Resource.regex_Fraction))
                 {
-                    if(pos - 2 >= 0 && Regex.IsMatch(splitedText[pos - 2], Resources.Resource.regex_Numbers)) {
                         splitedText[pos - 1] = splitedText[pos - 1] + " " + Resources.Resource.dollars;
                         splitedText[pos] = " ";
                        
                         pos = pos - 1;
-                    }
                 }
 
                 else if (pos - 1 >= 0 && (Regex.IsMatch(splitedText[pos - 1], Resources.Resource.regex_Numbers) ||
