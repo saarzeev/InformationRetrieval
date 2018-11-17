@@ -148,19 +148,24 @@ namespace Model2
             Console.WriteLine(doc._path+"\n"+ String.Join(" ", splitedText));
             
         }
+        private static bool isFraction(string suspect)
+        {
+           return Regex.IsMatch(suspect, Resources.Resource.regex_Fraction);
+           
+        }
 
-        private static string numberBuilder(double number, double divider, string frac ,string representativeLetter ){
+        private static string numberBuilder(double number, double divider, string frac ,string representativeString ){
 
             double doubleFormat = number / divider;
             int intFormat = (int)doubleFormat;
             string parsed = "";
             if (doubleFormat == intFormat)
             {
-                parsed = intFormat + frac + representativeLetter;
+                parsed = intFormat + frac + representativeString;
             }
             else
             {
-                parsed = doubleFormat + frac + representativeLetter;
+                parsed = doubleFormat + frac + representativeString;
             }
 
             return parsed;
@@ -174,6 +179,9 @@ namespace Model2
                 string parsed = splitedText[pos];
                 double divider = 1.0;
                 string representativeLetter = "";
+                string frac = "";
+
+               
 
                 if (int.TryParse(splitedText[pos], out int number))
                 {
@@ -195,8 +203,12 @@ namespace Model2
                         representativeLetter = "B";
                     }
 
-                    parsed = numberBuilder(number,divider,representativeLetter,parsed);
+                    parsed = numberBuilder(number,divider,frac,representativeLetter);
                     splitedText[pos] = parsed;
+                    if(frac != "")
+                    {
+                        splitedText[pos + 1] = " ";
+                    }
                     return splitedText;
                 }
 
@@ -375,6 +387,7 @@ namespace Model2
             string replacement = "${number}-${number2}";
             return Regex.Replace(text, pattern, replacement, RegexOptions.IgnoreCase);
         }
+
         public static string[] ParseMoney(int pos, string[] splitedText)
         {
             splitedText = DollarSignToCanonicalForm(ref pos, splitedText);
