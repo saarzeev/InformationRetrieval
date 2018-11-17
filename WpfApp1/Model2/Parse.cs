@@ -84,11 +84,11 @@ namespace Model2
             text = text.Replace(",", "");
             string[] splitedText = text.ToString().Split(' ');
 
-             //Substitute month' names with numbers
+            //Substitute month' names with numbers
             Dictionary<string, string> months = new Dictionary<string, string>();
             months.Add("jan", "01"); months.Add("feb", "02"); months.Add("mar", "03"); months.Add("apr", "04"); months.Add("may", "05"); months.Add("jun", "06"); months.Add("jul", "07"); months.Add("aug", "08"); months.Add("sep", "09"); months.Add("oct", "10"); months.Add("nov", "11"); months.Add("dec", "12");
-            months.Add("january", "01"); months.Add("february", "02"); months.Add("march", "03");months.Add("april", "04"); months.Add("june", "06"); months.Add("july", "07"); months.Add("august", "08"); months.Add("september", "09"); months.Add("october", "10"); months.Add("november", "11"); months.Add("december", "12");
-            
+            months.Add("january", "01"); months.Add("february", "02"); months.Add("march", "03"); months.Add("april", "04"); months.Add("june", "06"); months.Add("july", "07"); months.Add("august", "08"); months.Add("september", "09"); months.Add("october", "10"); months.Add("november", "11"); months.Add("december", "12");
+
             IEnumerable<String> onlyText =
                 splitedText
                 .SkipWhile((newWord) => String.Compare(newWord, Resources.Resource.openText) != 0)
@@ -97,7 +97,7 @@ namespace Model2
 
             string toParse = String.Join(" ", onlyText);
             toParse = ParsePresents(toParse);
-            char[] delimiters = {' '};
+            char[] delimiters = { ' ' };
             splitedText = toParse.ToString().Split(delimiters);
 
             Queue<int> dates = new Queue<int>();
@@ -106,44 +106,12 @@ namespace Model2
             Queue<int> bigNums = new Queue<int>();
             Queue<int> betweens = new Queue<int>();
 
-            int pos = 0;
-            foreach (string word in splitedText)
+            PopulateQueueWithPositions(splitedText, months, dates, money, specificBigNums, bigNums, betweens);
+
+            while (betweens.Count != 0)
             {
-               string newWord = word;
-
-               if((word.Length - 1 >= 0) && word[word.Length-1] == '.' && word.ToLower() != "u.s.")
-                {
-                    newWord = word.Substring(0, word.Length - 1);
-                    splitedText[pos] = newWord;
-                }
-
-                if (months.ContainsKey(newWord.ToLower()))
-                {
-                    dates.Enqueue(pos);
-                }
-                if (newWord.ToLower().Contains(Resources.Resource.dollars.ToLower()) || newWord.Contains("$"))
-                {
-                    money.Enqueue(pos);
-                }
-                if (newWord.ToLower() == Resources.Resource.thousand || newWord.ToLower() == Resources.Resource.million || 
-                    newWord.ToLower() == Resources.Resource.billion || newWord.ToLower() == Resources.Resource.trillion)
-                {
-                    specificBigNums.Enqueue(pos);
-                }
-                if (Regex.IsMatch(newWord, Resources.Resource.regex_Numbers))
-                {
-                    bigNums.Enqueue(pos);
-                }
-                if (newWord.ToLower().Contains("between") || newWord.ToLower().Contains("-"))
-                {
-                    betweens.Enqueue(pos);
-                }
-                pos++;
+                splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText);
             }
-            //while(betweens.Count != 0)
-            //{
-            //  //  splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText);
-            //}
             while (dates.Count != 0)
             {
                 int position = dates.Dequeue();
@@ -163,9 +131,48 @@ namespace Model2
             }
 
             numPositions.Clear();
-            Console.WriteLine(doc._path+"\n"+ String.Join(" ", splitedText));
-            
+            Console.WriteLine(doc._path + "\n" + String.Join(" ", splitedText));
+
         }
+
+        private static void PopulateQueueWithPositions(string[] splitedText, Dictionary<string, string> months, Queue<int> dates, Queue<int> money, Queue<int> specificBigNums, Queue<int> bigNums, Queue<int> betweens)
+        {
+            int pos = 0;
+            foreach (string word in splitedText)
+            {
+                string newWord = word;
+
+                if ((word.Length - 1 >= 0) && word[word.Length - 1] == '.' && word.ToLower() != "u.s.")
+                {
+                    newWord = word.Substring(0, word.Length - 1);
+                    splitedText[pos] = newWord;
+                }
+
+                if (months.ContainsKey(newWord.ToLower()))
+                {
+                    dates.Enqueue(pos);
+                }
+                if (newWord.ToLower().Contains(Resources.Resource.dollars.ToLower()) || newWord.Contains("$"))
+                {
+                    money.Enqueue(pos);
+                }
+                if (newWord.ToLower() == Resources.Resource.thousand || newWord.ToLower() == Resources.Resource.million ||
+                    newWord.ToLower() == Resources.Resource.billion || newWord.ToLower() == Resources.Resource.trillion)
+                {
+                    specificBigNums.Enqueue(pos);
+                }
+                if (Regex.IsMatch(newWord, Resources.Resource.regex_Numbers))
+                {
+                    bigNums.Enqueue(pos);
+                }
+                if (newWord.ToLower().Contains("between") || newWord.ToLower().Contains("-"))
+                {
+                    betweens.Enqueue(pos);
+                }
+                pos++;
+            }
+        }
+
         private static bool isFraction(string suspect)
         {
            return Regex.IsMatch(suspect, Resources.Resource.regex_Fraction);
