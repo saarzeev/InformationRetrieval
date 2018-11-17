@@ -148,24 +148,25 @@ namespace Model2
                     splitedText[pos] = newWord;
                 }
 
-                if (months.ContainsKey(newWord.ToLower()))
+                if (dates != null && months.ContainsKey(newWord.ToLower()))
                 {
                     dates.Enqueue(pos);
                 }
-                if (newWord.ToLower().Contains(Resources.Resource.dollars.ToLower()) || newWord.Contains("$"))
+                if (money != null && newWord.ToLower().Contains(Resources.Resource.dollars.ToLower()) || newWord.Contains("$"))
                 {
                     money.Enqueue(pos);
                 }
-                if (newWord.ToLower() == Resources.Resource.thousand || newWord.ToLower() == Resources.Resource.million ||
-                    newWord.ToLower() == Resources.Resource.billion || newWord.ToLower() == Resources.Resource.trillion)
+                if (specificBigNums != null &&
+                    (newWord.ToLower() == Resources.Resource.thousand || newWord.ToLower() == Resources.Resource.million ||
+                    newWord.ToLower() == Resources.Resource.billion || newWord.ToLower() == Resources.Resource.trillion))
                 {
                     specificBigNums.Enqueue(pos);
                 }
-                if (Regex.IsMatch(newWord, Resources.Resource.regex_Numbers))
+                if (bigNums != null && Regex.IsMatch(newWord, Resources.Resource.regex_Numbers))
                 {
                     bigNums.Enqueue(pos);
                 }
-                if (newWord.ToLower().Contains("between") || newWord.ToLower().Contains("-"))
+                if (betweens != null && newWord.ToLower().Contains("between") || newWord.ToLower().Contains("-"))
                 {
                     betweens.Enqueue(pos);
                 }
