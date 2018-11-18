@@ -12,6 +12,12 @@ namespace Model2
 
     public partial class Parse
     {
+        private enum Side
+        {
+            Left,
+            Right
+        }
+
         public static string[] ParseBetweenTerms(int pos, string[] splitedText)
         {
             if (splitedText[pos].ToLower() == "between")
@@ -29,37 +35,13 @@ namespace Model2
         {
             string concatHyphenTerm = "";
             string[] hyphenExpr = splitedText[pos].Split('-');
-            if (hyphenExpr.Length == 2/* || //hyphen term is of length 2, or of form word-word-word.
-                (hyphenExpr.Length == 3 && !
-                (Regex.IsMatch(hyphenExpr[0], Resources.Resource.regex_Numbers) ||
-                Regex.IsMatch(hyphenExpr[1], Resources.Resource.regex_Numbers) ||
-                Regex.IsMatch(hyphenExpr[2], Resources.Resource.regex_Numbers)))*/){
-                string[] substr = { splitedText[pos - 1], hyphenExpr[0], hyphenExpr[1], splitedText[pos + 1] };
-                Queue<int> specificBigNums = new Queue<int>();
-                Queue<int> bigNums = new Queue<int>();
+            if (hyphenExpr.Length == 2)
+            { //Hyphen-terms with numbers should be number-parsed
+                string[] leftSubstr = { splitedText[pos - 1], hyphenExpr[0] };
+                string[] rightSubstr = { hyphenExpr[1], splitedText[pos + 1] };
 
-                PopulateQueueWithPositions(substr, null, null, null, specificBigNums, bigNums, null);
-
-                while (specificBigNums.Count != 0)
-                {
-                    substr = ParseSpecificNumbers(specificBigNums.Dequeue(), substr);
-                }
-
-                while (bigNums.Count != 0)
-                {
-                    substr = ParseNumbers(bigNums.Dequeue(), substr);
-                }
-
-                for (int i = 0;  i < substr.Length; i++)
-                {
-                    if (substr[i] == " ")
-                    {
-                        substr[i] = "";
-                    }
-                 hyphenExpr[i] = String.Join(" ", substr);
-                }
-
-                
+                hyphenExpr[0] = TreatHyphenTermsNumbers(pos, splitedText, leftSubstr, Side.Left);
+                hyphenExpr[1] = TreatHyphenTermsNumbers(pos, splitedText, rightSubstr, Side.Right);
 
                 for (int i = 0; i < hyphenExpr.Length; i++)
                 {
@@ -69,6 +51,43 @@ namespace Model2
             }
 
             return concatHyphenTerm;
+        }
+
+        private static string TreatHyphenTermsNumbers(int pos, string[] splitedText, string[] substr, Side side)
+        {
+            Queue<int> specificBigNums = new Queue<int>();
+            Queue<int> bigNums = new Queue<int>();
+
+            PopulateQueueWithPositions(substr, null, null, null, specificBigNums, bigNums, null);
+
+            while (specificBigNums.Count != 0)
+            {
+                substr = ParseSpecificNumbers(specificBigNums.Dequeue(), substr);
+            }
+
+            while (bigNums.Count != 0)
+            {
+                substr = ParseNumbers(bigNums.Dequeue(), substr);
+            }
+
+
+            if (side == Side.Left)
+            {
+                if (substr[1] == " ")
+                {
+                    substr[1] = substr[0];
+                    splitedText[pos - 1] = " ";
+                }
+                return substr[1];
+            }
+            else //side == Side.Right
+            {
+                if (substr[1] == " ")
+                {
+                    splitedText[pos + 1] = " ";
+                }
+                return substr[0];
+            }
         }
 
         private static string BetweenAndTerm(ref int pos, string[] splitedText)
