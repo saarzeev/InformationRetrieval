@@ -30,7 +30,7 @@ namespace Model2
             string s = ParsePresents("<<90 percent , bfdgfdgsj 1555" +
                 "ddsfssfsfsfs   90             percent----");
             //string t = ParseRange("Between number and number (for example: between 18 and 24)");
-           // FromFilesToDocs(@"C:\Users\nastia\Source\Repos\saarzeev\corpus");
+          FromFilesToDocs(@"C:\Users\nastia\Source\Repos\saarzeev\corpus");
             string k = " 44444/24545";
             double.TryParse(k, out double num);
             Console.WriteLine(num);
@@ -38,12 +38,14 @@ namespace Model2
             string n = "11.55/111";
             string sa = "k/1";
             string ss = "11/12/22";
+            string ffff = "raising the fat content of imported meat from 2O percent to 35%; in other words for every 1000 kgs of meat the fat content is 350 kgs.";
+            string ddddd = ParsePresents(ffff);
             Console.WriteLine(Regex.IsMatch(k, Resources.Resource.regex_Fraction));
             Console.WriteLine(Regex.IsMatch(t, Resources.Resource.regex_Fraction));
             Console.WriteLine(Regex.IsMatch(n, Resources.Resource.regex_Fraction));
             Console.WriteLine(Regex.IsMatch(sa, Resources.Resource.regex_Fraction));
             Console.WriteLine(Regex.IsMatch(ss, Resources.Resource.regex_Fraction));
-            Parser(new Doc("ngnngngg", new StringBuilder(Resources.Resource.openText+ " " + "3/4 Dollars 10 3/4 dollars  1.7320 Dollars  22 3/4 Dollars $450,000 1,000,000 Dollars $450,000,000 54/88 million dollars 20.6 m Dollars $100 billion 100 bn Dollars 5 100/555 billion U.S. dollars 320 million U.S. dollars 1 trillion U.S. dollars" + " " + Resources.Resource.closeText), 0));
+            Parser(new Doc("ngnngngg", new StringBuilder(Resources.Resource.openText+ " " + "3/4z Dollars 10 3/4 dollars  1.7320 Dollars  22 3/4 Dollars $450,000 1,000,000 Dollars $450,000,000 54/88 million dollars 20.6 m Dollars $100 billion 100 bn Dollars 5 100/555 billion U.S. dollars 320 million U.S. dollars 1 trillion U.S. dollars" + " " + Resources.Resource.closeText), 0));
         }
 
           public static void FromFilesToDocs(string path)
@@ -108,10 +110,10 @@ namespace Model2
 
             PopulateQueueWithPositions(splitedText, months, dates, money, specificBigNums, bigNums, betweens);
 
-            while (betweens.Count != 0)
-            {
-                splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText);
-            }
+            //while (betweens.Count != 0)
+            //{
+            //    splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText);
+            //}
             while (dates.Count != 0)
             {
                 int position = dates.Dequeue();
@@ -152,7 +154,7 @@ namespace Model2
                 {
                     dates.Enqueue(pos);
                 }
-                if (money != null && newWord.ToLower().Contains(Resources.Resource.dollars.ToLower()) || newWord.Contains("$"))
+                if (money != null && (newWord.ToLower().Contains(Resources.Resource.dollars.ToLower()) || newWord.Contains("$")))
                 {
                     money.Enqueue(pos);
                 }
@@ -166,7 +168,7 @@ namespace Model2
                 {
                     bigNums.Enqueue(pos);
                 }
-                if (betweens != null && newWord.ToLower().Contains("between") || newWord.ToLower().Contains("-"))
+                if (betweens != null && (newWord.ToLower().Contains("between") || newWord.ToLower().Contains("-")))
                 {
                     betweens.Enqueue(pos);
                 }
