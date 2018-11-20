@@ -26,7 +26,7 @@ namespace Model2
             }
             else
             {
-                splitedText[pos] = HyphenTerm(pos,splitedText);
+               // splitedText[pos] = HyphenTerm(pos,splitedText);
             }
             return splitedText;
         }
@@ -38,6 +38,7 @@ namespace Model2
             if (hyphenExpr.Length == 2)
             { //Hyphen-terms with numbers should be number-parsed
                 string[] leftSubstr = { splitedText[pos - 1], hyphenExpr[0] };
+                // OUT OF RANGE TO-Do!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 string[] rightSubstr = { hyphenExpr[1], splitedText[pos + 1] };
 
                 hyphenExpr[0] = TreatHyphenTermsNumbers(pos, splitedText, leftSubstr, Side.Left);

@@ -29,8 +29,9 @@ namespace Model2
             //Console.WriteLine( fr.ReadNextDoc());
             string s = ParsePresents("<<90 percent , bfdgfdgsj 1555" +
                 "ddsfssfsfsfs   90             percent----");
+
             //string t = ParseRange("Between number and number (for example: between 18 and 24)");
-          FromFilesToDocs(@"C:\Users\nastia\Source\Repos\saarzeev\corpus");
+            FromFilesToDocs(@"C:\Users\nastia\Source\Repos\saarzeev\corpus");
             string k = " 44444/24545";
             double.TryParse(k, out double num);
             Console.WriteLine(num);
@@ -45,31 +46,39 @@ namespace Model2
             Console.WriteLine(Regex.IsMatch(n, Resources.Resource.regex_Fraction));
             Console.WriteLine(Regex.IsMatch(sa, Resources.Resource.regex_Fraction));
             Console.WriteLine(Regex.IsMatch(ss, Resources.Resource.regex_Fraction));
-            Parser(new Doc("ngnngngg", new StringBuilder(Resources.Resource.openText+ " " + "3/4z Dollars 10 3/4 dollars  1.7320 Dollars  22 3/4 Dollars $450,000 1,000,000 Dollars $450,000,000 54/88 million dollars 20.6 m Dollars $100 billion 100 bn Dollars 5 100/555 billion U.S. dollars 320 million U.S. dollars 1 trillion U.S. dollars" + " " + Resources.Resource.closeText), 0));
+            Parser(new Doc("ngnngngg", new StringBuilder(Resources.Resource.openText + " " + "3/4z Dollars 10 3/4 dollars  1.7320 Dollars  22 3/4 Dollars $450,000 1,000,000 Dollars $450,000,000 54/88 million dollars 20.6 m Dollars $100 billion 100 bn Dollars 5 100/555 billion U.S. dollars 320 million U.S. dollars 1 trillion U.S. dollars" + " " + Resources.Resource.closeText), 0));
         }
 
-          public static void FromFilesToDocs(string path)
+        /// <summary>
+        /// Invoke a new thread to iterate entire sub-tree, starting from the given <paramref name="path"/>.
+        /// Concurrently, main thread goes through Docs in _doc, and parses them.
+        /// Docs are added to _docs.
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
+        public static void FromFilesToDocs(string path)
         {
+            DateTime totalInitTime = DateTime.Now;
             Task task;
-
+            Console.WriteLine("Strated...");
             FileReader fr = new FileReader(path);
             task = Task.Run(() =>
             {
                 while (fr.HasNext())
                 {
-                   
+
                     List<Doc> docs = fr.ReadNextDoc();
-                    foreach(Doc doc in docs) {
+                    foreach (Doc doc in docs) {
                         _semaphore2.Wait();
                         _docs.Enqueue(doc);
                         _semaphore1.Release();
                     }
-                 
+
                 }
                 done = true;
             });
-           
-            while (!done || _docs.Count > 0 )
+
+            while (!done || _docs.Count > 0)
             {
                 _semaphore1.Wait();
                 Doc currentDoc;
@@ -78,10 +87,19 @@ namespace Model2
                 _semaphore2.Release();
             }
             task.Wait();
+            Console.WriteLine("Total runtime  including read from file = " + (DateTime.Now - totalInitTime));
         }
 
+        /// <summary>
+        /// Given a <paramref name="doc"/>, parse doc.text.
+        /// Parser standardizes dates, money phrases, numbers, and Between and '-' terms.
+        /// Our added parsing rules are for times (3PM -> 15:00)
+        /// </summary>
+        /// <param name="doc"></param>
         private static void Parser(Doc doc)
         {
+
+            DateTime parseDocTime = DateTime.Now;
             StringBuilder text = doc._text.Replace("\\n", " ");
             text = text.Replace(",", "");
             string[] splitedText = text.ToString().Split(' ');
@@ -114,7 +132,7 @@ namespace Model2
 
             PopulateQueueWithPositions(splitedText, months, dates, money, specificBigNums, bigNums, betweens, times);
 
-         //check and parse if the words meet the conditions 
+            //check and parse if the words meet the conditions 
             while (betweens.Count != 0)
             {
                 splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText);
@@ -124,10 +142,10 @@ namespace Model2
                 int position = dates.Dequeue();
                 splitedText = ParseDate(position, months[splitedText[position].ToLower()], splitedText);
             }
-            //while (times.Count != 0)
-            //{
-            //   // splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText);
-            //}
+            while (times.Count != 0)
+            {
+                splitedText = ParseTimeTerms(times.Dequeue(), splitedText);
+            }
             while (money.Count != 0)
             {
                 splitedText = ParseMoney(money.Dequeue(), splitedText);
@@ -142,10 +160,20 @@ namespace Model2
             }
 
             numPositions.Clear();
-            Console.WriteLine(doc._path + "\n" + String.Join(" ", splitedText));
-
+            //Console.WriteLine(doc._path + "\n" + String.Join(" ", splitedText));
+            //Console.WriteLine("Done with doc. Parsing took " + (DateTime.Now - parseDocTime));
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="splitedText"></param>
+        /// <param name="months"></param>
+        /// <param name="dates"></param>
+        /// <param name="money"></param>
+        /// <param name="specificBigNums"></param>
+        /// <param name="bigNums"></param>
+        /// <param name="betweens"></param>
+        /// <param name="times"></param>
         private static void PopulateQueueWithPositions(string[] splitedText, Dictionary<string, string> months, Queue<int> dates, Queue<int> money, Queue<int> specificBigNums, Queue<int> bigNums, Queue<int> betweens, Queue<int> times = null)
         {
             int pos = 0;
@@ -158,7 +186,7 @@ namespace Model2
                     newWord = word.Substring(0, word.Length - 1);
                     splitedText[pos] = newWord;
                 }
-                if (times != null && (word == "PM" || word == "AM"))
+                if (times != null && (word.Contains("PM") || word.Contains("AM")))
                 {
                     times.Enqueue(pos);
                 }
@@ -190,16 +218,16 @@ namespace Model2
 
         private static bool isFraction(string suspect)
         {
-           return Regex.IsMatch(suspect, Resources.Resource.regex_Fraction);
+            return Regex.IsMatch(suspect, Resources.Resource.regex_Fraction);
         }
 
         //generate string for number (int/double/fraction) with its representative letter or string
-        private static string numberBuilder(double number, double divider, string frac ,string representativeString ){
+        private static string numberBuilder(double number, double divider, string frac, string representativeString) {
 
             double doubleFormat = number / divider;
             int intFormat = (int)doubleFormat;
             string parsed = "";
-            if(frac != "")
+            if (frac != "")
             {
                 frac = " " + frac;
             }
@@ -214,8 +242,8 @@ namespace Model2
 
             return parsed;
 
-        }                     
-        
+        }
+
         //checks if the suspicious word is a number and parse it to requirements
         private static string[] ParseNumbers(int pos, string[] splitedText)
         {
@@ -226,7 +254,7 @@ namespace Model2
                 string representativeLetter = "";
                 string frac = "";
 
-                if(pos+1 < splitedText.Length)
+                if (pos + 1 < splitedText.Length)
                 {
                     if (isFraction(splitedText[pos + 1]))
                     {
@@ -234,8 +262,8 @@ namespace Model2
                         splitedText[pos + 1] = " ";
                     }
                 }
-                    
-               // dispensing cases - depending on the size of the number(int)
+
+                // dispensing cases - depending on the size of the number(int)
                 if (double.TryParse(splitedText[pos], out double number))
                 {
                     if (number >= 1000 && number < 1000000)
@@ -256,7 +284,7 @@ namespace Model2
                         representativeLetter = "B";
                     }
 
-                    parsed = numberBuilder(number,divider,frac,representativeLetter);
+                    parsed = numberBuilder(number, divider, frac, representativeLetter);
                     splitedText[pos] = parsed;
                     numPositions.Add(pos);
                     return splitedText;
@@ -264,7 +292,7 @@ namespace Model2
             }
             return splitedText;
         }
-         
+
         //checks if the suspicious word is a expression to represent a large number and parse it to requirements
         private static string[] ParseSpecificNumbers(int pos, string[] splitedText)
         {
@@ -283,7 +311,7 @@ namespace Model2
                 {
                     representativeLetter = "M";
                 }
-                
+
                 if (pos - 1 >= 0)
                 {
                     // number - fraction - word 
@@ -296,10 +324,10 @@ namespace Model2
                             if (int.TryParse(splitedText[pos - 2], out int numberBeforeFrac))
                             {
                                 parsed = numberBuilder(numberBeforeFrac, 1.0, frac, representativeLetter);
-                                splitedText[pos-2] = parsed;
-                                splitedText[pos-1] = " ";
+                                splitedText[pos - 2] = parsed;
+                                splitedText[pos - 1] = " ";
                                 splitedText[pos] = " ";
-                                numPositions.Add(pos-2);
+                                numPositions.Add(pos - 2);
                                 return splitedText;
                             }
                         }
@@ -317,9 +345,9 @@ namespace Model2
             }
             return splitedText;
         }
-        
+
         //generate string for Date :(year-month-day)
-        private static string BuildDayAndYear(int day, int year, string month, string parsed){
+        private static string BuildDayAndYear(int day, int year, string month, string parsed) {
 
             if (day >= 10)
             {
@@ -329,27 +357,27 @@ namespace Model2
             {
                 parsed = year + "-" + month + "-" + "0" + day;
             }
-             return parsed;
+            return parsed;
         }
 
         //generate string for Date :(month-day or year-month)
-        private static string BuildDayOrYear(int dayOrYear, string month, string parsed){
-            
-             if (dayOrYear >= 10 && dayOrYear <= 31)
-             {
+        private static string BuildDayOrYear(int dayOrYear, string month, string parsed) {
+
+            if (dayOrYear >= 10 && dayOrYear <= 31)
+            {
                 parsed = month + "-" + dayOrYear;
-             }
+            }
 
-             else if(dayOrYear >= 1000 && dayOrYear <= 4000)
-             {
+            else if (dayOrYear >= 1000 && dayOrYear <= 4000)
+            {
                 parsed = dayOrYear + "-" + month;
-             }
+            }
 
-             else if (dayOrYear < 10)
-             {
+            else if (dayOrYear < 10)
+            {
                 parsed = month + "-0" + dayOrYear;
-             }
-             return parsed;
+            }
+            return parsed;
         }
 
         //checks if the expression to represent a months  has another date expression in its vicinity, and parse it to requirements
@@ -360,7 +388,7 @@ namespace Model2
                 string parsed = splitedText[pos];
                 if (pos - 1 >= 0)
                 {
-                    
+
                     if (int.TryParse(splitedText[pos - 1], out int day))
                     {
                         if (pos + 1 < splitedText.Length)
@@ -370,7 +398,7 @@ namespace Model2
                             {
                                 if (year >= 1000 && year < 4000)
                                 {
-                                    parsed = BuildDayAndYear(day,year,month,parsed);
+                                    parsed = BuildDayAndYear(day, year, month, parsed);
 
                                     splitedText[pos - 1] = parsed;
                                     splitedText[pos] = " ";
@@ -380,8 +408,8 @@ namespace Model2
                             }
                         }
 
-                         //day-month
-                        parsed = BuildDayOrYear(day,month,parsed);
+                        //day-month
+                        parsed = BuildDayOrYear(day, month, parsed);
 
                         splitedText[pos - 1] = parsed;
                         splitedText[pos] = " ";
@@ -396,11 +424,11 @@ namespace Model2
                         if ((pos + 2) < splitedText.Length) {
 
                             if (int.TryParse(splitedText[pos + 2], out int year))
-                            {    
-                                if (year >= 1000 && year < 4000){
+                            {
+                                if (year >= 1000 && year < 4000) {
 
                                     //month-day-year
-                                    parsed = BuildDayAndYear(day,year,month,parsed);
+                                    parsed = BuildDayAndYear(day, year, month, parsed);
 
                                     splitedText[pos] = parsed;
                                     splitedText[pos + 1] = " ";
@@ -410,7 +438,7 @@ namespace Model2
                             }
                         }
                         //month-day
-                        parsed = BuildDayOrYear(day,month,parsed);
+                        parsed = BuildDayOrYear(day, month, parsed);
 
                         splitedText[pos] = parsed;
                         splitedText[pos + 1] = " ";
@@ -420,7 +448,7 @@ namespace Model2
             }
             return splitedText;
         }
-       
+
         //parse expressions that formated: <number-percentage|percent> to another format: <number%>
         private static string ParsePresents(string text)
         {
@@ -436,10 +464,10 @@ namespace Model2
             temp = DollarSignToCanonicalForm(ref pos, temp);
             string[] splitedMoneyExpr = temp[pos].Split(' ');
             string frac = "";
-            if(Regex.IsMatch(splitedMoneyExpr[0], Resources.Resource.regex_Fraction))
+            if (Regex.IsMatch(splitedMoneyExpr[0], Resources.Resource.regex_Fraction))
             {
                 frac = " " + splitedMoneyExpr[0];
-                if(pos - 1 >= 0)
+                if (pos - 1 >= 0)
                 {
                     splitedMoneyExpr[0] = temp[pos - 1];
                 }
@@ -448,12 +476,12 @@ namespace Model2
             double sum = 0;
 
             if (Regex.IsMatch(splitedMoneyExpr[0], Resources.Resource.regex_Numbers) && double.TryParse(splitedMoneyExpr[0], out sum))
-            { 
+            {
                 splitedText = temp;
                 if (frac != "")
                 {
                     splitedText[pos] = " ";
-                    pos = pos - 1; 
+                    pos = pos - 1;
                 }
                 if (splitedMoneyExpr[1] == Resources.Resource.hundred)
                 {
@@ -479,11 +507,11 @@ namespace Model2
                 if (sum >= 1000000)
                 {
                     sum = sum / 1000000;
-                    splitedText[pos] = sum.ToString() + frac +  " M " + Resources.Resource.dollars;
+                    splitedText[pos] = sum.ToString() + frac + " M " + Resources.Resource.dollars;
                 }
                 else
                 {
-                    splitedText[pos] = sum.ToString() + frac +  " " + Resources.Resource.dollars;
+                    splitedText[pos] = sum.ToString() + frac + " " + Resources.Resource.dollars;
                 }
             }
             return splitedText;
@@ -537,7 +565,7 @@ namespace Model2
                 {
                     splitedText[pos] = " ";
                     splitedText[pos - 1] = " ";
-                     splitedText[pos - 2] = splitedText[pos - 2] + " " + Resources.Resource.million + " " + Resources.Resource.dollars;
+                    splitedText[pos - 2] = splitedText[pos - 2] + " " + Resources.Resource.million + " " + Resources.Resource.dollars;
                     pos = pos - 2;
                 }
                 else if (pos - 2 >= 0 && splitedText[pos - 1].ToLower() == "bn")
@@ -556,12 +584,12 @@ namespace Model2
                     pos = pos - 2;
                 }
 
-               else if (pos - 1 >= 0 && Regex.IsMatch(splitedText[pos - 1],Resources.Resource.regex_Fraction))
+                else if (pos - 1 >= 0 && Regex.IsMatch(splitedText[pos - 1], Resources.Resource.regex_Fraction))
                 {
-                        splitedText[pos - 1] = splitedText[pos - 1] + " " + Resources.Resource.dollars;
-                        splitedText[pos] = " ";
-                       
-                        pos = pos - 1;
+                    splitedText[pos - 1] = splitedText[pos - 1] + " " + Resources.Resource.dollars;
+                    splitedText[pos] = " ";
+
+                    pos = pos - 1;
                 }
 
                 else if (pos - 1 >= 0 && (Regex.IsMatch(splitedText[pos - 1], Resources.Resource.regex_Numbers) ||
@@ -576,6 +604,41 @@ namespace Model2
 
             return splitedText;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="splitedText"></param>
+        /// <returns></returns>
+        public static string[] ParseTimeTerms(int pos, string[] splitedText) {
+            if (splitedText[pos] != " ")
+            {
+                //same word
+                if (splitedText[pos].Contains(':')) {
+                    if(System.DateTime.TryParse(splitedText[pos], out var dateTime))
+                    {
+                        splitedText[pos] = dateTime.GetDateTimeFormats()[108];
+                        return splitedText;
+                    }
+                    
+                }
+                else if (pos - 1 >= 0) {
+                    //2 words
+                    if (splitedText[pos - 1].Contains(':')) {
+
+                        string suspectedTime = splitedText[pos - 1] + " " + splitedText[pos];
+                        if (System.DateTime.TryParse(suspectedTime, out var dateTime))
+                        {
+                            splitedText[pos-1] = dateTime.GetDateTimeFormats()[108];
+                            splitedText[pos] = " ";
+                            return splitedText;
+                        }
+                    }
+                }  
+            }
+            return splitedText;
+         }
 
     }
 }
