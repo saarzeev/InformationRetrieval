@@ -144,6 +144,12 @@
   <data name="regex_Numbers" xml:space="preserve">
     <value>([0-9])+([.][0-9]+)*</value>
   </data>
+  <data name="regex_PM_AM" xml:space="preserve">
+    <value>(^|[0-9]+)(PM|AM)$</value>
+  </data>
+  <data name="regex_PM_AM_withHoursOnly" xml:space="preserve">
+    <value>([0-9][0-9]|[0-9])(PM|AM)$</value>
+  </data>
   <data name="thousand" xml:space="preserve">
     <value>thousand</value>
   </data>

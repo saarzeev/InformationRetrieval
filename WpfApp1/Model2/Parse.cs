@@ -27,6 +27,10 @@ namespace Model2
             //_semaphore.Release(11);
             //while (fr.HasNext()) { }
             //Console.WriteLine( fr.ReadNextDoc());
+            string time = "93PM";
+            bool isss = System.DateTime.TryParse(time,out var ggg);
+            time = ggg.GetDateTimeFormats()[108];
+
             string s = ParsePresents("<<90 percent , bfdgfdgsj 1555" +
                 "ddsfssfsfsfs   90             percent----");
 
@@ -119,7 +123,7 @@ namespace Model2
             //split text by delimiters  -TO-DO
             string toParse = String.Join(" ", onlyText);
             toParse = ParsePresents(toParse);
-            char[] delimiters = { ' ' };
+            char[] delimiters = { ' ', '(', ')', '<', '>', '[', ']', '{', '}', '^', ';', '"', '\'','`', '|', '*', '#', '+', '?' , '!', '&', '@', '\\'};
             splitedText = toParse.ToString().Split(delimiters);
 
             //  saving suspicious words Indexes by theme
@@ -179,38 +183,42 @@ namespace Model2
             int pos = 0;
             foreach (string word in splitedText)
             {
-                string newWord = word;
+                if (word != "")
+                {
+                    string newWord = word;
 
-                if ((word.Length - 1 >= 0) && word[word.Length - 1] == '.' && word.ToLower() != "u.s.")
-                {
-                    newWord = word.Substring(0, word.Length - 1);
-                    splitedText[pos] = newWord;
-                }
-                if (times != null && (word.Contains("PM") || word.Contains("AM")))
-                {
-                    times.Enqueue(pos);
-                }
-                if (dates != null && months.ContainsKey(newWord.ToLower()))
-                {
-                    dates.Enqueue(pos);
-                }
-                if (money != null && (newWord.ToLower().Contains(Resources.Resource.dollars.ToLower()) || newWord.Contains("$")))
-                {
-                    money.Enqueue(pos);
-                }
-                if (specificBigNums != null &&
-                    (newWord.ToLower() == Resources.Resource.thousand || newWord.ToLower() == Resources.Resource.million ||
-                    newWord.ToLower() == Resources.Resource.billion || newWord.ToLower() == Resources.Resource.trillion))
-                {
-                    specificBigNums.Enqueue(pos);
-                }
-                if (bigNums != null && Regex.IsMatch(newWord, Resources.Resource.regex_Numbers))
-                {
-                    bigNums.Enqueue(pos);
-                }
-                if (betweens != null && (newWord.ToLower().Contains("between") || newWord.ToLower().Contains("-")))
-                {
-                    betweens.Enqueue(pos);
+                    if ((word.Length - 1 >= 0) && (word[word.Length - 1] == '.' || word[word.Length - 1] == ':') && word.ToLower() != "u.s.")
+                    {
+                        newWord = word.Substring(0, word.Length - 1);
+                        splitedText[pos] = newWord;
+                    }
+
+                    if (times != null && Regex.IsMatch(newWord, Resources.Resource.regex_PM_AM))
+                    {
+                        times.Enqueue(pos);
+                    }
+                    if (dates != null && months.ContainsKey(newWord.ToLower()))
+                    {
+                        dates.Enqueue(pos);
+                    }
+                    if (money != null && (newWord.ToLower().Contains(Resources.Resource.dollars.ToLower()) || newWord.Contains("$")))
+                    {
+                        money.Enqueue(pos);
+                    }
+                    if (specificBigNums != null &&
+                        (newWord.ToLower() == Resources.Resource.thousand || newWord.ToLower() == Resources.Resource.million ||
+                        newWord.ToLower() == Resources.Resource.billion || newWord.ToLower() == Resources.Resource.trillion))
+                    {
+                        specificBigNums.Enqueue(pos);
+                    }
+                    if (bigNums != null && Regex.IsMatch(newWord, Resources.Resource.regex_Numbers))
+                    {
+                        bigNums.Enqueue(pos);
+                    }
+                    if (betweens != null && (newWord.ToLower().Contains("between") || newWord.ToLower().Contains("-")))
+                    {
+                        betweens.Enqueue(pos);
+                    }
                 }
                 pos++;
             }
@@ -613,21 +621,26 @@ namespace Model2
         /// <returns></returns>
         public static string[] ParseTimeTerms(int pos, string[] splitedText) {
             if (splitedText[pos] != " ")
-            {
+            {       
                 //same word
-                if (splitedText[pos].Contains(':')) {
-                    if(System.DateTime.TryParse(splitedText[pos], out var dateTime))
+                string replacedDot = splitedText[pos].Contains('.') ? splitedText[pos].Replace('.', ':') : splitedText[pos];
+
+                if (replacedDot.Contains(':') || Regex.IsMatch(replacedDot, Resources.Resource.regex_PM_AM_withHoursOnly)) {
+                    if(System.DateTime.TryParse(replacedDot, out var dateTime))
                     {
                         splitedText[pos] = dateTime.GetDateTimeFormats()[108];
                         return splitedText;
                     }
-                    
                 }
+               
                 else if (pos - 1 >= 0) {
-                    //2 words
-                    if (splitedText[pos - 1].Contains(':')) {
+                    //time with .
+                    bool isTimeWithDot = (splitedText[pos] == "PM" || splitedText[pos] == "AM") && double.TryParse(splitedText[pos - 1], out double suspectedTimeWithDot);
+                    replacedDot = isTimeWithDot ? splitedText[pos-1].Replace('.', ':') : splitedText[pos-1];
+                    // 2 words
+                    if (replacedDot.Contains(':')) {
 
-                        string suspectedTime = splitedText[pos - 1] + " " + splitedText[pos];
+                        string suspectedTime = replacedDot + " " + splitedText[pos];
                         if (System.DateTime.TryParse(suspectedTime, out var dateTime))
                         {
                             splitedText[pos-1] = dateTime.GetDateTimeFormats()[108];
@@ -635,6 +648,7 @@ namespace Model2
                             return splitedText;
                         }
                     }
+                    
                 }  
             }
             return splitedText;

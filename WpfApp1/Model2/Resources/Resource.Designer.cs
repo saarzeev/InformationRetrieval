@@ -142,6 +142,24 @@ namespace Model2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (^|[0-9]+)(PM|AM)$.
+        /// </summary>
+        internal static string regex_PM_AM {
+            get {
+                return ResourceManager.GetString("regex_PM_AM", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ([0-9][0-9]|[0-9])(PM|AM)$.
+        /// </summary>
+        internal static string regex_PM_AM_withHoursOnly {
+            get {
+                return ResourceManager.GetString("regex_PM_AM_withHoursOnly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to thousand.
         /// </summary>
         internal static string thousand {
