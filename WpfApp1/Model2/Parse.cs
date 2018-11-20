@@ -27,30 +27,30 @@ namespace Model2
             //_semaphore.Release(11);
             //while (fr.HasNext()) { }
             //Console.WriteLine( fr.ReadNextDoc());
-            /*string time = "93PM";
-            bool isss = System.DateTime.TryParse(time,out var ggg);
-            time = ggg.GetDateTimeFormats()[108];
+            //////string time = "93PM";
+            //bool isss = System.DateTime.TryParse(time,out var ggg);
+            //time = ggg.GetDateTimeFormats()[108];
 
-            string s = ParsePresents("<<90 percent , bfdgfdgsj 1555" +
-                "ddsfssfsfsfs   90             percent----");
+            //string s = ParsePresents("<<90 percent , bfdgfdgsj 1555" +
+            //    "ddsfssfsfsfs   90             percent----");
 
             //string t = ParseRange("Between number and number (for example: between 18 and 24)");
             FromFilesToDocs(@"C:\Users\nastia\Source\Repos\saarzeev\corpus");
-            string k = " 44444/24545";
-            double.TryParse(k, out double num);
-            Console.WriteLine(num);
-            string t = "1/2";
-            string n = "11.55/111";
-            string sa = "k/1";
-            string ss = "11/12/22";
-            string ffff = "raising the fat content of imported meat from 2O percent to 35%; in other words for every 1000 kgs of meat the fat content is 350 kgs.";
-            string ddddd = ParsePresents(ffff);
-            Console.WriteLine(Regex.IsMatch(k, Resources.Resource.regex_Fraction));
-            Console.WriteLine(Regex.IsMatch(t, Resources.Resource.regex_Fraction));
-            Console.WriteLine(Regex.IsMatch(n, Resources.Resource.regex_Fraction));
-            Console.WriteLine(Regex.IsMatch(sa, Resources.Resource.regex_Fraction));
-            Console.WriteLine(Regex.IsMatch(ss, Resources.Resource.regex_Fraction));*/
-            Parser(new Doc("ngnngngg", new StringBuilder(Resources.Resource.openText + " " + " 33/44z Dollars 10 3/4 dollars  1.7320 Dollars  22 3/4 Dollars $450,000 1,000,000 Dollars $450,000,000 54/88 million dollars 20.6 m Dollars $100 billion 100 bn Dollars 5 100/555 billion U.S. dollars 320 million U.S. dollars 1 trillion U.S. dollars" + " " + Resources.Resource.closeText), 0));
+            //string k = " 44444/24545";
+            //double.TryParse(k, out double num);
+            //Console.WriteLine(num);
+            //string t = "1/2";
+            //string n = "11.55/111";
+            //string sa = "k/1";
+            //string ss = "11/12/22";
+            //string ffff = "raising the fat content of imported meat from 2O percent to 35%; in other words for every 1000 kgs of meat the fat content is 350 kgs.";
+            //string ddddd = ParsePresents(ffff);
+            //Console.WriteLine(Regex.IsMatch(k, Resources.Resource.regex_Fraction));
+            //Console.WriteLine(Regex.IsMatch(t, Resources.Resource.regex_Fraction));
+            //Console.WriteLine(Regex.IsMatch(n, Resources.Resource.regex_Fraction));
+            //Console.WriteLine(Regex.IsMatch(sa, Resources.Resource.regex_Fraction));
+            //Console.WriteLine(Regex.IsMatch(ss, Resources.Resource.regex_Fraction));*/
+            //Parser(new Doc("ngnngngg", new StringBuilder(Resources.Resource.openText + " " + " 33/44z Dollars 10 3/4 dollars  1.7320 Dollars  22 3/4 Dollars $450,000 1,000,000 Dollars $450,000,000 54/88 million dollars 20.6 m Dollars $100 billion 100 bn Dollars 5 100/555 billion U.S. dollars 320 million U.S. dollars 1 trillion U.S. dollars" + " " + Resources.Resource.closeText), 0));
         }
 
         /// <summary>
@@ -106,7 +106,8 @@ namespace Model2
             DateTime parseDocTime = DateTime.Now;
             StringBuilder text = doc._text.Replace("\\n", " ");
             text = text.Replace(",", "");
-            string[] splitedText = text.ToString().Split(' ');
+            char[] delimiters = { ' ', '(', ')', '<', '>', '[', ']', '{', '}', '^', ';', '"', '\'', '`', '|', '*', '#', '+', '?', '!', '&', '@', '\\' };
+            string[] splitedText = text.ToString().Split(delimiters);
 
             //Substitute month' names with numbers
             Dictionary<string, string> months = new Dictionary<string, string>();
@@ -120,13 +121,10 @@ namespace Model2
                 .TakeWhile((newWord) => String.Compare(newWord, Resources.Resource.closeText) != 0)
                 .Where((newWord) => String.Compare(newWord, "") != 0);
 
-            //split text by delimiters  -TO-DO
-            string toParse = String.Join(" ", onlyText);
-            toParse = ParsePresents(toParse);
-            char[] delimiters = { ' ', '(', ')', '<', '>', '[', ']', '{', '}', '^', ';', '"', '\'','`', '|', '*', '#', '+', '?' , '!', '&', '@', '\\'};
-            splitedText = toParse.ToString().Split(delimiters);
-
-            //  saving suspicious words Indexes by theme
+            // toParse = ParsePresents(toParse);
+           
+            splitedText = onlyText.ToArray();
+            //saving suspicious words Indexes by theme
             Queue<int> dates = new Queue<int>();
             Queue<int> money = new Queue<int>();
             Queue<int> specificBigNums = new Queue<int>();
@@ -136,7 +134,7 @@ namespace Model2
 
             PopulateQueueWithPositions(splitedText, months, dates, money, specificBigNums, bigNums, betweens, times);
 
-            //check and parse if the words meet the conditions 
+            //check and parse if the words meet the conditions
             while (betweens.Count != 0)
             {
                 splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText);
@@ -164,8 +162,8 @@ namespace Model2
             }
 
             numPositions.Clear();
-            //Console.WriteLine(doc._path + "\n" + String.Join(" ", splitedText));
-            //Console.WriteLine("Done with doc. Parsing took " + (DateTime.Now - parseDocTime));
+            ////Console.WriteLine(doc._path + "\n" + String.Join(" ", splitedText));
+          //  Console.WriteLine("Done with doc. Parsing took " + (DateTime.Now - parseDocTime));
         }
         /// <summary>
         /// 
@@ -181,6 +179,7 @@ namespace Model2
         private static void PopulateQueueWithPositions(string[] splitedText, Dictionary<string, string> months, Queue<int> dates, Queue<int> money, Queue<int> specificBigNums, Queue<int> bigNums, Queue<int> betweens, Queue<int> times = null)
         {
             int pos = 0;
+            char[] delimiters = { ' ', '(', ')', '<', '>', '[', ']', '{', '}', '^', ';', '"', '\'', '`', '|', '*', '#', '+', '?', '!', '&', '@', '\\' };
             foreach (string word in splitedText)
             {
                 if (word != "")

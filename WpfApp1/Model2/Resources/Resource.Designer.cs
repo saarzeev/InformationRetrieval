@@ -133,7 +133,7 @@ namespace Model2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ([0-9])+([.][0-9]+)*.
+        ///   Looks up a localized string similar to ^([0-9])+([.][0-9]+)*$.
         /// </summary>
         internal static string regex_Numbers {
             get {
@@ -142,7 +142,7 @@ namespace Model2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (^|[0-9]+)(PM|AM)$.
+        ///   Looks up a localized string similar to (^|[0-1][0-2]|[1-9])(P|A)M$.
         /// </summary>
         internal static string regex_PM_AM {
             get {
@@ -151,7 +151,7 @@ namespace Model2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ([0-9][0-9]|[0-9])(PM|AM)$.
+        ///   Looks up a localized string similar to ([0-1][0-2]|[1-9])(P|A)M$.
         /// </summary>
         internal static string regex_PM_AM_withHoursOnly {
             get {
