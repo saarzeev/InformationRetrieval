@@ -68,7 +68,7 @@ namespace Model2
                 }
                 done = true;
             });
-            //TO-DO
+           
             while (!done || _docs.Count > 0 )
             {
                 _semaphore1.Wait();
@@ -91,34 +91,43 @@ namespace Model2
             months.Add("jan", "01"); months.Add("feb", "02"); months.Add("mar", "03"); months.Add("apr", "04"); months.Add("may", "05"); months.Add("jun", "06"); months.Add("jul", "07"); months.Add("aug", "08"); months.Add("sep", "09"); months.Add("oct", "10"); months.Add("nov", "11"); months.Add("dec", "12");
             months.Add("january", "01"); months.Add("february", "02"); months.Add("march", "03"); months.Add("april", "04"); months.Add("june", "06"); months.Add("july", "07"); months.Add("august", "08"); months.Add("september", "09"); months.Add("october", "10"); months.Add("november", "11"); months.Add("december", "12");
 
+            //read doc between TEXT tags
             IEnumerable<String> onlyText =
                 splitedText
                 .SkipWhile((newWord) => String.Compare(newWord, Resources.Resource.openText) != 0)
                 .TakeWhile((newWord) => String.Compare(newWord, Resources.Resource.closeText) != 0)
                 .Where((newWord) => String.Compare(newWord, "") != 0);
 
+            //split text by delimiters  -TO-DO
             string toParse = String.Join(" ", onlyText);
             toParse = ParsePresents(toParse);
             char[] delimiters = { ' ' };
             splitedText = toParse.ToString().Split(delimiters);
 
+            //  saving suspicious words Indexes by theme
             Queue<int> dates = new Queue<int>();
             Queue<int> money = new Queue<int>();
             Queue<int> specificBigNums = new Queue<int>();
             Queue<int> bigNums = new Queue<int>();
             Queue<int> betweens = new Queue<int>();
+            Queue<int> times = new Queue<int>();
 
-            PopulateQueueWithPositions(splitedText, months, dates, money, specificBigNums, bigNums, betweens);
+            PopulateQueueWithPositions(splitedText, months, dates, money, specificBigNums, bigNums, betweens, times);
 
-            //while (betweens.Count != 0)
-            //{
-            //    splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText);
-            //}
+         //check and parse if the words meet the conditions 
+            while (betweens.Count != 0)
+            {
+                splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText);
+            }
             while (dates.Count != 0)
             {
                 int position = dates.Dequeue();
                 splitedText = ParseDate(position, months[splitedText[position].ToLower()], splitedText);
             }
+            //while (times.Count != 0)
+            //{
+            //   // splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText);
+            //}
             while (money.Count != 0)
             {
                 splitedText = ParseMoney(money.Dequeue(), splitedText);
@@ -137,7 +146,7 @@ namespace Model2
 
         }
 
-        private static void PopulateQueueWithPositions(string[] splitedText, Dictionary<string, string> months, Queue<int> dates, Queue<int> money, Queue<int> specificBigNums, Queue<int> bigNums, Queue<int> betweens)
+        private static void PopulateQueueWithPositions(string[] splitedText, Dictionary<string, string> months, Queue<int> dates, Queue<int> money, Queue<int> specificBigNums, Queue<int> bigNums, Queue<int> betweens, Queue<int> times = null)
         {
             int pos = 0;
             foreach (string word in splitedText)
@@ -149,7 +158,10 @@ namespace Model2
                     newWord = word.Substring(0, word.Length - 1);
                     splitedText[pos] = newWord;
                 }
-
+                if (times != null && (word == "PM" || word == "AM"))
+                {
+                    times.Enqueue(pos);
+                }
                 if (dates != null && months.ContainsKey(newWord.ToLower()))
                 {
                     dates.Enqueue(pos);
@@ -181,6 +193,7 @@ namespace Model2
            return Regex.IsMatch(suspect, Resources.Resource.regex_Fraction);
         }
 
+        //generate string for number (int/double/fraction) with its representative letter or string
         private static string numberBuilder(double number, double divider, string frac ,string representativeString ){
 
             double doubleFormat = number / divider;
@@ -203,6 +216,7 @@ namespace Model2
 
         }                     
         
+        //checks if the suspicious word is a number and parse it to requirements
         private static string[] ParseNumbers(int pos, string[] splitedText)
         {
             if (splitedText[pos] != " ")
@@ -220,8 +234,9 @@ namespace Model2
                         splitedText[pos + 1] = " ";
                     }
                 }
-
-                if (int.TryParse(splitedText[pos], out int number))
+                    
+               // dispensing cases - depending on the size of the number(int)
+                if (double.TryParse(splitedText[pos], out double number))
                 {
                     if (number >= 1000 && number < 1000000)
                     {
@@ -246,37 +261,11 @@ namespace Model2
                     numPositions.Add(pos);
                     return splitedText;
                 }
-
-                else if (frac == "" && double.TryParse(splitedText[pos], out double doubleNumber))
-                {
-
-                    if (doubleNumber >= 1000 && doubleNumber < 1000000)
-                    {
-                        divider = 1000.0;
-                        representativeLetter = "K";
-                    }
-
-                    else if (doubleNumber >= 1000000 && doubleNumber < 1000000000)
-                    {
-                        divider = 1000000.0;
-                        representativeLetter = "M";
-                    }
-
-                    else if (doubleNumber >= 1000000000)
-                    {
-                        divider = 1000000000.0;
-                        representativeLetter = "B";
-                    }
-
-                    parsed = numberBuilder(doubleNumber,divider,frac,representativeLetter);
-                    splitedText[pos] = parsed;
-                    numPositions.Add(pos);
-                    return splitedText;
-                }
             }
             return splitedText;
         }
-
+         
+        //checks if the suspicious word is a expression to represent a large number and parse it to requirements
         private static string[] ParseSpecificNumbers(int pos, string[] splitedText)
         {
             string frac = "";
@@ -297,6 +286,7 @@ namespace Model2
                 
                 if (pos - 1 >= 0)
                 {
+                    // number - fraction - word 
                     if (isFraction(splitedText[pos - 1]))
                     {
                         frac = splitedText[pos - 1];
@@ -314,15 +304,7 @@ namespace Model2
                             }
                         }
                     }
-
-                   else if (int.TryParse(splitedText[pos - 1], out int number))
-                    {
-                        parsed = number + representativeLetter;
-                        splitedText[pos - 1] = parsed;
-                        splitedText[pos] = " ";
-                        numPositions.Add(pos-1);
-                        return splitedText;
-                    }
+                    // number - word 
                     else if (double.TryParse(splitedText[pos - 1], out double doubleNumber))
                     {
                         parsed = doubleNumber + representativeLetter;
@@ -335,7 +317,8 @@ namespace Model2
             }
             return splitedText;
         }
-
+        
+        //generate string for Date :(year-month-day)
         private static string BuildDayAndYear(int day, int year, string month, string parsed){
 
             if (day >= 10)
@@ -349,6 +332,7 @@ namespace Model2
              return parsed;
         }
 
+        //generate string for Date :(month-day or year-month)
         private static string BuildDayOrYear(int dayOrYear, string month, string parsed){
             
              if (dayOrYear >= 10 && dayOrYear <= 31)
@@ -368,6 +352,7 @@ namespace Model2
              return parsed;
         }
 
+        //checks if the expression to represent a months  has another date expression in its vicinity, and parse it to requirements
         private static string[] ParseDate(int pos, string month, string[] splitedText)
         {
             if (splitedText[pos] != " ")
@@ -375,10 +360,12 @@ namespace Model2
                 string parsed = splitedText[pos];
                 if (pos - 1 >= 0)
                 {
+                    
                     if (int.TryParse(splitedText[pos - 1], out int day))
                     {
                         if (pos + 1 < splitedText.Length)
                         {
+                            //day-month-year
                             if (int.TryParse(splitedText[pos + 1], out int year))
                             {
                                 if (year >= 1000 && year < 4000)
@@ -393,6 +380,7 @@ namespace Model2
                             }
                         }
 
+                         //day-month
                         parsed = BuildDayOrYear(day,month,parsed);
 
                         splitedText[pos - 1] = parsed;
@@ -411,6 +399,7 @@ namespace Model2
                             {    
                                 if (year >= 1000 && year < 4000){
 
+                                    //month-day-year
                                     parsed = BuildDayAndYear(day,year,month,parsed);
 
                                     splitedText[pos] = parsed;
@@ -420,6 +409,7 @@ namespace Model2
                                 }
                             }
                         }
+                        //month-day
                         parsed = BuildDayOrYear(day,month,parsed);
 
                         splitedText[pos] = parsed;
@@ -431,6 +421,7 @@ namespace Model2
             return splitedText;
         }
        
+        //parse expressions that formated: <number-percentage|percent> to another format: <number%>
         private static string ParsePresents(string text)
         {
             string pattern = "(?<number>([0-9])+([.][0-9]+)*)(\\s|-)+(percentage|percent)";
@@ -497,7 +488,8 @@ namespace Model2
             }
             return splitedText;
         }
-        //to-do fraction dollars && fraction milion/billion... dollars
+
+        //TO-DO fraction dollars && fraction milion/billion... dollars
         private static string[] DollarSignToCanonicalForm(ref int pos, string[] splitedText) //Canonical form == NUMBER (counter) Dollars
         {
             List<String> counters = new List<string>();
