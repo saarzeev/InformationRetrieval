@@ -27,7 +27,7 @@ namespace Model2
             //_semaphore.Release(11);
             //while (fr.HasNext()) { }
             //Console.WriteLine( fr.ReadNextDoc());
-            string time = "93PM";
+            /*string time = "93PM";
             bool isss = System.DateTime.TryParse(time,out var ggg);
             time = ggg.GetDateTimeFormats()[108];
 
@@ -49,8 +49,8 @@ namespace Model2
             Console.WriteLine(Regex.IsMatch(t, Resources.Resource.regex_Fraction));
             Console.WriteLine(Regex.IsMatch(n, Resources.Resource.regex_Fraction));
             Console.WriteLine(Regex.IsMatch(sa, Resources.Resource.regex_Fraction));
-            Console.WriteLine(Regex.IsMatch(ss, Resources.Resource.regex_Fraction));
-            Parser(new Doc("ngnngngg", new StringBuilder(Resources.Resource.openText + " " + "3/4z Dollars 10 3/4 dollars  1.7320 Dollars  22 3/4 Dollars $450,000 1,000,000 Dollars $450,000,000 54/88 million dollars 20.6 m Dollars $100 billion 100 bn Dollars 5 100/555 billion U.S. dollars 320 million U.S. dollars 1 trillion U.S. dollars" + " " + Resources.Resource.closeText), 0));
+            Console.WriteLine(Regex.IsMatch(ss, Resources.Resource.regex_Fraction));*/
+            Parser(new Doc("ngnngngg", new StringBuilder(Resources.Resource.openText + " " + " 33/44z Dollars 10 3/4 dollars  1.7320 Dollars  22 3/4 Dollars $450,000 1,000,000 Dollars $450,000,000 54/88 million dollars 20.6 m Dollars $100 billion 100 bn Dollars 5 100/555 billion U.S. dollars 320 million U.S. dollars 1 trillion U.S. dollars" + " " + Resources.Resource.closeText), 0));
         }
 
         /// <summary>
@@ -467,25 +467,30 @@ namespace Model2
 
         public static string[] ParseMoney(int pos, string[] splitedText)
         {
-            string[] temp = new string[splitedText.Length];
-            Array.Copy(splitedText, temp, splitedText.Length);
-            temp = DollarSignToCanonicalForm(ref pos, temp);
-            string[] splitedMoneyExpr = temp[pos].Split(' ');
+            //string[] temp = new string[splitedText.Length];
+            //Array.Copy(splitedText, temp, splitedText.Length);
+            List<int> posToRemove = new List<int>();
+            string canonizedStr = DollarSignToCanonicalForm(ref pos, splitedText, ref posToRemove);
+            string[] splitedMoneyExpr = /*temp[pos]*/canonizedStr.Split(' ');
             string frac = "";
+            bool commitChangesToSplittedText = false;
             if (Regex.IsMatch(splitedMoneyExpr[0], Resources.Resource.regex_Fraction))
             {
                 frac = " " + splitedMoneyExpr[0];
                 if (pos - 1 >= 0)
                 {
-                    splitedMoneyExpr[0] = temp[pos - 1];
+                    splitedMoneyExpr[0] = splitedText[pos - 1];
                 }
-                splitedText = temp;
+                //splitedText = temp;
+                splitedText[pos] = canonizedStr;
+                commitChangesToSplittedText = true;
             }
             double sum = 0;
 
             if (Regex.IsMatch(splitedMoneyExpr[0], Resources.Resource.regex_Numbers) && double.TryParse(splitedMoneyExpr[0], out sum))
             {
-                splitedText = temp;
+                //splitedText = temp;
+                splitedText[pos] = canonizedStr;
                 if (frac != "")
                 {
                     splitedText[pos] = " ";
@@ -516,17 +521,27 @@ namespace Model2
                 {
                     sum = sum / 1000000;
                     splitedText[pos] = sum.ToString() + frac + " M " + Resources.Resource.dollars;
+                    commitChangesToSplittedText = true;
                 }
                 else
                 {
                     splitedText[pos] = sum.ToString() + frac + " " + Resources.Resource.dollars;
+                    commitChangesToSplittedText = true;
+                }
+            }
+
+            if (commitChangesToSplittedText)
+            {
+                foreach (int i in posToRemove)
+                {
+                    splitedText[i] = " ";
                 }
             }
             return splitedText;
         }
 
         //TO-DO fraction dollars && fraction milion/billion... dollars
-        private static string[] DollarSignToCanonicalForm(ref int pos, string[] splitedText) //Canonical form == NUMBER (counter) Dollars
+        private static string DollarSignToCanonicalForm(ref int pos, string[] splitedText, ref List<int> posToDelete) //Canonical form == NUMBER (counter) Dollars
         {
             List<String> counters = new List<string>();
             counters.Add(Resources.Resource.hundred);
@@ -535,19 +550,22 @@ namespace Model2
             counters.Add(Resources.Resource.billion);
             counters.Add(Resources.Resource.trillion);
             string frac = "";
+            string canonizedStr = "";
 
             if (splitedText[pos].Contains('$'))
             {
-                splitedText[pos] = splitedText[pos].Remove(splitedText[pos].IndexOf("$"), 1);
+                canonizedStr += splitedText[pos].Remove(splitedText[pos].IndexOf("$"), 1);
+                //splitedText[pos] = splitedText[pos].Remove(splitedText[pos].IndexOf("$"), 1);
                 pos++; //skip the figure after the $ sign
 
                 if (pos < splitedText.Length && counters.Contains(splitedText[pos].ToLower()))
                 { //this limits counters to 1.
-                    splitedText[pos - 1] = splitedText[pos - 1] + " " + splitedText[pos];
-                    splitedText[pos] = " ";
+                    canonizedStr += " " + splitedText[pos];
+                    //splitedText[pos] = " ";
+                    posToDelete.Add(pos);
                 }
 
-                splitedText[pos - 1] = splitedText[pos - 1] + " " + Resources.Resource.dollars;
+                canonizedStr += " " + Resources.Resource.dollars;
 
                 pos--;
             }
@@ -555,62 +573,74 @@ namespace Model2
             {
                 if (splitedText[pos - 1].ToLower() == "u.s.")
                 {
-                    splitedText[pos] = " "; //Remove Dollar
-                    splitedText[pos - 1] = " "; //Remove U.S.
+                    posToDelete.Add(pos);
+                    posToDelete.Add(pos - 1);
+                    //splitedText[pos] = " "; //Remove Dollar
+                    //splitedText[pos - 1] = " "; //Remove U.S.
                     if (pos - 3 >= 0 && counters.Contains(splitedText[pos - 2]))
                     { //has a counter, it is of form NUM billion U.S. Dollars
-                        splitedText[pos - 3] = splitedText[pos - 3] + " " + splitedText[pos - 2] + " " + " " + Resources.Resource.dollars;
-                        splitedText[pos - 2] = " "; //Remove Counter
+                        canonizedStr /*splitedText[pos - 3]*/ = splitedText[pos - 3] + " " + splitedText[pos - 2] + " " + " " + Resources.Resource.dollars;
+                        posToDelete.Add(pos - 2); 
+                        //splitedText[pos - 2] = " "; //Remove Counter
                         pos = pos - 3;
                     }
                     else if (pos - 2 >= 0) //Does't have a counter. It is of form NUM "frac" U.S. Dollars
                     {
-                        splitedText[pos - 2] = splitedText[pos - 2] + " " + Resources.Resource.dollars;
+
+                        /*splitedText[pos - 2]*/ canonizedStr = splitedText[pos - 2] + " " + Resources.Resource.dollars;
                         pos = pos - 2;
                     }
                 }
                 else if (pos - 2 >= 0 && splitedText[pos - 1].ToLower() == "m")
                 {
-                    splitedText[pos] = " ";
-                    splitedText[pos - 1] = " ";
-                    splitedText[pos - 2] = splitedText[pos - 2] + " " + Resources.Resource.million + " " + Resources.Resource.dollars;
+                    posToDelete.Add(pos);
+                    posToDelete.Add(pos - 1);
+                    //splitedText[pos] = " ";
+                    //splitedText[pos - 1] = " ";
+                    /*splitedText[pos - 2]*/ canonizedStr = splitedText[pos - 2] + " " + Resources.Resource.million + " " + Resources.Resource.dollars;
                     pos = pos - 2;
                 }
                 else if (pos - 2 >= 0 && splitedText[pos - 1].ToLower() == "bn")
                 {
-                    splitedText[pos] = " ";
-                    splitedText[pos - 1] = " ";
-                    splitedText[pos - 2] = splitedText[pos - 2] + " " + Resources.Resource.billion + " " + Resources.Resource.dollars;
+                    posToDelete.Add(pos);
+                    posToDelete.Add(pos - 1);
+                    //splitedText[pos] = " ";
+                    //splitedText[pos - 1] = " ";
+                    /*splitedText[pos - 2]*/ canonizedStr = splitedText[pos - 2] + " " + Resources.Resource.billion + " " + Resources.Resource.dollars;
                     pos = pos - 2;
                 }
                 else if (pos - 2 >= 0 && (splitedText[pos - 1].ToLower() == Resources.Resource.billion ||
                     splitedText[pos - 1].ToLower() == Resources.Resource.trillion || splitedText[pos - 1].ToLower() == Resources.Resource.million))
                 {
-                    splitedText[pos - 2] = splitedText[pos - 2] + " " + splitedText[pos - 1] + " " + Resources.Resource.dollars;
-                    splitedText[pos] = " ";
-                    splitedText[pos - 1] = " ";
+                    /*splitedText[pos - 2]*/ canonizedStr = splitedText[pos - 2] + " " + splitedText[pos - 1] + " " + Resources.Resource.dollars;
+                    //splitedText[pos] = " ";
+                    //splitedText[pos - 1] = " ";
+                    posToDelete.Add(pos);
+                    posToDelete.Add(pos - 1);
                     pos = pos - 2;
                 }
 
                 else if (pos - 1 >= 0 && Regex.IsMatch(splitedText[pos - 1], Resources.Resource.regex_Fraction))
                 {
-                    splitedText[pos - 1] = splitedText[pos - 1] + " " + Resources.Resource.dollars;
-                    splitedText[pos] = " ";
-
+                    /*splitedText[pos - 1]*/ canonizedStr = splitedText[pos - 1] + " " + Resources.Resource.dollars;
+                    //splitedText[pos] = " ";
+                    posToDelete.Add(pos);
+                    
                     pos = pos - 1;
                 }
 
-                else if (pos - 1 >= 0 && (Regex.IsMatch(splitedText[pos - 1], Resources.Resource.regex_Numbers) ||
-                  Regex.IsMatch(splitedText[pos - 1], Resources.Resource.regex_Fraction)))
+                else if (pos - 1 >= 0 && (Regex.IsMatch(splitedText[pos - 1], Resources.Resource.regex_Numbers) || Regex.IsMatch(splitedText[pos - 1], Resources.Resource.regex_Fraction)))
                 {
-                    splitedText[pos - 1] = splitedText[pos - 1] + " " + Resources.Resource.dollars;
-                    splitedText[pos] = " ";
+                    /*splitedText[pos - 1]*/ canonizedStr = splitedText[pos - 1] + " " + Resources.Resource.dollars;
+                    //splitedText[pos] = " ";
+                    posToDelete.Add(pos);
+
                     pos = pos - 1;
                 }
 
             }
 
-            return splitedText;
+            return canonizedStr;
         }
 
         /// <summary>
