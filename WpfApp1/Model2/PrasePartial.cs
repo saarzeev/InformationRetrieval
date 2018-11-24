@@ -1,3 +1,4 @@
+using SearchEngine;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -127,5 +128,16 @@ namespace Model2
 
             return concatBetweenTerm;
         }
+
+        private static void AddTermsToVocabulry(string[] splitedText, bool shouldStem)
+        {
+            StemmerInterface stm = new Stemmer();
+            foreach (string term in splitedText)
+            { 
+                _vocabulary.Add(shouldStem && term != " " ? stm.stemTerm(term) : term);
+            }
+        }
     }
+
+    
 }

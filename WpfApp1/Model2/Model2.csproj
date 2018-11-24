@@ -53,6 +53,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resource.resx</DependentUpon>
     </Compile>
+    <Compile Include="Stemmer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

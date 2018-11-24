@@ -20,6 +20,7 @@ namespace Model2
         static private Mutex mutex = new Mutex();
         static private bool done = false;
         static private HashSet<int> numPositions = new HashSet<int>();
+        static private HashSet<string> _vocabulary = new HashSet<string>();
 
         static void Main(string[] args)
         {
@@ -35,7 +36,8 @@ namespace Model2
             //    "ddsfssfsfsfs   90             percent----");
 
             //string t = ParseRange("Between number and number (for example: between 18 and 24)");
-            FromFilesToDocs(@"C:\Users\nastia\Source\Repos\saarzeev\corpus");
+            FromFilesToDocs(@"C:\miniMiniCorpus", true);
+            FromFilesToDocs(@"C:\miniMiniCorpus", false);
             //string k = " 44444/24545";
             //double.TryParse(k, out double num);
             //Console.WriteLine(num);
@@ -60,11 +62,11 @@ namespace Model2
         /// 
         /// </summary>
         /// <param name="path"></param>
-        public static void FromFilesToDocs(string path)
+        public static void FromFilesToDocs(string path, bool shouldStem)
         {
             DateTime totalInitTime = DateTime.Now;
             Task task;
-            Console.WriteLine("Strated...");
+            Console.WriteLine("Started...");
             FileReader fr = new FileReader(path);
             task = Task.Run(() =>
             {
@@ -87,11 +89,14 @@ namespace Model2
                 _semaphore1.Wait();
                 Doc currentDoc;
                 _docs.TryDequeue(out currentDoc);
-                Parser(currentDoc);
+                Parser(currentDoc, shouldStem);
                 _semaphore2.Release();
             }
             task.Wait();
             Console.WriteLine("Total runtime  including read from file = " + (DateTime.Now - totalInitTime));
+            Console.WriteLine("Total terms in vocabulary = " + _vocabulary.Count);
+            Console.WriteLine("shouldStem = " + shouldStem);
+
         }
 
         /// <summary>
@@ -100,13 +105,13 @@ namespace Model2
         /// Our added parsing rules are for times (3PM -> 15:00)
         /// </summary>
         /// <param name="doc"></param>
-        private static void Parser(Doc doc)
+        private static void Parser(Doc doc, bool shouldStem)
         {
 
             DateTime parseDocTime = DateTime.Now;
             StringBuilder text = doc._text.Replace("\\n", " ");
             text = text.Replace(",", "");
-            char[] delimiters = { ' ', '(', ')', '<', '>', '[', ']', '{', '}', '^', ';', '"', '\'', '`', '|', '*', '#', '+', '?', '!', '&', '@', '\\' };
+            char[] delimiters = { ' ', '(', ')', /*'<', '>',*/ '[', ']', '{', '}', '^', ';', '"', '\'', '`', '|', '*', '#', '+', '?', '!', '&', '@', '\\' };
             string[] splitedText = text.ToString().Split(delimiters);
 
             //Substitute month' names with numbers
@@ -119,10 +124,9 @@ namespace Model2
                 splitedText
                 .SkipWhile((newWord) => String.Compare(newWord, Resources.Resource.openText) != 0)
                 .TakeWhile((newWord) => String.Compare(newWord, Resources.Resource.closeText) != 0)
-                .Where((newWord) => String.Compare(newWord, "") != 0);
+                .Where((newWord) => newWord != "");
 
             // toParse = ParsePresents(toParse);
-           
             splitedText = onlyText.ToArray();
             //saving suspicious words Indexes by theme
             Queue<int> dates = new Queue<int>();
@@ -162,9 +166,14 @@ namespace Model2
             }
 
             numPositions.Clear();
+
+            AddTermsToVocabulry(splitedText, shouldStem);
             ////Console.WriteLine(doc._path + "\n" + String.Join(" ", splitedText));
           //  Console.WriteLine("Done with doc. Parsing took " + (DateTime.Now - parseDocTime));
         }
+
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -457,7 +466,7 @@ namespace Model2
         }
 
         //parse expressions that formated: <number-percentage|percent> to another format: <number%>
-        private static string ParsePresents(string text)
+        private static string ParsePercentages(string text)
         {
             string pattern = "(?<number>([0-9])+([.][0-9]+)*)(\\s|-)+(percentage|percent)";
             string replacement = "${number}%";
