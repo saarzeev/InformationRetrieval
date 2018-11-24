@@ -12,7 +12,7 @@ namespace Model2
         public string path { get; private set; }
         private Queue<string> _files = new Queue<string>();
         private string _currentFile = "";
-        private long _currentPosition;
+        private long _docINdexInFile;
 
         public FileReader(string path)
         {
@@ -31,7 +31,7 @@ namespace Model2
             if (_currentFile == "")
             {
                 _currentFile = _files.Dequeue();
-                //_currentPosition = 0;
+                _docINdexInFile = 1;
             }
 
             StringBuilder doc = new StringBuilder("");
@@ -54,7 +54,8 @@ namespace Model2
                     if (line != null )
                     {
                         doc.Append("</DOC>");
-                        retVal = new Doc(this._currentFile, doc, this._currentPosition);
+                        retVal = new Doc(this._currentFile, doc, this._docINdexInFile);
+                        _docINdexInFile++;
                         retValList.Add(retVal);
                         doc = new StringBuilder();
                     }

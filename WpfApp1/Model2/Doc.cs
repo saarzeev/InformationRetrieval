@@ -10,13 +10,13 @@ namespace Model2
     {
         public string _path { get; }
         public StringBuilder _text { get; }
-        private long _indexInFile { get; }
+        public long _indexInFile { get; }
    
-    public Doc(string path, StringBuilder text, long index)
+    public Doc(string path, StringBuilder text, long indexInFile)
         {
             this._path = path;
             this._text = text;
-            this._indexInFile = index; 
+            this._indexInFile = indexInFile; 
         }
     }
 }
