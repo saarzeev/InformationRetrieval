@@ -39,6 +39,7 @@ namespace Model2
             if (hyphenExpr.Length == 2)
             { //Hyphen-terms with numbers should be number-parsed
                 string[] leftSubstr = { splitedText[pos - 1], hyphenExpr[0] };
+                //TODO Array out of bounds
                 // OUT OF RANGE TO-Do!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 string[] rightSubstr = { hyphenExpr[1], splitedText[pos + 1] };
 
@@ -92,6 +93,7 @@ namespace Model2
             }
         }
         //TODO num position not global
+        //TODO maybe delete "-" that are not a between term?? and "--"
         private  string BetweenAndTerm(ref int pos, string[] splitedText)
         {
             string concatBetweenTerm = "";
@@ -136,8 +138,9 @@ namespace Model2
             int pos = 0;
             foreach (string word in splitedText)
             {
-                if (word != " " && word != "" && !stopWords.Contains(word.ToLower()))
+                if (word != " " && word != "" )
                 {
+                    //TODO if stemming so dont stemm numbers,dates,between,
                     string term = shouldStem ? stm.stemTerm(word).ToLower(): word.ToLower();
                     if (thisDocVocabulary.ContainsKey(term))
                     {

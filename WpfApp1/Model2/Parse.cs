@@ -22,6 +22,7 @@ namespace Model2
         private HashSet<int> numPositions = new HashSet<int>();
         private HashSet<string> _vocabulary = new HashSet<string>();
         HashSet<string> bigNumbersHash = new HashSet<string>();
+        //TODO =
         char[] delimiters = { ' ', '(', ')', '<', '>', '[', ']', '{', '}', '^', ';', '"', '\'', '`', '|', '*', '#', '+', '?', '!', '&', '@', '\\', ',' };
         Dictionary<string, string> months = new Dictionary<string, string>();
 
@@ -117,6 +118,7 @@ namespace Model2
             //        Indexer.fullDictionary[term].GetTerm = term.ToUpper();
             //    }
             //}
+           
         }
 
         /// <summary>
@@ -199,7 +201,7 @@ namespace Model2
 
             var docVovabulary = AddTermsToVocabulry(splitedText, shouldStem, doc);
             Indexer index = new Indexer("");
-            index.setDocVocabularytoFullVocabulary(docVovabulary);
+            index.setDocVocabularytoFullVocabulary(doc ,docVovabulary);
             ////Console.WriteLine(doc._path + "\n" + String.Join(" ", splitedText));
             //  Console.WriteLine("Done with doc. Parsing took " + (DateTime.Now - parseDocTime));
         }
@@ -223,38 +225,39 @@ namespace Model2
 
             foreach (string word in splitedText)
             {
-
-                string newWord = word;
-                if ((word.Length - 1 >= 0) && (word[word.Length - 1] == '.' || word[word.Length - 1] == ':') && word.ToLower() != "u.s.")
-                {
-                    newWord = word.Substring(0, word.Length - 1);
-                    splitedText[pos] = newWord;
-                }
-                if (newWord != "")
-                {
-                    if (bigNums != null && newWord[0] <= 57 && newWord[0] >= 48 && Regex.IsMatch(newWord, Resources.Resource.regex_Numbers))
+                if (word.ToLower() != Resources.Resource.between && !stopWords.Contains(word.ToLower())){
+                    string newWord = word;
+                    if ((word.Length - 1 >= 0) && (word[word.Length - 1] == '.' || word[word.Length - 1] == ':') && word.ToLower() != "u.s.")
                     {
-                        bigNums.Enqueue(pos);
+                        newWord = word.Substring(0, word.Length - 1);
+                        splitedText[pos] = newWord;
                     }
-                    else if (betweens != null && (newWord.ToLower().Contains("-") || newWord.ToLower() == "between"))
+                    if (newWord != "")
                     {
-                        betweens.Enqueue(pos);
-                    }
-                    else if (dates != null && months.ContainsKey(newWord.ToLower()))
-                    {
-                        dates.Enqueue(pos);
-                    }
-                    else if (money != null && (newWord.ToLower() == Resources.Resource.dollars.ToLower() || newWord[0] == '$'))
-                    {
-                        money.Enqueue(pos);
-                    }
-                    else if (specificBigNums != null && bigNumbersHash.Contains(newWord.ToLower()))
-                    {
-                        specificBigNums.Enqueue(pos);
-                    }
-                    else if (times != null && Regex.IsMatch(newWord, Resources.Resource.regex_PM_AM))
-                    {
-                        times.Enqueue(pos);
+                        if (bigNums != null && newWord[0] <= 57 && newWord[0] >= 48 && Regex.IsMatch(newWord, Resources.Resource.regex_Numbers))
+                        {
+                            bigNums.Enqueue(pos);
+                        }
+                        else if (betweens != null && (newWord.ToLower().Contains("-") || newWord.ToLower() == "between"))
+                        {
+                            betweens.Enqueue(pos);
+                        }
+                        else if (dates != null && months.ContainsKey(newWord.ToLower()))
+                        {
+                            dates.Enqueue(pos);
+                        }
+                        else if (money != null && (newWord.ToLower() == Resources.Resource.dollars.ToLower() || newWord[0] == '$'))
+                        {
+                            money.Enqueue(pos);
+                        }
+                        else if (specificBigNums != null && bigNumbersHash.Contains(newWord.ToLower()))
+                        {
+                            specificBigNums.Enqueue(pos);
+                        }
+                        else if (times != null && Regex.IsMatch(newWord, Resources.Resource.regex_PM_AM))
+                        {
+                            times.Enqueue(pos);
+                        }
                     }
                 }
                 pos++;
