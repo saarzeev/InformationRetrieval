@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class1.cs" />
+    <Compile Include="Indexer.cs" />
     <Compile Include="SimpleTerm.cs" />
     <Compile Include="Doc.cs" />
     <Compile Include="FileReader.cs" />

@@ -129,28 +129,29 @@ namespace Model2
             return concatBetweenTerm;
         }
 
-        private  void AddTermsToVocabulry(string[] splitedText, bool shouldStem, Doc doc)
+        private Dictionary<string, Term>  AddTermsToVocabulry(string[] splitedText, bool shouldStem, Doc doc)
         {
             StemmerInterface stm = new Stemmer();
             Dictionary<string,Term> thisDocVocabulary = new Dictionary<string,Term>();
             int pos = 0;
             foreach (string word in splitedText)
             {
-                if (word != " " /*&&* TODO think about stop word*/ )
+                if (word != " " && word != "" /*&&* TODO think about stop word*/ )
                 {
-                    string term = shouldStem ? stm.stemTerm(word) : word;
+                    string term = shouldStem ? stm.stemTerm(word).ToLower(): word.ToLower();
                     if (thisDocVocabulary.ContainsKey(term))
                     {
-                        thisDocVocabulary[term].addPosition(pos);
+                        thisDocVocabulary[term].addPosition(pos, word[0]);
                     }
                     else {
                         
-                        Term newTerm = new Term(term, pos);
+                        Term newTerm = new Term(term, pos, word[0]);
                         thisDocVocabulary.Add(term, newTerm);
                     }
                     pos++;
                 }
             }
+            return thisDocVocabulary;
         }
     }
 

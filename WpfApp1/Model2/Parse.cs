@@ -106,7 +106,13 @@ namespace Model2
 
             Console.WriteLine("Total terms in vocabulary = " + _vocabulary.Count);
             Console.WriteLine("shouldStem = " + shouldStem);
-
+            foreach(var term in Indexer.fullDictionary.Keys)
+            {
+                if (!Indexer.fullDictionary[term].IsLowerCase)
+                {
+                    Indexer.fullDictionary[term].GetTerm = term.ToUpper();
+                }
+            }
         }
 
         /// <summary>
@@ -187,7 +193,9 @@ namespace Model2
 
             numPositions.Clear();
 
-            AddTermsToVocabulry(splitedText, shouldStem, doc);
+            var docVovabulary = AddTermsToVocabulry(splitedText, shouldStem, doc);
+            Indexer index = new Indexer("");
+            index.setDocVocabularytoFullVocabulary(docVovabulary);
             ////Console.WriteLine(doc._path + "\n" + String.Join(" ", splitedText));
             //  Console.WriteLine("Done with doc. Parsing took " + (DateTime.Now - parseDocTime));
         }

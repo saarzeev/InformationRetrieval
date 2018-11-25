@@ -7,30 +7,38 @@ namespace Model2
         private string _term;
         private int _tf;
         private bool _isIn100;
-        private HashSet<int> positons;
+        private bool _isLowerCase;
+        private HashSet<int> _positons;
       //??  private string type; //term - number - date - time - money ???
       //TODO all for posting
 
-        public Term(string term, int firstPos)
+        public Term(string term, int firstPos, char firstChar)
         {
             this._term = term;
             _tf = 1;
             this._isIn100 = firstPos <= 100 ? true : false;
-            positons = new HashSet<int>();
-            positons.Add(firstPos);
+            _positons = new HashSet<int>();
+            _positons.Add(firstPos);
+            _isLowerCase = char.IsLower(firstChar);
         }
 
         public bool IsIn100 { get => _isIn100; }
         public int Tf { get => _tf; }
         public string GetTerm { get => _term; }
-        public void addPosition(int pos)
+        public bool IsLowerCase { get => _isLowerCase; }
+
+        public void addPosition(int pos, char firstChar)
         {
             if (!this.IsIn100 && pos <= 100 )
             {
                 this._isIn100 = true;
             }
             this._tf++;
-            this.positons.Add(pos);
+            this._positons.Add(pos);
+            if (!this._isLowerCase)
+            {
+                _isLowerCase = char.IsLower(firstChar);
+            }
         }
         override
         public int GetHashCode()
