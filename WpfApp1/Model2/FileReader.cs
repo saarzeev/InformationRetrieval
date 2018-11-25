@@ -13,17 +13,37 @@ namespace Model2
         private Queue<string> _files = new Queue<string>();
         private string _currentFile = "";
         private long _docINdexInFile;
+        public HashSet<string> stopWords;
 
-        public FileReader(string path)
+        public FileReader(string filePath,string stopWordPath )
         {
-            this.path = path;
+            this.path = filePath;
             string[] allfiles = Directory.GetFiles(this.path, "*.*", SearchOption.AllDirectories);
             foreach (var file in allfiles)
             {
                 _files.Enqueue(file);
             }
+            UpdateStopWords(stopWordPath);
         }
 
+        public void UpdateStopWords(string stopWordPath)
+        {
+            using (var streamReader = new StreamReader(stopWordPath))
+            {
+                String line;
+                HashSet<string> stopWord = new HashSet<string>(); 
+                while (!streamReader.EndOfStream)
+                {
+                    while ((line = streamReader.ReadLine()) != null)
+                    {
+                        line.Replace("'", "");
+                        stopWord.Add(line.ToLower());
+                    }
+                  
+                }
+                this.stopWords = stopWord;
+            }
+        }
         public List<Doc> ReadNextDoc()
         {
             Doc retVal;

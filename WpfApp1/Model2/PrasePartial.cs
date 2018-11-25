@@ -136,7 +136,7 @@ namespace Model2
             int pos = 0;
             foreach (string word in splitedText)
             {
-                if (word != " " && word != "" /*&&* TODO think about stop word*/ )
+                if (word != " " && word != "" && !stopWords.Contains(word.ToLower()))
                 {
                     string term = shouldStem ? stm.stemTerm(word).ToLower(): word.ToLower();
                     if (thisDocVocabulary.ContainsKey(term))

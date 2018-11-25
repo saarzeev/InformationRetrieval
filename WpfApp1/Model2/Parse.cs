@@ -18,6 +18,7 @@ namespace Model2
         private SemaphoreSlim _semaphore1 = new SemaphoreSlim(0, 10);
         private SemaphoreSlim _semaphore2 = new SemaphoreSlim(10, 10);
         private bool done = false;
+        HashSet<string> stopWords;
         private HashSet<int> numPositions = new HashSet<int>();
         private HashSet<string> _vocabulary = new HashSet<string>();
         HashSet<string> bigNumbersHash = new HashSet<string>();
@@ -26,19 +27,20 @@ namespace Model2
 
 
         /// <summary>
-        /// Invoke a new thread to iterate entire sub-tree, starting from the given <paramref name="path"/>.
+        /// Invoke a new thread to iterate entire sub-tree, starting from the given <paramref name="filesPath"/>.
         /// Concurrently, main thread goes through Docs in _doc, and parses them.
         /// Docs are added to _docs.
         /// 
         /// </summary>
-        /// <param name="path"></param>
-        public void FromFilesToDocs(string path, bool shouldStem)
+        /// <param name="filesPath"></param>
+        public void FromFilesToDocs(string filesPath, string stopWordsPath, bool shouldStem )
         {
             DateTime totalInitTime = DateTime.Now;
             Task task;
             HashSet<Task> task2 = new HashSet<Task>();
             Console.WriteLine("Started...");
-            FileReader fr = new FileReader(path);
+            FileReader fr = new FileReader(filesPath, stopWordsPath);
+            stopWords = fr.stopWords;
             bigNumbersHash.Add(Resources.Resource.thousand);
             bigNumbersHash.Add(Resources.Resource.million);
             bigNumbersHash.Add(Resources.Resource.billion);
@@ -106,13 +108,15 @@ namespace Model2
 
             Console.WriteLine("Total terms in vocabulary = " + _vocabulary.Count);
             Console.WriteLine("shouldStem = " + shouldStem);
-            foreach(var term in Indexer.fullDictionary.Keys)
-            {
-                if (!Indexer.fullDictionary[term].IsLowerCase)
-                {
-                    Indexer.fullDictionary[term].GetTerm = term.ToUpper();
-                }
-            }
+
+            //TODO when show dictanary to do this
+            //foreach(var term in Indexer.fullDictionary.Keys)
+            //{
+            //    if (!Indexer.fullDictionary[term].IsLowerCase)
+            //    {
+            //        Indexer.fullDictionary[term].GetTerm = term.ToUpper();
+            //    }
+            //}
         }
 
         /// <summary>
