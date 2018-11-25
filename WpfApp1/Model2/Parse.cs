@@ -21,7 +21,7 @@ namespace Model2
         private HashSet<int> numPositions = new HashSet<int>();
         private HashSet<string> _vocabulary = new HashSet<string>();
         HashSet<string> bigNumbersHash = new HashSet<string>();
-        char[] delimiters = { ' ', '(', ')', /*'<', '>',*/ '[', ']', '{', '}', '^', ';', '"', '\'', '`', '|', '*', '#', '+', '?', '!', '&', '@', '\\', ',' };
+        char[] delimiters = { ' ', '(', ')', '<', '>', '[', ']', '{', '}', '^', ';', '"', '\'', '`', '|', '*', '#', '+', '?', '!', '&', '@', '\\', ',' };
         Dictionary<string, string> months = new Dictionary<string, string>();
 
 
@@ -117,13 +117,24 @@ namespace Model2
         /// <param name="doc"></param>
         private void Parser(Doc doc, bool shouldStem)
         {
-
             //DateTime parseDocTime = DateTime.Now;
             StringBuilder text = doc._text.Replace("\\n", " ");
+            text = text.Replace("'", "");
             string toParse = ParsePercent(text.ToString());
             string[] splitedText = toParse.Split(delimiters);
 
-            //Substitute month' names with numbers
+            //read city
+            IEnumerable<String> searchcity =
+             splitedText
+             .SkipWhile((newWord) => String.Compare(newWord, Resources.Resource.city_tag) != 0)
+             .TakeWhile((newWord) => String.Compare(newWord, Resources.Resource.closeCity) != 0)
+             .Where((newWord) => newWord != "");
+            string[] cityTag = searchcity.ToArray();
+            if(cityTag != null && cityTag.Length > 0)
+            {
+                doc.city = cityTag[0].ToUpper();
+               //TODO for every city like that we need to save positions and docs 
+            }
 
             //read doc between TEXT tags
             IEnumerable<String> onlyText =
@@ -133,6 +144,10 @@ namespace Model2
                 .Where((newWord) => newWord != "");
 
             splitedText = onlyText.ToArray();
+            if(splitedText.Length > 0)
+            {
+                splitedText[0] = " "; 
+            }
             //saving suspicious words Indexes by theme
             Queue<int> dates = new Queue<int>();
             Queue<int> money = new Queue<int>();
@@ -172,7 +187,7 @@ namespace Model2
 
             numPositions.Clear();
 
-            //AddTermsToVocabulry(splitedText, shouldStem);
+            AddTermsToVocabulry(splitedText, shouldStem, doc);
             ////Console.WriteLine(doc._path + "\n" + String.Join(" ", splitedText));
             //  Console.WriteLine("Done with doc. Parsing took " + (DateTime.Now - parseDocTime));
         }
@@ -208,44 +223,26 @@ namespace Model2
                     if (bigNums != null && newWord[0] <= 57 && newWord[0] >= 48 && Regex.IsMatch(newWord, Resources.Resource.regex_Numbers))
                     {
                         bigNums.Enqueue(pos);
-                        //mutexN.WaitOne();
-                        //cnumbers++;
-                        //mutexN.ReleaseMutex();
                     }
                     else if (betweens != null && (newWord.ToLower().Contains("-") || newWord.ToLower() == "between"))
                     {
                         betweens.Enqueue(pos);
-                        //mutexBE.WaitOne();
-                        //cbetween++;
-                        //mutexBE.ReleaseMutex();
                     }
                     else if (dates != null && months.ContainsKey(newWord.ToLower()))
                     {
                         dates.Enqueue(pos);
-                        //mutexDa.WaitOne();
-                        //cdates++;
-                        //mutexDa.ReleaseMutex();
                     }
                     else if (money != null && (newWord.ToLower() == Resources.Resource.dollars.ToLower() || newWord[0] == '$'))
                     {
                         money.Enqueue(pos);
-                        //mutexMo.WaitOne();
-                        //cmoney++;
-                        //mutexMo.ReleaseMutex();
                     }
                     else if (specificBigNums != null && bigNumbersHash.Contains(newWord.ToLower()))
                     {
                         specificBigNums.Enqueue(pos);
-                        //mutexBN.WaitOne();
-                        //cbignumbers++;
-                        //mutexBN.ReleaseMutex();
                     }
                     else if (times != null && Regex.IsMatch(newWord, Resources.Resource.regex_PM_AM))
                     {
                         times.Enqueue(pos);
-                        //mutexTI.WaitOne();
-                        //ctime++;
-                        //mutexTI.ReleaseMutex();
                     }
                 }
                 pos++;
@@ -565,7 +562,7 @@ namespace Model2
             return splitedText;
         }
 
-        //TO-DO fraction dollars && fraction milion/billion... dollars
+        //TODO fraction dollars && fraction milion/billion... dollars
         private string DollarSignToCanonicalForm(ref int pos, string[] splitedText, ref List<int> posToDelete) //Canonical form == NUMBER (counter) Dollars
         {
             List<String> counters = new List<string>();
@@ -715,30 +712,30 @@ namespace Model2
             return splitedText;
         }
     
-    private string[] ParsePercent(int pos, string[] splitedText)
-    {
-        if (splitedText[pos] != " ")
-        {
-            if (pos - 1 >= 0)
-            {
-                if (double.TryParse(splitedText[pos - 1], out double percent))
-                {
-                    int intFormat = (int)percent;
-                    if (intFormat == percent)
-                    {
-                        splitedText[pos - 1] = intFormat + "%";
-                        splitedText[pos] = " ";
-                        return splitedText;
-                    }
-                    splitedText[pos - 1] = percent + "%";
-                    splitedText[pos] = " ";
-                    return splitedText;
-                }
+    //private string[] ParsePercent(int pos, string[] splitedText)
+    //{
+    //    if (splitedText[pos] != " ")
+    //    {
+    //        if (pos - 1 >= 0)
+    //        {
+    //            if (double.TryParse(splitedText[pos - 1], out double percent))
+    //            {
+    //                int intFormat = (int)percent;
+    //                if (intFormat == percent)
+    //                {
+    //                    splitedText[pos - 1] = intFormat + "%";
+    //                    splitedText[pos] = " ";
+    //                    return splitedText;
+    //                }
+    //                splitedText[pos - 1] = percent + "%";
+    //                splitedText[pos] = " ";
+    //                return splitedText;
+    //            }
                
-            }
-        }
-            return splitedText;
-     }
+    //        }
+    //    }
+    //        return splitedText;
+    // }
     //parse expressions that formated: <number-percentage|percent> to another format: <number%>
     private string ParsePercent(string text)
     {

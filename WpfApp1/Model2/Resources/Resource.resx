@@ -123,8 +123,14 @@
   <data name="billion" xml:space="preserve">
     <value>billion</value>
   </data>
+  <data name="city_tag" xml:space="preserve">
+    <value>P=104</value>
+  </data>
+  <data name="closeCity" xml:space="preserve">
+    <value>/F</value>
+  </data>
   <data name="closeText" xml:space="preserve">
-    <value>&lt;/TEXT&gt;</value>
+    <value>/TEXT</value>
   </data>
   <data name="dollars" xml:space="preserve">
     <value>Dollars</value>
@@ -136,7 +142,7 @@
     <value>million</value>
   </data>
   <data name="openText" xml:space="preserve">
-    <value>&lt;TEXT&gt;</value>
+    <value>TEXT</value>
   </data>
   <data name="percent" xml:space="preserve">
     <value>percent</value>

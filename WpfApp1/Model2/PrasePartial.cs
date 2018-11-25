@@ -91,7 +91,7 @@ namespace Model2
                 return substr[0];
             }
         }
-
+        //TODO num position not global
         private  string BetweenAndTerm(ref int pos, string[] splitedText)
         {
             string concatBetweenTerm = "";
@@ -129,12 +129,27 @@ namespace Model2
             return concatBetweenTerm;
         }
 
-        private  void AddTermsToVocabulry(string[] splitedText, bool shouldStem)
+        private  void AddTermsToVocabulry(string[] splitedText, bool shouldStem, Doc doc)
         {
             StemmerInterface stm = new Stemmer();
-            foreach (string term in splitedText)
-            { 
-                _vocabulary.Add(shouldStem && term != " " ? stm.stemTerm(term) : term);
+            Dictionary<string,Term> thisDocVocabulary = new Dictionary<string,Term>();
+            int pos = 0;
+            foreach (string word in splitedText)
+            {
+                if (word != " " /*&&* TODO think about stop word*/ )
+                {
+                    string term = shouldStem ? stm.stemTerm(word) : word;
+                    if (thisDocVocabulary.ContainsKey(term))
+                    {
+                        thisDocVocabulary[term].addPosition(pos);
+                    }
+                    else {
+                        
+                        Term newTerm = new Term(term, pos);
+                        thisDocVocabulary.Add(term, newTerm);
+                    }
+                    pos++;
+                }
             }
         }
     }

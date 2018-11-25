@@ -79,7 +79,25 @@ namespace Model2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;/TEXT&gt;.
+        ///   Looks up a localized string similar to P=104.
+        /// </summary>
+        internal static string city_tag {
+            get {
+                return ResourceManager.GetString("city_tag", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to /F.
+        /// </summary>
+        internal static string closeCity {
+            get {
+                return ResourceManager.GetString("closeCity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to /TEXT.
         /// </summary>
         internal static string closeText {
             get {
@@ -115,7 +133,7 @@ namespace Model2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;TEXT&gt;.
+        ///   Looks up a localized string similar to TEXT.
         /// </summary>
         internal static string openText {
             get {
