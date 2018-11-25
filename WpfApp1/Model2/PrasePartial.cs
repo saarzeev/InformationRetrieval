@@ -19,7 +19,7 @@ namespace Model2
             Right
         }
 
-        public static string[] ParseBetweenTerms(int pos, string[] splitedText)
+        public  string[] ParseBetweenTerms(int pos, string[] splitedText)
         {
             if (splitedText[pos].ToLower() == "between")
             {
@@ -32,7 +32,7 @@ namespace Model2
             return splitedText;
         }
 
-        private static string HyphenTerm(int pos, string[] splitedText)
+        private  string HyphenTerm(int pos, string[] splitedText)
         {
             string concatHyphenTerm = "";
             string[] hyphenExpr = splitedText[pos].Split('-');
@@ -55,7 +55,7 @@ namespace Model2
             return concatHyphenTerm;
         }
 
-        private static string TreatHyphenTermsNumbers(int pos, string[] splitedText, string[] substr, Side side)
+        private  string TreatHyphenTermsNumbers(int pos, string[] splitedText, string[] substr, Side side)
         {
             Queue<int> specificBigNums = new Queue<int>();
             Queue<int> bigNums = new Queue<int>();
@@ -92,44 +92,44 @@ namespace Model2
             }
         }
 
-        private static string BetweenAndTerm(ref int pos, string[] splitedText)
+        private  string BetweenAndTerm(ref int pos, string[] splitedText)
         {
             string concatBetweenTerm = "";
             int origPos = pos;
             concatBetweenTerm = (splitedText[pos] == "between") ? "between " : "Between ";
             pos++;
-            if (numPositions.Contains(pos))
-            {
-                concatBetweenTerm += splitedText[pos] + " ";
-                pos++;
+            //if (numPositions.Contains(pos))
+            //{
+            //    concatBetweenTerm += splitedText[pos] + " ";
+            //    pos++;
 
-                while (splitedText[pos].ToLower() == " ")
-                {
-                    pos++;
-                }
+            //    while (splitedText[pos].ToLower() == " ")
+            //    {
+            //        pos++;
+            //    }
 
-                if (splitedText[pos].ToLower() == "and")
-                {
-                    concatBetweenTerm += (splitedText[pos] == "and") ? "and " : "And ";
-                    pos++;
-                    if (numPositions.Contains(pos)) { 
+            //    if (splitedText[pos].ToLower() == "and")
+            //    {
+            //        concatBetweenTerm += (splitedText[pos] == "and") ? "and " : "And ";
+            //        pos++;
+            //        //if (numPositions.Contains(pos)) { 
                     
-                        concatBetweenTerm += splitedText[pos] + " ";
+            //        //    concatBetweenTerm += splitedText[pos] + " ";
 
-                        while (pos > origPos)
-                        {
-                            splitedText[pos] = " ";
-                            pos--;
-                        }
-                        splitedText[pos] = concatBetweenTerm;
-                    }
-                }
-            }
+            //        //    while (pos > origPos)
+            //        //    {
+            //        //        splitedText[pos] = " ";
+            //        //        pos--;
+            //        //    }
+            //        //    splitedText[pos] = concatBetweenTerm;
+            //        //}
+            //    }
+            //}
 
             return concatBetweenTerm;
         }
 
-        private static void AddTermsToVocabulry(string[] splitedText, bool shouldStem)
+        private  void AddTermsToVocabulry(string[] splitedText, bool shouldStem)
         {
             StemmerInterface stm = new Stemmer();
             foreach (string term in splitedText)

@@ -124,6 +124,24 @@ namespace Model2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to percent.
+        /// </summary>
+        internal static string percent {
+            get {
+                return ResourceManager.GetString("percent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to percentage.
+        /// </summary>
+        internal static string percentage {
+            get {
+                return ResourceManager.GetString("percentage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to (\s|^)([0-9])+/([0-9])+(\s|$).
         /// </summary>
         internal static string regex_Fraction {
