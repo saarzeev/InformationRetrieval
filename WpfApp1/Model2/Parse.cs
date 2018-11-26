@@ -11,7 +11,9 @@ using System.Threading.Tasks;
 
 namespace Model2
 {
-
+    /// <summary>
+    /// Class is responsible for the parsing process
+    /// </summary>
     public partial class Parse
     {
 
@@ -35,27 +37,22 @@ namespace Model2
         /// 
         /// </summary>
         /// <param name="filesPath"></param>
+        /// <param name="stopWordsPath"></param>
+        /// <param name="shouldStem"></param>
         public void FromFilesToDocs(string filesPath, string stopWordsPath, bool shouldStem )
         {
             DateTime totalInitTime = DateTime.Now;
             Task task;
             HashSet<Task> task2 = new HashSet<Task>();
             Console.WriteLine("Started...");
-            FileReader fr = new FileReader(filesPath, stopWordsPath);
-            stopWords = fr.stopWords;
-            bigNumbersHash.Add(Resources.Resource.thousand);
-            bigNumbersHash.Add(Resources.Resource.million);
-            bigNumbersHash.Add(Resources.Resource.billion);
-            bigNumbersHash.Add(Resources.Resource.trillion);
-            months.Add("jan", "01"); months.Add("feb", "02"); months.Add("mar", "03"); months.Add("apr", "04"); months.Add("may", "05"); months.Add("jun", "06"); months.Add("jul", "07"); months.Add("aug", "08"); months.Add("sep", "09"); months.Add("oct", "10"); months.Add("nov", "11"); months.Add("dec", "12");
-            months.Add("january", "01"); months.Add("february", "02"); months.Add("march", "03"); months.Add("april", "04"); months.Add("june", "06"); months.Add("july", "07"); months.Add("august", "08"); months.Add("september", "09"); months.Add("october", "10"); months.Add("november", "11"); months.Add("december", "12");
-            task = Task.Run(() =>
+            FileReader fr = InitHeapVariables(filesPath, stopWordsPath); task = Task.Run(() =>
             {
                 while (fr.HasNext())
                 {
 
                     List<Doc> docs = fr.ReadNextDoc();
-                    foreach (Doc doc in docs) {
+                    foreach (Doc doc in docs)
+                    {
                         _semaphore2.Wait();
                         _docs.Enqueue(doc);
                         _semaphore1.Release();
@@ -135,14 +132,38 @@ namespace Model2
             //Indexer.fullDictionary.Keys.
         }
 
+        private FileReader InitHeapVariables(string filesPath, string stopWordsPath)
+        {
+            FileReader fr = new FileReader(filesPath, stopWordsPath);
+            stopWords = fr.stopWords;
+            bigNumbersHash.Add(Resources.Resource.thousand);
+            bigNumbersHash.Add(Resources.Resource.million);
+            bigNumbersHash.Add(Resources.Resource.billion);
+            bigNumbersHash.Add(Resources.Resource.trillion);
+            months.Add("jan", "01"); months.Add("feb", "02"); months.Add("mar", "03"); months.Add("apr", "04"); months.Add("may", "05"); months.Add("jun", "06"); months.Add("jul", "07"); months.Add("aug", "08"); months.Add("sep", "09"); months.Add("oct", "10"); months.Add("nov", "11"); months.Add("dec", "12");
+            months.Add("january", "01"); months.Add("february", "02"); months.Add("march", "03"); months.Add("april", "04"); months.Add("june", "06"); months.Add("july", "07"); months.Add("august", "08"); months.Add("september", "09"); months.Add("october", "10"); months.Add("november", "11"); months.Add("december", "12");
+            return fr;
+        }
+
         /// <summary>
         /// Given a <paramref name="doc"/>, parse doc.text.
         /// Parser standardizes dates, money phrases, numbers, and Between and '-' terms.
         /// Our added parsing rules are for times (3PM -> 15:00)
         /// </summary>
         /// <param name="doc"></param>
+        /// <param name="shouldStem"></param>
         private void Parser(Doc doc, bool shouldStem)
         {
+            //saving suspicious words Indexes by theme
+            Queue<int> dates = new Queue<int>();
+            Queue<int> money = new Queue<int>();
+            Queue<int> specificBigNums = new Queue<int>();
+            Queue<int> bigNums = new Queue<int>();
+            Queue<int> betweens = new Queue<int>();
+            Queue<int> times = new Queue<int>();
+            HashSet<int> numPositions = new HashSet<int>();
+            Queue<int> cities = new Queue<int>();
+
             //DateTime parseDocTime = DateTime.Now;
             StringBuilder text = doc._text.Replace("\\n", " ");
             text = text.Replace("'", "");
@@ -160,7 +181,8 @@ namespace Model2
             if(cityTag != null && cityTag.Length > 0)
             {
                 doc.city = cityTag[0].ToUpper();
-               //TODO for every city like that we need to save positions and docs 
+               //TODO for every city like that we need to save positions and docs
+
             }
 
             //read doc between TEXT tags
@@ -175,14 +197,7 @@ namespace Model2
             {
                 splitedText[0] = " "; 
             }
-            //saving suspicious words Indexes by theme
-            Queue<int> dates = new Queue<int>();
-            Queue<int> money = new Queue<int>();
-            Queue<int> specificBigNums = new Queue<int>();
-            Queue<int> bigNums = new Queue<int>();
-            Queue<int> betweens = new Queue<int>();
-            Queue<int> times = new Queue<int>();
-            HashSet<int> numPositions = new HashSet<int>();
+            
 
             PopulateQueueWithPositions(splitedText, months, dates, money, specificBigNums, bigNums, betweens, times);
 
@@ -227,7 +242,7 @@ namespace Model2
 
 
         /// <summary>
-        /// 
+        /// Populates given queues with position of suspected actionable terms;
         /// </summary>
         /// <param name="splitedText"></param>
         /// <param name="months"></param>
@@ -237,7 +252,14 @@ namespace Model2
         /// <param name="bigNums"></param>
         /// <param name="betweens"></param>
         /// <param name="times"></param>
-        private void PopulateQueueWithPositions(string[] splitedText, Dictionary<string, string> months, Queue<int> dates, Queue<int> money, Queue<int> specificBigNums, Queue<int> bigNums, Queue<int> betweens, Queue<int> times = null)
+        private void PopulateQueueWithPositions(string[] splitedText,
+                                                Dictionary<string, string> months,
+                                                Queue<int> dates,
+                                                Queue<int> money,
+                                                Queue<int> specificBigNums,
+                                                Queue<int> bigNums,
+                                                Queue<int> betweens,
+                                                Queue<int> times = null)
         {
             int pos = 0;
 
@@ -287,7 +309,15 @@ namespace Model2
             return Regex.IsMatch(suspect, Resources.Resource.regex_Fraction);
         }
 
-        //generate string for number (int/double/fraction) with its representative letter or string
+
+        /// <summary>
+        /// Generate string for number (int/double/fraction) with its representative letter or string
+        /// </summary>
+        /// <param name="number"></param>
+        /// <param name="divider"></param>
+        /// <param name="frac"></param>
+        /// <param name="representativeString"></param>
+        /// <returns></returns
         private string numberBuilder(double number, double divider, string frac, string representativeString) {
 
             double doubleFormat = number / divider;
@@ -310,7 +340,14 @@ namespace Model2
 
         }
 
-        //checks if the suspicious word is a number and parse it to requirements
+
+        /// <summary>
+        /// Checks if the suspicious word is a number and parses it according to the requirements
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="splitedText"></param>
+        /// <param name="numPositions"></param>
+        /// <returns></returns>
         private string[] ParseNumbers(int pos, string[] splitedText, HashSet<int> numPositions)
         {
             if (splitedText[pos] != " ")
@@ -359,7 +396,13 @@ namespace Model2
             return splitedText;
         }
 
-        //checks if the suspicious word is a expression to represent a large number and parse it to requirements
+        /// <summary>
+        /// checks if the suspicious word is a expression to represent a large number and parse it to requirements
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="splitedText"></param>
+        /// <param name="numPositions"></param>
+        /// <returns></returns>
         private string[] ParseSpecificNumbers(int pos, string[] splitedText, HashSet<int> numPositions)
         {
             string frac = "";
@@ -415,7 +458,15 @@ namespace Model2
             return splitedText;
         }
 
-        //generate string for Date :(year-month-day)
+
+        /// <summary>
+        /// generate string for Date :(year-month-day)
+        /// </summary>
+        /// <param name="day"></param>
+        /// <param name="year"></param>
+        /// <param name="month"></param>
+        /// <param name="parsed"></param>
+        /// <returns></returns>
         private string BuildDayAndYear(int day, int year, string month, string parsed) {
 
             if (day >= 10)
@@ -429,7 +480,14 @@ namespace Model2
             return parsed;
         }
 
-        //generate string for Date :(month-day or year-month)
+        /// <summary>
+        /// generate string for Date :(month-day or year-month)
+        /// </summary>
+        /// <param name="dayOrYear"></param>
+        /// <param name="month"></param>
+        /// <param name="parsed"></param>
+        /// <returns></returns>
+
         private string BuildDayOrYear(int dayOrYear, string month, string parsed) {
 
             if (dayOrYear >= 10 && dayOrYear <= 31)
@@ -449,7 +507,13 @@ namespace Model2
             return parsed;
         }
 
-        //checks if the expression to represent a months  has another date expression in its vicinity, and parse it to requirements
+        /// <summary>
+        /// checks if the expression to represent a months  has another date expression in its vicinity, and parse it to requirements
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="month"></param>
+        /// <param name="splitedText"></param>
+        /// <returns></returns>
         private string[] ParseDate(int pos, string month, string[] splitedText)
         {
             if (splitedText[pos] != " ")
@@ -519,14 +583,17 @@ namespace Model2
         }
 
 
-
+        /// <summary>
+        /// Parses "Dollar" expressions and "$price" terms
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="splitedText"></param>
+        /// <returns></returns>
         public string[] ParseMoney(int pos, string[] splitedText)
         {
-            //string[] temp = new string[splitedText.Length];
-            //Array.Copy(splitedText, temp, splitedText.Length);
             List<int> posToRemove = new List<int>();
             string canonizedStr = DollarSignToCanonicalForm(ref pos, splitedText, ref posToRemove);
-            string[] splitedMoneyExpr = /*temp[pos]*/canonizedStr.Split(' ');
+            string[] splitedMoneyExpr = canonizedStr.Split(' ');
             string frac = "";
             bool commitChangesToSplittedText = false;
             if (Regex.IsMatch(splitedMoneyExpr[0], Resources.Resource.regex_Fraction))
@@ -609,13 +676,11 @@ namespace Model2
             if (splitedText[pos].Contains('$'))
             {
                 canonizedStr += splitedText[pos].Remove(splitedText[pos].IndexOf("$"), 1);
-                //splitedText[pos] = splitedText[pos].Remove(splitedText[pos].IndexOf("$"), 1);
                 pos++; //skip the figure after the $ sign
 
                 if (pos < splitedText.Length && counters.Contains(splitedText[pos].ToLower()))
                 { //this limits counters to 1.
                     canonizedStr += " " + splitedText[pos];
-                    //splitedText[pos] = " ";
                     posToDelete.Add(pos);
                 }
 
@@ -629,19 +694,14 @@ namespace Model2
                 {
                     posToDelete.Add(pos);
                     posToDelete.Add(pos - 1);
-                    //splitedText[pos] = " "; //Remove Dollar
-                    //splitedText[pos - 1] = " "; //Remove U.S.
                     if (pos - 3 >= 0 && counters.Contains(splitedText[pos - 2]))
                     { //has a counter, it is of form NUM billion U.S. Dollars
-                        canonizedStr /*splitedText[pos - 3]*/ = splitedText[pos - 3] + " " + splitedText[pos - 2] + " " + " " + Resources.Resource.dollars;
+                        canonizedStr = splitedText[pos - 3] + " " + splitedText[pos - 2] + " " + " " + Resources.Resource.dollars;
                         posToDelete.Add(pos - 2);
-                        //splitedText[pos - 2] = " "; //Remove Counter
                         pos = pos - 3;
                     }
                     else if (pos - 2 >= 0) //Does't have a counter. It is of form NUM "frac" U.S. Dollars
                     {
-
-                        /*splitedText[pos - 2]*/
                         canonizedStr = splitedText[pos - 2] + " " + Resources.Resource.dollars;
                         pos = pos - 2;
                     }
@@ -650,9 +710,6 @@ namespace Model2
                 {
                     posToDelete.Add(pos);
                     posToDelete.Add(pos - 1);
-                    //splitedText[pos] = " ";
-                    //splitedText[pos - 1] = " ";
-                    /*splitedText[pos - 2]*/
                     canonizedStr = splitedText[pos - 2] + " " + Resources.Resource.million + " " + Resources.Resource.dollars;
                     pos = pos - 2;
                 }
@@ -660,19 +717,13 @@ namespace Model2
                 {
                     posToDelete.Add(pos);
                     posToDelete.Add(pos - 1);
-                    //splitedText[pos] = " ";
-                    //splitedText[pos - 1] = " ";
-                    /*splitedText[pos - 2]*/
                     canonizedStr = splitedText[pos - 2] + " " + Resources.Resource.billion + " " + Resources.Resource.dollars;
                     pos = pos - 2;
                 }
                 else if (pos - 2 >= 0 && (splitedText[pos - 1].ToLower() == Resources.Resource.billion ||
                     splitedText[pos - 1].ToLower() == Resources.Resource.trillion || splitedText[pos - 1].ToLower() == Resources.Resource.million))
                 {
-                    /*splitedText[pos - 2]*/
                     canonizedStr = splitedText[pos - 2] + " " + splitedText[pos - 1] + " " + Resources.Resource.dollars;
-                    //splitedText[pos] = " ";
-                    //splitedText[pos - 1] = " ";
                     posToDelete.Add(pos);
                     posToDelete.Add(pos - 1);
                     pos = pos - 2;
@@ -680,9 +731,7 @@ namespace Model2
 
                 else if (pos - 1 >= 0 && Regex.IsMatch(splitedText[pos - 1], Resources.Resource.regex_Fraction))
                 {
-                    /*splitedText[pos - 1]*/
                     canonizedStr = splitedText[pos - 1] + " " + Resources.Resource.dollars;
-                    //splitedText[pos] = " ";
                     posToDelete.Add(pos);
 
                     pos = pos - 1;
@@ -690,9 +739,7 @@ namespace Model2
 
                 else if (pos - 1 >= 0 && (Regex.IsMatch(splitedText[pos - 1], Resources.Resource.regex_Numbers) || Regex.IsMatch(splitedText[pos - 1], Resources.Resource.regex_Fraction)))
                 {
-                    /*splitedText[pos - 1]*/
                     canonizedStr = splitedText[pos - 1] + " " + Resources.Resource.dollars;
-                    //splitedText[pos] = " ";
                     posToDelete.Add(pos);
 
                     pos = pos - 1;
