@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SearchEngine;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -775,6 +776,34 @@ namespace Model2
         string replacement = "${number}%";
         return Regex.Replace(text, pattern, replacement, RegexOptions.IgnoreCase);
     }
-}
+        private Dictionary<string, Term> AddTermsToVocabulry(string[] splitedText, bool shouldStem, Doc doc)
+        {
+            StemmerInterface stm = new Stemmer();
+            Dictionary<string, Term> thisDocVocabulary = new Dictionary<string, Term>();
+            int pos = 0;
+            foreach (string word in splitedText)
+            {
+                if (word != " " && word != "" && !stopWords.Contains(word.ToLower()))
+                {
+                    //TODO another structer for extra words?
+                    //TODO if stemming so dont stemm numbers,dates,between,
+                    string term = shouldStem ? stm.stemTerm(word).ToLower() : word.ToLower();
+                    if (thisDocVocabulary.ContainsKey(term))
+                    {
+                        thisDocVocabulary[term].addPosition(pos, word[0]);
+                    }
+                    else
+                    {
+                        Term newTerm = new Term(term, pos, word[0]);
+                        thisDocVocabulary.Add(term, newTerm);
+                    }
+                    pos++;
+                }
+            }
+            doc.uniqWords = thisDocVocabulary.Count();
+
+            return thisDocVocabulary;
+        }
+    }
 
 }

@@ -131,31 +131,6 @@ namespace Model2
             return concatBetweenTerm;
         }
 
-        private Dictionary<string, Term>  AddTermsToVocabulry(string[] splitedText, bool shouldStem, Doc doc)
-        {
-            StemmerInterface stm = new Stemmer();
-            Dictionary<string,Term> thisDocVocabulary = new Dictionary<string,Term>();
-            int pos = 0;
-            foreach (string word in splitedText)
-            {
-                if (word != " " && word != "" && !stopWords.Contains(word.ToLower()))
-                {
-                    //TODO if stemming so dont stemm numbers,dates,between,
-                    string term = shouldStem ? stm.stemTerm(word).ToLower(): word.ToLower();
-                    if (thisDocVocabulary.ContainsKey(term))
-                    {
-                        thisDocVocabulary[term].addPosition(pos, word[0]);
-                    }
-                    else {
-                        
-                        Term newTerm = new Term(term, pos, word[0]);
-                        thisDocVocabulary.Add(term, newTerm);
-                    }
-                    pos++;
-                }
-            }
-            return thisDocVocabulary;
-        }
     }
 
     
