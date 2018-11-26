@@ -35,6 +35,7 @@ namespace Model2
         public int Tf { get => _tf; }
         public string GetTerm { get => _term; }
         public bool IsLowerCase { get => _isLowerCase; }
+        public HashSet<int> Positons { get => _positons;}
 
         public void addPosition(int pos, char firstChar)
         {
