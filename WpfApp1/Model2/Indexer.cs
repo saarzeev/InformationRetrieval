@@ -15,7 +15,7 @@ namespace Model2
             this._initialPathForPosting = path;
         }
         
-        public void setDocVocabularytoFullVocabulary( Doc doc ,Dictionary<string, Term> docDictionary)
+        public void setDocVocabularytoFullVocabulary(Doc doc ,Dictionary<string, Term> docDictionary)
         {
             dictionaryMutex.WaitOne();
             foreach (string key in docDictionary.Keys)

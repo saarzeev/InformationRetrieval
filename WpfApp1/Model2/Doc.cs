@@ -14,6 +14,7 @@ namespace Model2
         public int max_tf;
         public string city;
         public int uniqWords;
+        public int length;
         
     public Doc(string path, StringBuilder text, long indexInFile)
         {
@@ -22,6 +23,7 @@ namespace Model2
             this.city = "";
             this._path = path;
             this._text = text;
+            this.length = 0;
             this._indexInFile = indexInFile; 
         }
     }

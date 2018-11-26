@@ -187,10 +187,7 @@ namespace Model2
             PopulateQueueWithPositions(splitedText, months, dates, money, specificBigNums, bigNums, betweens, times);
 
             //check and parse if the words meet the conditions
-            while (betweens.Count != 0)
-            {
-                splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText, numPositions);
-            }
+
             while (dates.Count != 0)
             {
                 int position = dates.Dequeue();
@@ -211,6 +208,11 @@ namespace Model2
             while (bigNums.Count != 0)
             {
                 splitedText = ParseNumbers(bigNums.Dequeue(), splitedText, numPositions);
+            }
+            //don't move!
+            while (betweens.Count != 0)
+            {
+                splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText, numPositions);
             }
 
             numPositions.Clear();
@@ -593,7 +595,6 @@ namespace Model2
             return splitedText;
         }
 
-        //TODO fraction dollars && fraction milion/billion... dollars
         private string DollarSignToCanonicalForm(ref int pos, string[] splitedText, ref List<int> posToDelete) //Canonical form == NUMBER (counter) Dollars
         {
             List<String> counters = new List<string>();
@@ -785,21 +786,41 @@ namespace Model2
                 {
                     //TODO another structer for extra words?
                     //TODO if stemming so dont stemm numbers,dates,between,
-                    string term = shouldStem ? stm.stemTerm(word).ToLower() : word.ToLower();
+                    bool isNumber = Char.IsDigit(word[0]);
+                    string term = shouldStem && !isNumber ? stm.stemTerm(word).ToLower() : word.ToLower();
                     if (thisDocVocabulary.ContainsKey(term))
                     {
-                        thisDocVocabulary[term].addPosition(pos, word[0]);
+                        if (isNumber)
+                        {
+                            thisDocVocabulary[term].addPosition(pos);
+                        }
+                        else
+                        {
+                            thisDocVocabulary[term].addPosition(pos, word[0]);
+                        }
                     }
                     else
                     {
-                        Term newTerm = new Term(term, pos, word[0]);
+                        Term newTerm;
+                        if (isNumber)
+                        {
+                             newTerm = new Term(term, pos);
+                        }
+                        else {
+                             newTerm = new Term(term, pos, word[0]);
+                        }
+                        
                         thisDocVocabulary.Add(term, newTerm);
                     }
                     pos++;
                 }
             }
-            doc.uniqWords = thisDocVocabulary.Count();
-           // doc.max_tf = getMaxTfInDoc(thisDocVocabulary.Values.OrderBy((Term) => ))
+            if (thisDocVocabulary != null && thisDocVocabulary.Count() > 0)
+            {
+                doc.uniqWords = thisDocVocabulary.Count();
+                doc.max_tf = thisDocVocabulary.Values.OrderBy((Term) => Term.Tf).Last().Tf;
+                doc.length = pos;
+            }
             return thisDocVocabulary;
         }
     }
