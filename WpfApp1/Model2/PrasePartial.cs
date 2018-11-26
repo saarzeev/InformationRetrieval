@@ -138,7 +138,7 @@ namespace Model2
             int pos = 0;
             foreach (string word in splitedText)
             {
-                if (word != " " && word != "" )
+                if (word != " " && word != "" && !stopWords.Contains(word.ToLower()))
                 {
                     //TODO if stemming so dont stemm numbers,dates,between,
                     string term = shouldStem ? stm.stemTerm(word).ToLower(): word.ToLower();

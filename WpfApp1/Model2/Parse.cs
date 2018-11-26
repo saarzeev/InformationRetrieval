@@ -23,7 +23,8 @@ namespace Model2
         private HashSet<string> _vocabulary = new HashSet<string>();
         HashSet<string> bigNumbersHash = new HashSet<string>();
         //TODO =
-        char[] delimiters = { ' ', '(', ')', '<', '>', '[', ']', '{', '}', '^', ';', '"', '\'', '`', '|', '*', '#', '+', '?', '!', '&', '@', '\\', ',' };
+        char[] del = { ' ', '(', ')', '<', '>', '[', ']', '{', '}', '^', ';', '"', '\'', '`', '|', '*', '#', '+', '?', '!', '&', '@', '\\', ',' };
+        string[] delimiters = { " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "\\", "," };
         Dictionary<string, string> months = new Dictionary<string, string>();
 
 
@@ -100,10 +101,23 @@ namespace Model2
                 }
             });
 
+            Task tasker4 = Task.Run(() =>
+            {
+                while (!done || _docs.Count > 0)
+                {
+                    _semaphore1.Wait();
+                    Doc currentDoc;
+                    _docs.TryDequeue(out currentDoc);
+                    Parser(currentDoc, shouldStem);
+                    _semaphore2.Release();
+                }
+            });
+
             task.Wait();
             tasker1.Wait();
             tasker2.Wait();
             tasker3.Wait();
+            tasker4.Wait();
 
             Console.WriteLine("Total runtime  including read from file = " + (DateTime.Now - totalInitTime));
 
@@ -118,7 +132,7 @@ namespace Model2
             //        Indexer.fullDictionary[term].GetTerm = term.ToUpper();
             //    }
             //}
-           
+            //Indexer.fullDictionary.Keys.
         }
 
         /// <summary>
@@ -132,8 +146,11 @@ namespace Model2
             //DateTime parseDocTime = DateTime.Now;
             StringBuilder text = doc._text.Replace("\\n", " ");
             text = text.Replace("'", "");
+            text = text.Replace("--", "-");
+            text = text.Replace("- ", "-");
+            text = text.Replace(" -", "-");
             string toParse = ParsePercent(text.ToString());
-            string[] splitedText = toParse.Split(delimiters);
+            string[] splitedText = toParse.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
 
             //read city
             IEnumerable<String> searchcity =
@@ -152,8 +169,8 @@ namespace Model2
             IEnumerable<String> onlyText =
                 splitedText
                 .SkipWhile((newWord) => String.Compare(newWord, Resources.Resource.openText) != 0)
-                .TakeWhile((newWord) => String.Compare(newWord, Resources.Resource.closeText) != 0)
-                .Where((newWord) => newWord != "");
+                .TakeWhile((newWord) => String.Compare(newWord, Resources.Resource.closeText) != 0);
+               // .Where((newWord) => newWord != "");
 
             splitedText = onlyText.ToArray();
             if(splitedText.Length > 0)
@@ -225,7 +242,7 @@ namespace Model2
 
             foreach (string word in splitedText)
             {
-                if (word.ToLower() != Resources.Resource.between && !stopWords.Contains(word.ToLower())){
+                if (word.ToLower() == Resources.Resource.between || !stopWords.Contains(word.ToLower())){
                     string newWord = word;
                     if ((word.Length - 1 >= 0) && (word[word.Length - 1] == '.' || word[word.Length - 1] == ':') && word.ToLower() != "u.s.")
                     {

@@ -23,7 +23,7 @@ namespace Model2
 
             //string t = ParseRange("Between number and number (for example: between 18 and 24)");
             Parse parse = new Parse();
-            parse.FromFilesToDocs(@"C:\Users\nastia\source\repos\saarzeev\corpus", @"C:\Users\nastia\source\repos\saarzeev\InformationRetrieval\stopwords.txt" ,true);
+            parse.FromFilesToDocs(@"C:\Users\nastia\source\repos\saarzeev\corpus", @"C:\Users\nastia\source\repos\saarzeev\InformationRetrieval\stopwords.txt" ,false);
             // FromFilesToDocs(@"C:\miniMiniCorpus", false);
             //string k = " 44444/24545";
             //double.TryParse(k, out double num);

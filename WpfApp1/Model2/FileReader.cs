@@ -36,7 +36,7 @@ namespace Model2
                 {
                     while ((line = streamReader.ReadLine()) != null)
                     {
-                        line.Replace("'", "");
+                        line = line.Replace("'", "");
                         stopWord.Add(line.ToLower());
                     }
                   
@@ -56,22 +56,22 @@ namespace Model2
 
             StringBuilder doc = new StringBuilder("");
 
-           // FileStream fs = new FileStream(_currentFile, FileMode.Open, FileAccess.Read);
-          //  const Int32 BufferSize = 4096;
-            //using (var fileStream = File.OpenRead(_currentFile))
+            FileStream fs = new FileStream(_currentFile, FileMode.Open, FileAccess.Read);
+            const Int32 BufferSize = 4096;
+            using (var fileStream = File.OpenRead(_currentFile))
             using (var streamReader = new StreamReader(_currentFile))
             {
 
                 String line;
-                while (!streamReader.EndOfStream )
+                while (!streamReader.EndOfStream)
                 {
-                    while ( (line = streamReader.ReadLine()) != null && line.CompareTo("</DOC>") != 0)
+                    while ((line = streamReader.ReadLine()) != null && line.CompareTo("</DOC>") != 0)
                     {
                         doc.Append(line);
                         doc.Append("\\n");
                     }
 
-                    if (line != null )
+                    if (line != null)
                     {
                         doc.Append("</DOC>");
                         retVal = new Doc(this._currentFile, doc, this._docINdexInFile);
