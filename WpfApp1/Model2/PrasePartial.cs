@@ -19,6 +19,13 @@ namespace Model2
             Right
         }
 
+        /// <summary>
+        /// Parses "Between" phrases and Hyphen terms
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="splitedText"></param>
+        /// <param name="numPositions"></param>
+        /// <returns></returns>
         public string[] ParseBetweenTerms(int pos, string[] splitedText, HashSet<int> numPositions)
         {
             if (splitedText[pos].ToLower() == "between")
