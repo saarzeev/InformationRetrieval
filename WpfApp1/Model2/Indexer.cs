@@ -22,11 +22,12 @@ namespace Model2
             {
                     if (fullDictionary.ContainsKey(key))
                     {
-                    string posting = fullDictionary[key].PostingPath;
+                        string posting = fullDictionary[key].PostingPath;
                         if (docDictionary[key].IsLowerCase && !fullDictionary[key].IsLowerCase)
                         {
                             fullDictionary[key].IsLowerCase = true ;
                         }
+                        fullDictionary[key].Df++;
                     //TODO update posting
                     }
                     else
@@ -38,5 +39,14 @@ namespace Model2
             }
             dictionaryMutex.ReleaseMutex();
         }
+
+
+        // docPath(last value of path)+docId(int)+tf(int)+is100(0-true 1-false)+gapPositins(int[])+isLowerCase(0-true 1-false)
+        //public void string getPostingString(Term term, Doc doc)
+        //{
+        //    string[] docPath = doc._path.Split('\\');
+        //    str
+             
+        //}
     }
 } 
