@@ -20,11 +20,10 @@ namespace Model2
         private SemaphoreSlim _semaphore2 = new SemaphoreSlim(10, 10);
         private bool done = false;
         HashSet<string> stopWords;
-        private HashSet<int> numPositions = new HashSet<int>();
+
         private HashSet<string> _vocabulary = new HashSet<string>();
         HashSet<string> bigNumbersHash = new HashSet<string>();
         //TODO =
-        char[] del = { ' ', '(', ')', '<', '>', '[', ']', '{', '}', '^', ';', '"', '\'', '`', '|', '*', '#', '+', '?', '!', '&', '@', '\\', ',' };
         string[] delimiters = { " - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "\\", "," };
         Dictionary<string, string> months = new Dictionary<string, string>();
 
@@ -183,13 +182,14 @@ namespace Model2
             Queue<int> bigNums = new Queue<int>();
             Queue<int> betweens = new Queue<int>();
             Queue<int> times = new Queue<int>();
+            HashSet<int> numPositions = new HashSet<int>();
 
             PopulateQueueWithPositions(splitedText, months, dates, money, specificBigNums, bigNums, betweens, times);
 
             //check and parse if the words meet the conditions
             while (betweens.Count != 0)
             {
-                splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText);
+                splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText, numPositions);
             }
             while (dates.Count != 0)
             {
@@ -206,11 +206,11 @@ namespace Model2
             }
             while (specificBigNums.Count != 0)
             {
-                splitedText = ParseSpecificNumbers(specificBigNums.Dequeue(), splitedText);
+                splitedText = ParseSpecificNumbers(specificBigNums.Dequeue(), splitedText, numPositions);
             }
             while (bigNums.Count != 0)
             {
-                splitedText = ParseNumbers(bigNums.Dequeue(), splitedText);
+                splitedText = ParseNumbers(bigNums.Dequeue(), splitedText, numPositions);
             }
 
             numPositions.Clear();
@@ -309,7 +309,7 @@ namespace Model2
         }
 
         //checks if the suspicious word is a number and parse it to requirements
-        private string[] ParseNumbers(int pos, string[] splitedText)
+        private string[] ParseNumbers(int pos, string[] splitedText, HashSet<int> numPositions)
         {
             if (splitedText[pos] != " ")
             {
@@ -358,7 +358,7 @@ namespace Model2
         }
 
         //checks if the suspicious word is a expression to represent a large number and parse it to requirements
-        private string[] ParseSpecificNumbers(int pos, string[] splitedText)
+        private string[] ParseSpecificNumbers(int pos, string[] splitedText, HashSet<int> numPositions)
         {
             string frac = "";
             if (splitedText[pos] != " ")
@@ -799,7 +799,7 @@ namespace Model2
                 }
             }
             doc.uniqWords = thisDocVocabulary.Count();
-
+           // doc.max_tf = getMaxTfInDoc(thisDocVocabulary.Values.OrderBy((Term) => ))
             return thisDocVocabulary;
         }
     }

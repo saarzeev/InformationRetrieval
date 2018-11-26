@@ -19,7 +19,7 @@ namespace Model2
             Right
         }
 
-        public  string[] ParseBetweenTerms(int pos, string[] splitedText)
+        public  string[] ParseBetweenTerms(int pos, string[] splitedText, HashSet<int> numPositions)
         {
             if (splitedText[pos].ToLower() == "between")
             {
@@ -65,12 +65,12 @@ namespace Model2
 
             while (specificBigNums.Count != 0)
             {
-                substr = ParseSpecificNumbers(specificBigNums.Dequeue(), substr);
+                substr = ParseSpecificNumbers(specificBigNums.Dequeue(), substr, null);
             }
 
             while (bigNums.Count != 0)
             {
-                substr = ParseNumbers(bigNums.Dequeue(), substr);
+                substr = ParseNumbers(bigNums.Dequeue(), substr, null);
             }
 
 
