@@ -25,7 +25,7 @@ namespace Model2
         HashSet<string> bigNumbersHash = new HashSet<string>();
         //TODO =
         char[] del = { ' ', '(', ')', '<', '>', '[', ']', '{', '}', '^', ';', '"', '\'', '`', '|', '*', '#', '+', '?', '!', '&', '@', '\\', ',' };
-        string[] delimiters = { " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "\\", "," };
+        string[] delimiters = { " - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "\\", "," };
         Dictionary<string, string> months = new Dictionary<string, string>();
 
 
@@ -148,8 +148,6 @@ namespace Model2
             StringBuilder text = doc._text.Replace("\\n", " ");
             text = text.Replace("'", "");
             text = text.Replace("--", "-");
-            text = text.Replace("- ", "-");
-            text = text.Replace(" -", "-");
             string toParse = ParsePercent(text.ToString());
             string[] splitedText = toParse.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
 
