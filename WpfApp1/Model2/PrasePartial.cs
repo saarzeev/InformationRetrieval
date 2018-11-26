@@ -23,62 +23,28 @@ namespace Model2
         {
             if (splitedText[pos].ToLower() == "between")
             {
-                splitedText[pos] = BetweenAndTerm(ref pos, splitedText, numPositions);
+                splitedText[pos] = BetweenAndTerm(ref pos, splitedText);
             }
             else
             {
-               if(splitedText[pos].ElementAt(0) == '-')
-                {
-                    splitedText[pos] = splitedText[pos].Remove(0, 1);
-                }
-               else if(splitedText[pos].ElementAt(splitedText[pos].Length - 1) == '-')
-                {
-                    splitedText[pos] = splitedText[pos].Remove(splitedText[pos].Length - 1 , 1);
-                }
-                else
-                {
-                    splitedText[pos] = HyphenTerm(pos,splitedText, numPositions);
-                }
-
+               // splitedText[pos] = HyphenTerm(pos,splitedText);
             }
             return splitedText;
         }
 
-        private string HyphenTerm(int pos, string[] splitedText, HashSet<int> numPositions)
+        private  string HyphenTerm(int pos, string[] splitedText)
         {
             string concatHyphenTerm = "";
             string[] hyphenExpr = splitedText[pos].Split('-');
             if (hyphenExpr.Length == 2)
             { //Hyphen-terms with numbers should be number-parsed
+                string[] leftSubstr = { splitedText[pos - 1], hyphenExpr[0] };
                 //TODO Array out of bounds
+                // OUT OF RANGE TO-Do!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                string[] rightSubstr = { hyphenExpr[1], splitedText[pos + 1] };
 
-
-                string[] leftSubstr;
-                bool leftSubstrPossibleChange = true;
-                if (pos - 1 >= 0)
-                {
-                    leftSubstr = new string[] { splitedText[pos - 1], hyphenExpr[0] };
-                }
-                else
-                {
-                    leftSubstr = new string[] { " ", hyphenExpr[0] };
-                    leftSubstrPossibleChange = false;
-                }
-
-                string[] rightSubstr;
-                bool rightSubstrPossibleChange = true;
-                if (pos + 1 < splitedText.Length)
-                {
-                    rightSubstr = new string[] { hyphenExpr[1], splitedText[pos + 1] };
-                }
-                else
-                {
-                    rightSubstr = new string[] { hyphenExpr[1] , " "};
-                    rightSubstrPossibleChange = false;
-                }
-
-                hyphenExpr[0] = TreatHyphenTermsNumbers(pos, splitedText, leftSubstr, Side.Left, leftSubstrPossibleChange, numPositions);
-                hyphenExpr[1] = TreatHyphenTermsNumbers(pos, splitedText, rightSubstr, Side.Right, rightSubstrPossibleChange, numPositions);
+                hyphenExpr[0] = TreatHyphenTermsNumbers(pos, splitedText, leftSubstr, Side.Left);
+                hyphenExpr[1] = TreatHyphenTermsNumbers(pos, splitedText, rightSubstr, Side.Right);
 
                 for (int i = 0; i < hyphenExpr.Length; i++)
                 {
@@ -90,7 +56,7 @@ namespace Model2
             return concatHyphenTerm;
         }
 
-        private  string TreatHyphenTermsNumbers(int pos, string[] splitedText, string[] substr, Side side, bool possibleChange, HashSet<int> numPositions)
+        private  string TreatHyphenTermsNumbers(int pos, string[] splitedText, string[] substr, Side side)
         {
             Queue<int> specificBigNums = new Queue<int>();
             Queue<int> bigNums = new Queue<int>();
@@ -99,12 +65,12 @@ namespace Model2
 
             while (specificBigNums.Count != 0)
             {
-                substr = ParseSpecificNumbers(specificBigNums.Dequeue(), substr, numPositions);
+                substr = ParseSpecificNumbers(specificBigNums.Dequeue(), substr, null);
             }
 
             while (bigNums.Count != 0)
             {
-                substr = ParseNumbers(bigNums.Dequeue(), substr, numPositions);
+                substr = ParseNumbers(bigNums.Dequeue(), substr, null);
             }
 
 
@@ -119,52 +85,50 @@ namespace Model2
             }
             else //side == Side.Right
             {
-                if (substr[1] == " " && possibleChange)
+                if (substr[1] == " ")
                 {
                     splitedText[pos + 1] = " ";
                 }
                 return substr[0];
             }
         }
-        private  string BetweenAndTerm(ref int pos, string[] splitedText, HashSet<int> numPositions)
+        //TODO num position not global
+        //TODO maybe delete "-" that are not a between term?? and "--"
+        private  string BetweenAndTerm(ref int pos, string[] splitedText)
         {
             string concatBetweenTerm = "";
             int origPos = pos;
-            string origBetween = splitedText[pos];
-            bool commitChanges = false;
-
-            concatBetweenTerm = (splitedText[pos] == "between") ? "between" : "Between ";
+            concatBetweenTerm = (splitedText[pos] == "between") ? "between " : "Between ";
             pos++;
-            if (numPositions.Contains(pos))
-            {
-                concatBetweenTerm += splitedText[pos] + " ";
-                pos++;
+            //if (numPositions.Contains(pos))
+            //{
+            //    concatBetweenTerm += splitedText[pos] + " ";
+            //    pos++;
 
-                while (splitedText[pos].ToLower() == " ")
-                {
-                    pos++;
-                }
+            //    while (splitedText[pos].ToLower() == " ")
+            //    {
+            //        pos++;
+            //    }
 
-                if (splitedText[pos].ToLower() == "and")
-                {
-                    concatBetweenTerm += (splitedText[pos] == "and") ? "and " : "And ";
-                    pos++;
-                    if (numPositions.Contains(pos))
-                    {
+            //    if (splitedText[pos].ToLower() == "and")
+            //    {
+            //        concatBetweenTerm += (splitedText[pos] == "and") ? "and " : "And ";
+            //        pos++;
+            //        //if (numPositions.Contains(pos)) { 
+                    
+            //        //    concatBetweenTerm += splitedText[pos] + " ";
 
-                        concatBetweenTerm += splitedText[pos] + " ";
-                        commitChanges = true;
-                        while (pos > origPos)
-                        {
-                            splitedText[pos] = " ";
-                            pos--;
-                        }
-                        splitedText[pos] = concatBetweenTerm;
-                    }
-                }
-            }
+            //        //    while (pos > origPos)
+            //        //    {
+            //        //        splitedText[pos] = " ";
+            //        //        pos--;
+            //        //    }
+            //        //    splitedText[pos] = concatBetweenTerm;
+            //        //}
+            //    }
+            //}
 
-            return commitChanges ? concatBetweenTerm : origBetween;
+            return concatBetweenTerm;
         }
 
     }

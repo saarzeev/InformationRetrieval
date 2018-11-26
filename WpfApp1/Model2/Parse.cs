@@ -41,15 +41,21 @@ namespace Model2
             Task task;
             HashSet<Task> task2 = new HashSet<Task>();
             Console.WriteLine("Started...");
-            FileReader fr = InitHeapVariables(filesPath, stopWordsPath);
+            FileReader fr = new FileReader(filesPath, stopWordsPath);
+            stopWords = fr.stopWords;
+            bigNumbersHash.Add(Resources.Resource.thousand);
+            bigNumbersHash.Add(Resources.Resource.million);
+            bigNumbersHash.Add(Resources.Resource.billion);
+            bigNumbersHash.Add(Resources.Resource.trillion);
+            months.Add("jan", "01"); months.Add("feb", "02"); months.Add("mar", "03"); months.Add("apr", "04"); months.Add("may", "05"); months.Add("jun", "06"); months.Add("jul", "07"); months.Add("aug", "08"); months.Add("sep", "09"); months.Add("oct", "10"); months.Add("nov", "11"); months.Add("dec", "12");
+            months.Add("january", "01"); months.Add("february", "02"); months.Add("march", "03"); months.Add("april", "04"); months.Add("june", "06"); months.Add("july", "07"); months.Add("august", "08"); months.Add("september", "09"); months.Add("october", "10"); months.Add("november", "11"); months.Add("december", "12");
             task = Task.Run(() =>
             {
                 while (fr.HasNext())
                 {
 
                     List<Doc> docs = fr.ReadNextDoc();
-                    foreach (Doc doc in docs)
-                    {
+                    foreach (Doc doc in docs) {
                         _semaphore2.Wait();
                         _docs.Enqueue(doc);
                         _semaphore1.Release();
@@ -127,19 +133,6 @@ namespace Model2
             //    }
             //}
             //Indexer.fullDictionary.Keys.
-        }
-
-        private FileReader InitHeapVariables(string filesPath, string stopWordsPath)
-        {
-            FileReader fr = new FileReader(filesPath, stopWordsPath);
-            stopWords = fr.stopWords;
-            bigNumbersHash.Add(Resources.Resource.thousand);
-            bigNumbersHash.Add(Resources.Resource.million);
-            bigNumbersHash.Add(Resources.Resource.billion);
-            bigNumbersHash.Add(Resources.Resource.trillion);
-            months.Add("jan", "01"); months.Add("feb", "02"); months.Add("mar", "03"); months.Add("apr", "04"); months.Add("may", "05"); months.Add("jun", "06"); months.Add("jul", "07"); months.Add("aug", "08"); months.Add("sep", "09"); months.Add("oct", "10"); months.Add("nov", "11"); months.Add("dec", "12");
-            months.Add("january", "01"); months.Add("february", "02"); months.Add("march", "03"); months.Add("april", "04"); months.Add("june", "06"); months.Add("july", "07"); months.Add("august", "08"); months.Add("september", "09"); months.Add("october", "10"); months.Add("november", "11"); months.Add("december", "12");
-            return fr;
         }
 
         /// <summary>
