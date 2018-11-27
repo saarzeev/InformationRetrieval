@@ -69,7 +69,7 @@
     <Compile Include="Class1.cs" />
     <Compile Include="Indexer.cs" />
     <Compile Include="Posting.cs" />
-    <Compile Include="PostingSets.cs" />
+    <Compile Include="PostingsSet.cs" />
     <Compile Include="SimpleTerm.cs" />
     <Compile Include="Doc.cs" />
     <Compile Include="FileReader.cs" />
