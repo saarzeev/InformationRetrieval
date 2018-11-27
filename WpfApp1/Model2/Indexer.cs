@@ -21,11 +21,10 @@ namespace Model2
             this._initialPathForPosting = path;
         }
         
-        public void setDocVocabularytoFullVocabulary(Doc doc ,SortedDictionary<string, Term> docDictionary)
+        public Queue<Posting> setDocVocabularytoFullVocabulary(Doc doc ,SortedDictionary<string, Term> docDictionary)
         {
             string[] docPath = doc._path.Split('\\');
-            StringBuilder terms = new StringBuilder();
-
+            Queue<Posting> docsPosting = new Queue<Posting>();
             foreach (string key in docDictionary.Keys)
             {
                     if (fullDictionary.ContainsKey(key))
@@ -42,9 +41,9 @@ namespace Model2
                         SimpleTerm newTerm = new SimpleTerm(key, "", docDictionary[key].IsLowerCase);
                         fullDictionary.TryAdd(key, newTerm);
                     }
-                terms.AppendLine(getPostingString(docDictionary[key], docPath[docPath.Length - 1], doc._indexInFile).ToString());
+                docsPosting.Enqueue(new Posting(docPath[docPath.Length - 1], doc._indexInFile, docDictionary[key]));
             }
-            writePosting(terms.ToString(), docPath[docPath.Length - 1]);
+            return docsPosting;
         }
 
         private void writePosting(string postingString, string path)
