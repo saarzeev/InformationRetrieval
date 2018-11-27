@@ -56,7 +56,6 @@ namespace Model2
             else
             {
                 mutex.ReleaseMutex();
-                DumpToDisk();
                 return false;
             }
             mutex.ReleaseMutex();
