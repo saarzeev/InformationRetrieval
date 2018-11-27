@@ -93,12 +93,11 @@ namespace Model2
         }
 
         // docPath(last value of path)+docId(int)+tf(int)+is100(0-false 1-true)+gapPositins(int[])+isLowerCase(0-false 1-true)
-        //TODO gaps dont work!
         public StringBuilder getPostingString(Term term, string docFullPath, long dicID)
         {
 
             StringBuilder posting = new StringBuilder(term.GetTerm + ",");
-            posting.Append("1," + docFullPath + ",");
+            posting.Append(docFullPath + ",");
             posting.Append(dicID + ",");
             posting.Append(term.Tf + ",");
             string is100 = term.IsIn100 ? "1" : "0";

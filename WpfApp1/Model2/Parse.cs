@@ -185,7 +185,7 @@ namespace Model2
             if(cityTag != null&& 1 < cityTag.Length && cityTag.Length > 0)
             {
                 doc.city = cityTag[1].ToUpper();
-                //TODO for every city like that we need to save positions and docs
+                
                 _citiesMutex.WaitOne();
                 _cities.Add(doc.city);
                 _citiesMutex.ReleaseMutex();

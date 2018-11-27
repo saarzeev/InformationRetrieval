@@ -52,7 +52,7 @@ namespace Model2
             string[] hyphenExpr = splitedText[pos].Split('-');
             if (hyphenExpr.Length == 2)
             { //Hyphen-terms with numbers should be number-parsed
-                //TODO Array out of bounds
+                
 
 
                 string[] leftSubstr;

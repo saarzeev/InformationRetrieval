@@ -9,8 +9,6 @@ namespace Model2
         private bool _isIn100;
         private bool _isLowerCase;
         private HashSet<int> _positons;
-      
-      //TODO all for posting
 
         public Term(string term, int firstPos, char firstChar)
         {
