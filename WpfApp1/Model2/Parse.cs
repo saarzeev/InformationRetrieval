@@ -18,6 +18,8 @@ namespace Model2
     {
 
         private ConcurrentQueue<Doc> _docs = new ConcurrentQueue<Doc>();
+        private HashSet<string> _cities = new HashSet<string>();
+        private Mutex _citiesMutex = new Mutex();
         private SemaphoreSlim _semaphore1 = new SemaphoreSlim(0, 10);
         private SemaphoreSlim _semaphore2 = new SemaphoreSlim(10, 10);
         private bool done = false;
@@ -178,11 +180,13 @@ namespace Model2
              .TakeWhile((newWord) => String.Compare(newWord, Resources.Resource.closeCity) != 0)
              .Where((newWord) => newWord != "");
             string[] cityTag = searchcity.ToArray();
-            if(cityTag != null && cityTag.Length > 0)
+            if(cityTag != null&& 1 < cityTag.Length && cityTag.Length > 0)
             {
-                doc.city = cityTag[0].ToUpper();
-               //TODO for every city like that we need to save positions and docs
-
+                doc.city = cityTag[1].ToUpper();
+                //TODO for every city like that we need to save positions and docs
+                _citiesMutex.WaitOne();
+                _cities.Add(doc.city);
+                _citiesMutex.ReleaseMutex();
             }
 
             //read doc between TEXT tags

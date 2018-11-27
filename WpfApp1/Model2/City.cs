@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Model2
 {
-    class City
+    class City : IComparable
     {
         private string _city;
         private string _country = "";
@@ -37,6 +37,32 @@ namespace Model2
             }
 
             //TODO - Pass population through the parseBigNumbers();
+        }
+
+        public int CompareTo(object obj)
+        {
+            return _city.CompareTo(obj);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if(obj is City)
+            {
+                return (((City)obj)._city.Equals(this._city));
+            }
+            return false;
+        }
+        public override int GetHashCode()
+        {
+            return _city.GetHashCode();
+        }
+        public override string ToString()
+        {
+            return "[" +
+                    _city + ", " +
+                    _country + ", " +
+                    _currency + ", " +
+                    _population + "]";
         }
     }
 }
