@@ -29,7 +29,7 @@ namespace Model2
             counter++;
         }
         /// <summary>
-        /// Given a term and its posting, adds them to the data structure (Thread safe).
+        /// Given a term and its posting, adds them to the data structure (It is NOT thread safe).
         /// Returns true if successfuly added the term and posting (there was enough capacity).
         /// Returns false otherwise.
         /// </summary>
@@ -38,7 +38,6 @@ namespace Model2
         /// <returns></returns>
         public bool Add(string term, Posting posting)
         {
-            mutex.WaitOne();
             if (hasCapacity())
             {
                 if (_termsDictionary.ContainsKey(term))
@@ -55,10 +54,8 @@ namespace Model2
             }
             else
             {
-                mutex.ReleaseMutex();
                 return false;
             }
-            mutex.ReleaseMutex();
             return true;
         }
 
