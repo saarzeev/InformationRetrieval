@@ -85,6 +85,7 @@ namespace Model2
                         }
 
                     }
+                    _termsDictionary = null;
                 });
             }
 
@@ -147,6 +148,5 @@ namespace Model2
             }
 
         }
-    }
     }
 }
