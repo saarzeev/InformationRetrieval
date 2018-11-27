@@ -237,7 +237,7 @@ namespace Model2
             numPositions.Clear();
 
             var docVovabulary = AddTermsToVocabulry(splitedText, shouldStem, doc);
-            Indexer index = new Indexer("");
+            Indexer index = new Indexer(@"C:\Users\nastia\source\repos\saarzeev");
             index.setDocVocabularytoFullVocabulary(doc ,docVovabulary);
             ////Console.WriteLine(doc._path + "\n" + String.Join(" ", splitedText));
             //  Console.WriteLine("Done with doc. Parsing took " + (DateTime.Now - parseDocTime));
