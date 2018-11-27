@@ -5,29 +5,41 @@ using System.Text;
 
 namespace Model2
 {
-    class Posting
+    public class Posting : IComparable
     {
+        public string term;
         public int tf;
         public string docRelativePath;
         public int docID;
         public bool is100;
         public bool isLower;
-        public string gaps;
+        public StringBuilder gaps;
 
-        
-        public StringBuilder getPostingString(Term term, string docFullPath, long docID)
+       
+
+        public Posting(string docPath, long docID, Term term)
         {
+            this.term = term.GetTerm;
+            this.tf = term.Tf;
+            this.docRelativePath = docPath;
+            this.docID = (int)docID;
+            this.is100 = term.IsIn100;
+            this.isLower = term.IsLowerCase;
+            this.gaps = getGaps(term.Positons);
+        }
 
-            StringBuilder posting = new StringBuilder(term.GetTerm + ",");
-            posting.Append(docFullPath + ",");
-            posting.Append(docID + ",");
-            posting.Append(term.Tf + ",");
-            string is100 = term.IsIn100 ? "1" : "0";
+        public StringBuilder getPostingString()
+        {
+            StringBuilder posting = new StringBuilder(this.term + ",");
+            posting.Append(this.docRelativePath + ",");
+            posting.Append(this.docID + ",");
+            posting.Append(this.tf + ",");
+            string is100 = this.is100 ? "1" : "0";
             posting.Append(is100 + ",");
             posting.Append("[");
-            posting.Append(getGaps(term.Positons));
+            posting.Append(this.gaps);
             posting.Append("],");
-            string isLower = term.IsLowerCase ? "1" : "0";
+            string isLower = this.isLower ? "1" : "0";
             posting.Append(isLower);
             return posting;
             //byte[] comma = Encode(',');
@@ -168,6 +180,11 @@ namespace Model2
                 gaps.Append("," + gap);
             }
             return gaps;
+        }
+
+        public int CompareTo(object obj)
+        {
+          return this.tf.CompareTo(((Posting)obj).tf);
         }
     }
 }

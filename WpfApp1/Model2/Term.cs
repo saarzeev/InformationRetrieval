@@ -2,7 +2,7 @@
 
 namespace Model2
 {
-     class Term
+     public class Term
     {
         private string _term;
         private int _tf;
