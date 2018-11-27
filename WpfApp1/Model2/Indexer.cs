@@ -1,11 +1,6 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.IO;
-using System.IO.Compression;
-using System.Text;
 using System.Threading;
-using System;
 
 namespace Model2
 {
@@ -15,10 +10,29 @@ namespace Model2
         static public ConcurrentDictionary<string, SimpleTerm> fullDictionary = new ConcurrentDictionary<string, SimpleTerm>();
         static public Mutex dictionaryMutex = new Mutex();
         private string _initialPathForPosting;
+        private static Indexer indexer;
+        public PostingsSet currenPostingSet;
+        public List<PostingsSet> dead;
+        public Mutex postingSetMutex = new Mutex();
 
-        public Indexer(string path)
+        public static Indexer Instance(string path)
+        {
+
+            if (indexer == null)
+            {
+                indexer = new Indexer(path);
+            }
+            return indexer;
+
+        }
+
+
+        private Indexer(string path)
         {
             this._initialPathForPosting = path;
+            currenPostingSet = new PostingsSet(path);
+            dead = new List<PostingsSet>();
+
         }
 
         public Queue<Posting> setDocVocabularytoFullVocabulary(Doc doc, SortedDictionary<string, Term> docDictionary)
@@ -46,9 +60,24 @@ namespace Model2
             return docsPosting;
         }
 
+        public void initIndex(Doc doc, SortedDictionary<string, Term> docDictionary)
+        {
+           Queue<Posting> postingOfDoc = setDocVocabularytoFullVocabulary(doc, docDictionary);
 
+            this.postingSetMutex.WaitOne();
+            while (postingOfDoc.Count > 0)
+            {
+                Posting posting = postingOfDoc.Dequeue();
+                if (!currenPostingSet.Add(posting.term, posting)) {
+                    currenPostingSet.DumpToDisk();
+                    dead.Add(currenPostingSet);
+                    currenPostingSet = new PostingsSet(this._initialPathForPosting);
+                    currenPostingSet.Add(posting.term, posting);
+                }
+            }
+            this.postingSetMutex.ReleaseMutex();
+        }
 
-        // docPath(last value of path)+docId(int)+tf(int)+is100(0-false 1-true)+gapPositins(int[])+isLowerCase(0-false 1-true)
     }
 
 } 

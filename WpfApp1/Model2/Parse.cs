@@ -24,7 +24,6 @@ namespace Model2
         private SemaphoreSlim _semaphore2 = new SemaphoreSlim(163, 163);
         private bool done = false;
         HashSet<string> stopWords;
-        Indexer index = new Indexer(@"C:\Users\nastia\source\repos\saarzeev");
         private HashSet<string> _vocabulary = new HashSet<string>();
         HashSet<string> bigNumbersHash = new HashSet<string>();
         //TODO =
@@ -117,8 +116,9 @@ namespace Model2
             tasker2.Wait();
             tasker3.Wait();
             tasker4.Wait();
+            Indexer.Instance(@"C: \Users\nastia\source\repos\saarzeev").currenPostingSet.DumpToDisk();
             //TODO need to get the path of the posting/temp posting
-            index.mergeFiles();
+
 
             Console.WriteLine("Total runtime  including read from file = " + (DateTime.Now - totalInitTime));
 
@@ -239,7 +239,8 @@ namespace Model2
             numPositions.Clear();
 
             SortedDictionary<string,Term> docVovabulary = AddTermsToVocabulry(splitedText, shouldStem, doc);
-            index.setDocVocabularytoFullVocabulary(doc ,docVovabulary);
+            Indexer index = Indexer.Instance(@"C:\Users\nastia\source\repos\saarzeev");
+            index.initIndex(doc ,docVovabulary);
             ////Console.WriteLine(doc._path + "\n" + String.Join(" ", splitedText));
             //  Console.WriteLine("Done with doc. Parsing took " + (DateTime.Now - parseDocTime));
         }
