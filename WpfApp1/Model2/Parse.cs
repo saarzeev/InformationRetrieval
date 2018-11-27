@@ -20,11 +20,11 @@ namespace Model2
         private ConcurrentQueue<Doc> _docs = new ConcurrentQueue<Doc>();
         private HashSet<string> _cities = new HashSet<string>();
         private Mutex _citiesMutex = new Mutex();
-        private SemaphoreSlim _semaphore1 = new SemaphoreSlim(0, 10);
-        private SemaphoreSlim _semaphore2 = new SemaphoreSlim(10, 10);
+        private SemaphoreSlim _semaphore1 = new SemaphoreSlim(0, 163);
+        private SemaphoreSlim _semaphore2 = new SemaphoreSlim(163, 163);
         private bool done = false;
         HashSet<string> stopWords;
-
+        Indexer index = new Indexer(@"C:\Users\nastia\source\repos\saarzeev");
         private HashSet<string> _vocabulary = new HashSet<string>();
         HashSet<string> bigNumbersHash = new HashSet<string>();
         //TODO =
@@ -117,6 +117,8 @@ namespace Model2
             tasker2.Wait();
             tasker3.Wait();
             tasker4.Wait();
+            //TODO need to get the path of the posting/temp posting
+            index.mergeFiles();
 
             Console.WriteLine("Total runtime  including read from file = " + (DateTime.Now - totalInitTime));
 
@@ -236,8 +238,7 @@ namespace Model2
 
             numPositions.Clear();
 
-            var docVovabulary = AddTermsToVocabulry(splitedText, shouldStem, doc);
-            Indexer index = new Indexer(@"C:\Users\nastia\source\repos\saarzeev");
+            SortedDictionary<string,Term> docVovabulary = AddTermsToVocabulry(splitedText, shouldStem, doc);
             index.setDocVocabularytoFullVocabulary(doc ,docVovabulary);
             ////Console.WriteLine(doc._path + "\n" + String.Join(" ", splitedText));
             //  Console.WriteLine("Done with doc. Parsing took " + (DateTime.Now - parseDocTime));
@@ -826,17 +827,17 @@ namespace Model2
         string replacement = "${number}%";
         return Regex.Replace(text, pattern, replacement, RegexOptions.IgnoreCase);
     }
-        private Dictionary<string, Term> AddTermsToVocabulry(string[] splitedText, bool shouldStem, Doc doc)
+        private SortedDictionary<string, Term> AddTermsToVocabulry(string[] splitedText, bool shouldStem, Doc doc)
         {
             StemmerInterface stm = new Stemmer();
-            Dictionary<string, Term> thisDocVocabulary = new Dictionary<string, Term>();
+            SortedDictionary<string, Term> thisDocVocabulary = new SortedDictionary<string, Term>();
             int pos = 0;
             foreach (string word in splitedText)
             {
                 if (word != " " && word != "" && !stopWords.Contains(word.ToLower()))
                 {
                     //TODO another structer for extra words?
-                    //TODO if stemming so dont stemm numbers,dates,between,
+                    
                     bool isNumber = Char.IsDigit(word[0]);
                     string term = shouldStem && !isNumber ? stm.stemTerm(word).ToLower() : word.ToLower();
                     if (thisDocVocabulary.ContainsKey(term))

@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Threading;
+using System;
 
 namespace Model2
 {
@@ -20,7 +21,7 @@ namespace Model2
             this._initialPathForPosting = path;
         }
         
-        public void setDocVocabularytoFullVocabulary(Doc doc ,Dictionary<string, Term> docDictionary)
+        public void setDocVocabularytoFullVocabulary(Doc doc ,SortedDictionary<string, Term> docDictionary)
         {
             string[] docPath = doc._path.Split('\\');
             StringBuilder terms = new StringBuilder();
@@ -231,20 +232,34 @@ namespace Model2
             //return posting;
 
         }
-
         public StringBuilder getGaps(HashSet<int> positionsHash)
         {
             int[] positions = new int[positionsHash.Count];
-            positionsHash.CopyTo( positions, 0);
+            positionsHash.CopyTo(positions, 0);
 
             StringBuilder gaps = new StringBuilder();
             gaps.Append(positions[0]);
-            for (int i = 1 ; i < positions.Length ; i++)
+            for (int i = 1; i < positions.Length; i++)
             {
                 int gap = (positions[i] - positions[i - 1]);
                 gaps.Append("," + gap);
             }
             return gaps;
         }
+
+    public void mergeFiles()
+        {
+            var fileArray = Directory.EnumerateFiles(this._initialPathForPosting, "*.txt");
+            Queue<string> files = new Queue<string>(fileArray);
+            while (files.Count > 1)
+            {
+                var bytes = File.ReadAllBytes(files.Dequeue());
+                string unziped = Unzip(bytes);
+                
+            }
+            
+
+        }
+
     }
 } 
