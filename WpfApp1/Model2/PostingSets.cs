@@ -30,8 +30,15 @@ namespace Model2
                 _path = destPath;
                 counter++;
             }
-
-            public void Add(string term, Posting posting)
+            /// <summary>
+            /// Given a term and its posting, adds them to the data structure (Thread safe).
+            /// Returns true if successfuly added the term and posting (there was enough capacity).
+            /// Returns false otherwise.
+            /// </summary>
+            /// <param name="term"></param>
+            /// <param name="posting"></param>
+            /// <returns></returns>
+            public bool Add(string term, Posting posting)
             {
                 mutex.WaitOne();
                 if (hasCapacity())
@@ -48,7 +55,14 @@ namespace Model2
                         capacity--;
                     }
                 }
+                else
+                {
+                    mutex.ReleaseMutex();
+                    dumpToDisk();
+                    return false;
+                }
                 mutex.ReleaseMutex();
+                return true;
             }
 
             public bool hasCapacity()
@@ -56,19 +70,28 @@ namespace Model2
                 return capacity > 0;
             }
 
+
             public void dumpToDisk()
             {
-                foreach(string term in _termsDictionary.Keys)
+                Task writer = Task.Run(() =>
                 {
-                    List<Posting> list = _termsDictionary[term];
-                    list.OrderByDescending(posting => posting.tf);
+                    foreach (string term in _termsDictionary.Keys)
+                    {
+                        List<Posting> list = _termsDictionary[term];
+                        list.OrderByDescending(posting => posting.tf);
+                        foreach (Posting posting in list)
+                        {
+                            writePosting(posting.getPostingString().ToString(), posting.term.ElementAt(0));
+                        }
 
-                }
+                    }
+                });
             }
 
-            private void writePosting(string postingString)
+            private void writePosting(string postingString, char firstLetter)
             {
-                string PostPath = _path + "\\" + path + ".txt";
+                string fileName = ((firstLetter >= 'a' && firstLetter <= 'z') || (firstLetter >= 'A' && firstLetter <= 'Z')) ? "" + firstLetter : "other";
+                string PostPath = _path + "\\" + fileName + ".txt";
                 using (var file = File.Open(PostPath, FileMode.Append))
                 {
                     using (BinaryWriter writer = new BinaryWriter(file))
