@@ -43,13 +43,14 @@ namespace Model2
                 if (_termsDictionary.ContainsKey(term))
                 {
                     _termsDictionary[term].Add(posting);
+                    capacity--;
                 }
                 else
                 {
                     List<Posting> newList = new List<Posting>();
                     newList.Add(posting);
                     _termsDictionary.Add(term, newList);
-                    capacity--;
+                   
                 }
             }
             else
@@ -86,7 +87,7 @@ namespace Model2
         private void writePosting(string postingString, char firstLetter)
         {
             string fileName = ((firstLetter >= 'a' && firstLetter <= 'z') || (firstLetter >= 'A' && firstLetter <= 'Z')) ? "" + firstLetter : "other";
-            string PostPath = _path + "\\" + fileName + ".txt";
+            string PostPath = _path + "\\" + fileName + id + ".txt";
             using (var file = File.Open(PostPath, FileMode.Append))
             {
                 using (BinaryWriter writer = new BinaryWriter(file))
