@@ -73,12 +73,16 @@ namespace Model2
                 foreach (string term in _termsDictionary.Keys)
                 {
                     List<Posting> list = _termsDictionary[term];
-                    list.OrderByDescending(posting => posting.tf);
+                    list.Sort((x1, x2) => x2.CompareTo(x1)); //Descending order, from highest to lowest tf
+                    StringBuilder postingString = new StringBuilder("");
+
+                    //term,df,(relPath,docID,tf,is100,[gaps],isLower,)*
                     foreach (Posting posting in list)
                     {
-                        writePosting(posting.getPostingString().ToString(), posting.term.ElementAt(0));
+                        postingString.Append(posting.getPostingString().Remove(0, term.Length + 1) + ",");
                     }
-
+                    string res = term + "," + list.Count + "," + postingString.ToString();
+                    //writePosting((term + "," + df + "," + postingString), term.ElementAt(0));
                 }
                 _termsDictionary = null;
             });
