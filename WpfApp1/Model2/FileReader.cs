@@ -56,7 +56,6 @@ namespace Model2
             StringBuilder doc = new StringBuilder("");
 
             FileStream fs = new FileStream(_currentFile, FileMode.Open, FileAccess.Read);
-            const Int32 BufferSize = 4096;
             using (var fileStream = File.OpenRead(_currentFile))
             using (var streamReader = new StreamReader(_currentFile))
             {
@@ -85,10 +84,13 @@ namespace Model2
             
             return retValList;
         }
-
+        /// <summary>
+        /// Returns whether or not there is another file to read.
+        /// </summary>
+        /// <returns></returns>
         public bool HasNext()
         {
-            return !(_files.Count == 0 && _currentFile == ""); //THIS IS SHITTY
+            return !(_files.Count == 0 && _currentFile == "");
         }
     }
 }

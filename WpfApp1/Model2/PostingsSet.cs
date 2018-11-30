@@ -17,7 +17,7 @@ namespace Model2
         private Dictionary<string, List<Posting>> _termsDictionary = new Dictionary<string, List<Posting>>(); //terms, postings
         private int id;
         private static PostingsSet ps;
-        private int capacity = 5000;
+        public int capacity = 50000;
         private string _path = "";
 
 
@@ -35,22 +35,23 @@ namespace Model2
         /// </summary>
         /// <param name="term"></param>
         /// <param name="posting"></param>
+        /// <param name="limitCapacity"></param>
         /// <returns></returns>
-        public bool Add(string term, Posting posting)
+        public bool Add(string term, Posting posting, bool limitCapacity = true)
         {
-            if (hasCapacity())
+            if (!limitCapacity || hasCapacity())
             {
                 if (_termsDictionary.ContainsKey(term))
                 {
                     _termsDictionary[term].Add(posting);
-                    capacity--;
+                    
                 }
                 else
                 {
                     List<Posting> newList = new List<Posting>();
                     newList.Add(posting);
                     _termsDictionary.Add(term, newList);
-                   
+                    capacity--;
                 }
             }
             else
@@ -65,85 +66,197 @@ namespace Model2
             return capacity > 0;
         }
 
-
-        public void DumpToDisk()
+        /// <summary>
+        /// A wrapper method.
+        /// Writes to path the entire collection of postings in the following format:
+        /// term,df,(relPath,docID,tf,is100,[gaps],isLower,)*
+        /// When done, collection is set to null and GC is called.
+        /// </summary>
+        public void DumpToDisk(bool shouldRunAsDifferentTask = true, bool isFinalPostingFile = false)
         {
-            Task writer = Task.Run(() =>
+            if (shouldRunAsDifferentTask)
             {
-                foreach (string term in _termsDictionary.Keys)
+                Task writer = Task.Run(() =>
                 {
-                    List<Posting> list = _termsDictionary[term];
-                    list.Sort((x1, x2) => x2.CompareTo(x1)); //Descending order, from highest to lowest tf
-                    StringBuilder postingString = new StringBuilder("");
-
-                    //term,df,(relPath,docID,tf,is100,[gaps],isLower,)*
-                    foreach (Posting posting in list)
-                    {
-                        postingString.Append(posting.getPostingString().Remove(0, term.Length + 1) + ",");
-                    }
-                    string res = term + "," + list.Count + "," + postingString.ToString();
-                    //writePosting((term + "," + df + "," + postingString), term.ElementAt(0));
-                }
-                _termsDictionary = null;
-            });
+                    PerformDumpToDisk();
+                });
+            }
+            else
+            {
+                PerformDumpToDisk(isFinalPostingFile);
+            }
         }
 
-        private void writePosting(string postingString, char firstLetter)
+        private void PerformDumpToDisk(bool isFinalPostingFile = false)
+        {
+            char lastChar = ' ';
+            char currChar = ' ';
+            StringBuilder postingString = new StringBuilder("");
+            string finalTerm = "";
+            List<string> orderedKeys = _termsDictionary.Keys.ToList();
+            orderedKeys.Sort((x, y) => string.Compare(x, y));
+            foreach (string term in orderedKeys)
+            {
+
+                lastChar = currChar;
+                currChar = term.ElementAt(0);
+                if (lastChar != ' ' && !isSameFile(lastChar, currChar))
+                {
+                    writePosting(postingString, lastChar, isFinalPostingFile);
+                    postingString = new StringBuilder("");
+                }
+
+                List<Posting> list = _termsDictionary[term];
+                list.Sort((x1, x2) => x2.CompareTo(x1)); //Descending order, from highest to lowest tf
+                postingString.Append(term + "," + list.Count + ",");
+                //term,df,(relPath,docID,tf,is100,[gaps],isLower,)*
+                foreach (Posting posting in list)
+                {
+                    postingString.Append(posting.GetPostingString().Remove(0, term.Length + 1) + ",");
+                }
+                postingString.Append('\n');
+                finalTerm = term;
+            }
+            writePosting(postingString, finalTerm.ElementAt(0), isFinalPostingFile);
+            postingString = new StringBuilder("");
+            _termsDictionary = null;
+            GC.Collect();
+        }
+
+
+        /// <summary>
+        /// Returns whether or not the current term should be in the same file with the previous one.
+        /// </summary>
+        /// <param name="lastChar"></param>
+        /// <param name="currChar"></param>
+        /// <returns></returns>
+        private static bool isSameFile(char lastChar, char currChar)
+        {
+            //TODO the if statement can be simplified if all term are toLower().
+            return (((currChar >= 'a' && currChar <= 'z') || (currChar >= 'A' && currChar <= 'Z')) && lastChar == currChar) || //they both begin with the same letter
+                                    ((!(currChar >= 'a' && currChar <= 'z') && !(currChar >= 'A' && currChar <= 'Z') && !(lastChar >= 'a' && lastChar <= 'z') && !(lastChar >= 'A' && lastChar <= 'Z'))); //they both begin with a special char that is not a letter
+        }
+
+        private void writePosting(StringBuilder postingString, char firstLetter, bool isFinalPostingFile = false)
         {
             string fileName = ((firstLetter >= 'a' && firstLetter <= 'z') || (firstLetter >= 'A' && firstLetter <= 'Z')) ? "" + firstLetter : "other";
-            string PostPath = _path + "\\" + fileName + id + ".txt";
-            using (var file = File.Open(PostPath, FileMode.Append))
-            {
-                using (BinaryWriter writer = new BinaryWriter(file))
-                {
-                    var bytes = Zip(postingString);
-                    writer.Write(bytes);
-                    writer.Close();
-                    file.Close();
-                }
-            }
+            string postPath = _path + "\\" + fileName + (isFinalPostingFile ? "FINAL" : this.id.ToString() )+ ".txt";
+
+            Zip(postingString, postPath);
         }
 
-        public static byte[] Zip(string str)
+        /// <summary>
+        /// Given a <paramref name="str"/> and a <paramref name="path"/>, compresses and writes <paramref name="str"/> to <paramref name="path"/>.
+        /// <paramref name="compressionLevel"/> default is set to CommpressionLevel.Fastest
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="path"></param>
+        /// <param name="compressionLevel"></param>
+        public static void Zip(StringBuilder str, string path, CompressionLevel compressionLevel = CompressionLevel.Fastest)
         {
-            var bytes = Encoding.UTF8.GetBytes(str);
-
-            using (var msi = new MemoryStream(bytes))
-            using (var mso = new MemoryStream())
+            byte[] raw = Encoding.ASCII.GetBytes(str.ToString());
+            using (MemoryStream memory = new MemoryStream())
             {
-                using (var gs = new GZipStream(mso, CompressionMode.Compress))
+                using (GZipStream gzip = new GZipStream(memory,
+                    compressionLevel))
                 {
-                    msi.CopyTo(gs);
+                    gzip.Write(raw, 0, raw.Length);
                 }
-                return mso.ToArray();
+                File.WriteAllBytes(path, memory.ToArray());
             }
         }
 
-        public static string Unzip(byte[] bytes)
+        public static StringBuilder Unzip(byte[] bytes)
         {
-            using (var msi = new MemoryStream(bytes))
-            using (var mso = new MemoryStream())
+            using (GZipStream stream = new GZipStream(new MemoryStream(bytes),
+             CompressionMode.Decompress))
             {
-                using (var gs = new GZipStream(msi, CompressionMode.Decompress))
+                const int size = 4096;
+                byte[] buffer = new byte[size];
+                using (MemoryStream memory = new MemoryStream())
                 {
-                    gs.CopyTo(mso);
+                    int count = 0;
+                    do
+                    {
+                        count = stream.Read(buffer, 0, size);
+                        if (count > 0)
+                        {
+                            memory.Write(buffer, 0, count);
+                        }
+                    }
+                    while (count > 0);
+                    return new StringBuilder(Encoding.ASCII.GetString(memory.ToArray()));
                 }
-                return Encoding.UTF8.GetString(mso.ToArray());
             }
         }
-
+        /// <summary>
+        /// Merges all temporary posting files into final posting files.
+        /// Running this method during the population of the temporary posting files will result in data loss and undesired behaviour.
+        /// </summary>
         public void mergeFiles()
         {
-            /*var fileArray = Directory.EnumerateFiles(this._initialPathForPosting, "*.txt");
-            Queue<string> files = new Queue<string>(fileArray);
-            while (files.Count > 1)
+            //term,relPath,docID,tf,is100,[gaps],isLower
+            //term,df,(relPath,docID,tf,is100,[gaps],isLower,)*
+            
+            for (char c = 'a'; c <= 'z'; c++)
             {
-                var bytes = File.ReadAllBytes(files.Dequeue());
-                string unziped = Unzip(bytes);
+                _termsDictionary = new Dictionary<string, List<Posting>>();
+                string[] allTempFilesOfLetter = Directory.GetFiles(_path, c + "*", SearchOption.AllDirectories);
+                foreach (string file in allTempFilesOfLetter)
+                {
+                    StringBuilder currFile = Unzip(File.ReadAllBytes(file));
+                    string[] lines = currFile.ToString().Split('\n');
+                    foreach(string line in lines)
+                    {
+                        string[] brokenLine = line.Split(',');
+                        string term = brokenLine[0];
+                        int df = -1;
+                        if (1 < brokenLine.Length && brokenLine[1] != "")
+                        {
+                            int.TryParse(brokenLine[1], out df);
 
-            }*/
 
 
+                            for (int i = 2; i < brokenLine.Length; i++)
+                            {
+                                if (brokenLine[i] != "")
+                                {
+
+                                    /*StringBuilder postingStr = new StringBuilder(term + ","); //term,
+                                    postingStr.Append(brokenLine[i++] + "," + //relPath,
+                                                        brokenLine[i++] + "," + //docID,
+                                                        brokenLine[i++] + "," + //tf,
+                                                        brokenLine[i++] + "," //is100,
+                                                        );*/
+                                    string tmp = term + "," + brokenLine[i++] + "," + //relPath,
+                                                        brokenLine[i++] + "," + //docID,
+                                                        brokenLine[i++] + "," + //tf,
+                                                        brokenLine[i++] + ","; //is100,
+                                    int iBeforeLoop = i;
+                                    string nu = brokenLine[i];
+                                    string nu2 = brokenLine[i + 1];
+                                    while (!brokenLine[i].Contains("]"))
+                                    {
+                                        tmp += brokenLine[i++] + ",";
+                                        //postingStr.Append(brokenLine[i++] + ",");
+                                    }
+                                    tmp += brokenLine[i++] + ",";
+                                    tmp += brokenLine[i];
+                                    //postingStr.Append(brokenLine[i++] + ","); //gap],
+                                    //postingStr.Append(brokenLine[i++]); //isLower
+
+                                    this.Add(term, new Posting(tmp), limitCapacity: false);
+                                    int stam = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //At this point,_termsDictionary holds the entire postings collection for letter c.
+                DumpToDisk(false, true);
+            }
+            //TODO delete tmp posting files after merging is done
         }
 
     }

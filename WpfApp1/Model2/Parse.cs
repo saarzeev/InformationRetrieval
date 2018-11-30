@@ -116,7 +116,8 @@ namespace Model2
             tasker2.Wait();
             tasker3.Wait();
             tasker4.Wait();
-            Indexer.Instance(@"C: \Users\nastia\source\repos\saarzeev").currenPostingSet.DumpToDisk();
+            Indexer.Instance(@"C:\miniMiniCorpus\great").currenPostingSet.DumpToDisk(false);
+            Indexer.Instance(@"C:\miniMiniCorpus\great").currenPostingSet.mergeFiles();
             //TODO need to get the path of the posting/temp posting
 
 
@@ -239,7 +240,7 @@ namespace Model2
             numPositions.Clear();
 
             SortedDictionary<string,Term> docVovabulary = AddTermsToVocabulry(splitedText, shouldStem, doc);
-            Indexer index = Indexer.Instance(@"C:\Users\nastia\source\repos\saarzeev");
+            Indexer index = Indexer.Instance(@"C:\miniMiniCorpus\great");
             index.initIndex(doc ,docVovabulary);
             ////Console.WriteLine(doc._path + "\n" + String.Join(" ", splitedText));
             //  Console.WriteLine("Done with doc. Parsing took " + (DateTime.Now - parseDocTime));

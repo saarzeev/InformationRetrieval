@@ -69,6 +69,7 @@ namespace Model2
             {
                 Posting posting = postingOfDoc.Dequeue();
                 if (!currenPostingSet.Add(posting.term, posting)) {
+                    int nu = currenPostingSet.capacity;
                     currenPostingSet.DumpToDisk();
                     dead.Add(currenPostingSet);
                     currenPostingSet = new PostingsSet(this._initialPathForPosting);

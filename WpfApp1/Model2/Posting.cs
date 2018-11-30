@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Model2
 {
+    /// <summary>
+    /// Posting class
+    /// </summary>
     public class Posting : IComparable
     {
         public string term;
@@ -16,7 +19,12 @@ namespace Model2
         public StringBuilder gaps;
 
        
-
+        /// <summary>
+        /// Posting c'tor
+        /// </summary>
+        /// <param name="docPath"></param>
+        /// <param name="docID"></param>
+        /// <param name="term"></param>
         public Posting(string docPath, long docID, Term term)
         {
             this.term = term.GetTerm;
@@ -27,8 +35,68 @@ namespace Model2
             this.isLower = term.IsLowerCase;
             this.gaps = getGaps(term.Positons);
         }
+        /// <summary>
+        /// Given a string representation, constructs a Posting object
+        /// Format is:
+        /// term,relPath,docID,tf,is100,[gaps],isLower
+        /// </summary>
+        /// <param name="stringRep"></param>
+        public Posting(string stringRep)
+        {
+            string[] strArr = stringRep.Split(',');
+            this.term = strArr[0];
+            this.docRelativePath = strArr[1];
+            if(!int.TryParse(strArr[2], out this.docID) || !int.TryParse(strArr[3], out this.tf))
+            {
+                throw new System.ArgumentException("Parameter parsing failed.", "stringRep");
+            }
+            this.is100 = (strArr[4] == "1");
 
-        public StringBuilder getPostingString()
+            StringBuilder strGaps = new StringBuilder(strArr[5].Remove(0, 1));
+            int i = 5;
+            while (!strArr[i].Contains("]"))
+            {
+                if(i == 5)
+                {
+                    i++;
+                    continue;
+                }
+                strGaps.Append("," + strArr[i]);
+                i++;
+            }
+            if (i == 5)
+            {
+                char[] trim = new char[] { '[', ']' };
+                strGaps = new StringBuilder(strArr[i].Trim(trim));
+            }
+            else
+            {
+                strGaps.Append("," + strArr[i].Remove(strArr[i].IndexOf(']')));
+            }
+           
+            i++;
+
+            this.gaps = strGaps;
+
+            this.isLower = (strArr[i] == "1");
+
+
+        }
+        /// <summary>
+        /// Given a StringBuilder representation, constructs a Posting object
+        /// Format is:
+        /// term,relPath,docID,tf,is100,[gaps],isLower
+        /// </summary>
+        /// <param name="str"></param>
+        public Posting(StringBuilder str) : this(str.ToString()){}
+
+        /// <summary>
+        /// Get posting's string representation.
+        /// Format is:
+        /// term,relPath,docID,tf,is100,[gaps],isLower
+        /// </summary>
+        /// <returns></returns>
+        public StringBuilder GetPostingString()
         {
             StringBuilder posting = new StringBuilder(this.term + ",");
             posting.Append(this.docRelativePath + ",");
@@ -42,128 +110,6 @@ namespace Model2
             string isLower = this.isLower ? "1" : "0";
             posting.Append(isLower);
             return posting;
-            //byte[] comma = Encode(',');
-            //byte[] termString = Encoding.UTF8.GetBytes(term.GetTerm);
-            //byte[] df = Encode(1);
-            //byte[] docFullPathString = Encoding.UTF8.GetBytes(docFullPath);
-            //byte[] dicIDInt = Encode((int)dicID);
-            //byte[] is100 = Encode(term.IsIn100 ? 1 : 0);
-            //byte[] leftpar = Encode('[');
-            //byte[] tfByte = Encode(term.Tf);
-            //byte[] rigthtpar = Encode(']');
-            //byte[][] gaps = getGaps(term.Positons ,new byte[term.Positons.Count][]);
-            //byte[] isLower = Encode(term.IsLowerCase ? 1 : 0);
-
-            //int size = termString.Length + df.Length + docFullPathString.Length + dicIDInt.Length + is100.Length + leftpar.Length + tfByte.Length + rigthtpar.Length + isLower.Length + (7 * comma.Length);
-            //foreach(byte[] gap in gaps)
-            //{
-            //    size += gap.Length;
-            //}
-            //size += comma.Length * (gaps.Length - 1);
-
-            //byte[] posting = new byte[size];
-            ////term,df,path,id,tf,is100,[gaps+comas],islower
-            //int  i = 0;
-            //for (int j = 0; j < termString.Length; i++, j++)
-            //{
-            //    posting[i] = termString[j];
-            //}
-
-            //for(int j = 0; j < comma.Length; i++, j++)
-            //{
-            //    posting[i] = comma[j];
-            //}
-
-            //for (int j = 0; j < df.Length; i++, j++)
-            //{
-            //    posting[i] = df[j];
-            //}
-
-            //for (int j = 0; j < comma.Length; i++, j++)
-            //{
-            //    posting[i] = comma[j];
-            //}
-
-            //for (int j = 0; j < docFullPathString.Length; i++, j++)
-            //{
-            //    posting[i] = docFullPathString[j];
-            //}
-
-            //for (int j = 0; j < comma.Length; i++, j++)
-            //{
-            //    posting[i] = comma[j];
-            //}
-
-            //for (int j = 0; j < dicIDInt.Length; i++, j++)
-            //{
-            //    posting[i] = dicIDInt[j];
-            //}
-
-            //for (int j = 0; j < comma.Length; i++, j++)
-            //{
-            //    posting[i] = comma[j];
-            //}
-
-
-            //for (int j = 0; j < tfByte.Length; i++, j++)
-            //{
-            //    posting[i] = tfByte[j];
-            //}
-
-            //for (int j = 0; j < comma.Length; i++, j++)
-            //{
-            //    posting[i] = comma[j];
-            //}
-
-            //for (int j = 0; j < is100.Length; i++, j++)
-            //{
-            //    posting[i] = is100[j];
-            //}
-
-            //for (int j = 0; j < comma.Length; i++, j++)
-            //{
-            //    posting[i] = comma[j];
-            //}
-
-            //for (int j = 0; j < leftpar.Length; i++, j++)
-            //{
-            //    posting[i] = leftpar[j];
-            //}
-
-            //for (int gap = 0; gap < gaps.Length; gap++)
-            //{
-            //    for (int j = 0; j < gaps[gap].Length; i++, j++)
-            //    {
-            //        posting[i] = gaps[gap][j];
-            //    }
-
-            //    if (gap + 1 < gaps.Length)
-            //    {
-            //        for (int j = 0; j < comma.Length; i++, j++)
-            //        {
-            //            posting[i] = comma[j];
-            //        }
-            //    }
-
-            //}
-
-            //for (int j = 0; j < rigthtpar.Length; i++, j++)
-            //{
-            //    posting[i] = rigthtpar[j];
-            //}
-
-            //for (int j = 0; j < comma.Length; i++, j++)
-            //{
-            //    posting[i] = comma[j];
-            //}
-
-            //for (int j = 0; j < isLower.Length; i++, j++)
-            //{
-            //    posting[i] = isLower[j];
-            //}
-
-            //return posting;
-
         }
 
    
