@@ -221,7 +221,7 @@ namespace Model2
                             {
                                 if (brokenLine[i] != "")
                                 {
-
+                                    //TODO switch back to StringBuilder
                                     /*StringBuilder postingStr = new StringBuilder(term + ","); //term,
                                     postingStr.Append(brokenLine[i++] + "," + //relPath,
                                                         brokenLine[i++] + "," + //docID,
