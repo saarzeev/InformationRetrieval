@@ -75,11 +75,11 @@ namespace WpfApp1
             {
                 MyMessageBox();
             }
-            else
+            if (is_stemming.IsChecked == true)
             {
-                Controllers.MainController mainController = new Controllers.MainController();
-                mainController.init(path_from.Text, path_to.Text,(bool)is_stemming.IsChecked);
+                //need to start stemmenig
             }
+            //start without stemming
 
             //when done should pring message
         }

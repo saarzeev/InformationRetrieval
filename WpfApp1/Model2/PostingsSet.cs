@@ -19,13 +19,13 @@ namespace Model2
         private static PostingsSet ps;
         public int capacity = 50000;
         private string _path = "";
+        private string _mergePath = "";
 
-
-
-        public PostingsSet(string destPath)
+        public PostingsSet(string destPath, bool isStemming)
         {
             id = counter;
-            _path = destPath;
+            _mergePath = isStemming ? destPath + "\\postingWithStemming" : destPath + "\\posting";
+            _path = destPath + "\\tmpPostingFiles";
             counter++;
         }
         /// <summary>
@@ -117,7 +117,10 @@ namespace Model2
                 postingString.Append('\n');
                 finalTerm = term;
             }
-            writePosting(postingString, finalTerm.ElementAt(0), isFinalPostingFile);
+            if (finalTerm != "")
+            {
+                writePosting(postingString, finalTerm.ElementAt(0), isFinalPostingFile);
+            }
             postingString = new StringBuilder("");
             _termsDictionary = null;
             GC.Collect();
@@ -132,7 +135,8 @@ namespace Model2
         /// <returns></returns>
         private static bool isSameFile(char lastChar, char currChar)
         {
-            //TODO the if statement can be simplified if all term are toLower().
+            //TODO the if statement can be simplified if all term are toLower().-THEY ARE!
+            
             return (((currChar >= 'a' && currChar <= 'z') || (currChar >= 'A' && currChar <= 'Z')) && lastChar == currChar) || //they both begin with the same letter
                                     ((!(currChar >= 'a' && currChar <= 'z') && !(currChar >= 'A' && currChar <= 'Z') && !(lastChar >= 'a' && lastChar <= 'z') && !(lastChar >= 'A' && lastChar <= 'Z'))); //they both begin with a special char that is not a letter
         }
@@ -254,6 +258,7 @@ namespace Model2
                 }
 
                 //At this point,_termsDictionary holds the entire postings collection for letter c.
+                _path = _mergePath;
                 DumpToDisk(false, true);
             }
             //TODO delete tmp posting files after merging is done

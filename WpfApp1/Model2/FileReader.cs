@@ -30,6 +30,7 @@ namespace Model2
             using (var streamReader = new StreamReader(stopWordPath))
             {
                 String line;
+                //TODO stopWords is in the corpus 
                 HashSet<string> stopWord = new HashSet<string>(); 
                 while (!streamReader.EndOfStream)
                 {

@@ -14,25 +14,32 @@ namespace Model2
         public PostingsSet currenPostingSet;
         public List<PostingsSet> dead;
         public Mutex postingSetMutex = new Mutex();
+        public bool isStemming;
 
-        public static Indexer Instance(string path)
+        public static Indexer Instance(string path, bool isStemming)
         {
 
             if (indexer == null)
             {
-                indexer = new Indexer(path);
+                indexer = new Indexer(path, isStemming);
+            }
+            else
+            {
+                indexer._initialPathForPosting = path;
+                indexer.isStemming = isStemming;
             }
             return indexer;
 
         }
 
-
-        private Indexer(string path)
+        private Indexer(string path, bool isStemming)
         {
             this._initialPathForPosting = path;
-            currenPostingSet = new PostingsSet(path);
+            currenPostingSet = new PostingsSet(path, isStemming);
             dead = new List<PostingsSet>();
-
+            System.IO.Directory.CreateDirectory(path + "\\postingWithStemming");
+            System.IO.Directory.CreateDirectory(path + "\\posting");
+            System.IO.Directory.CreateDirectory(path + "\\tmpPostingFiles");
         }
 
         public Queue<Posting> setDocVocabularytoFullVocabulary(Doc doc, SortedDictionary<string, Term> docDictionary)
@@ -69,10 +76,10 @@ namespace Model2
             {
                 Posting posting = postingOfDoc.Dequeue();
                 if (!currenPostingSet.Add(posting.term, posting)) {
-                    int nu = currenPostingSet.capacity;
+                    //int nu = currenPostingSet.capacity;
                     currenPostingSet.DumpToDisk();
                     dead.Add(currenPostingSet);
-                    currenPostingSet = new PostingsSet(this._initialPathForPosting);
+                    currenPostingSet = new PostingsSet(this._initialPathForPosting, this.isStemming);
                     currenPostingSet.Add(posting.term, posting);
                 }
             }

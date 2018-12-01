@@ -16,20 +16,45 @@ namespace Model2
     /// </summary>
     public partial class Parse
     {
-
-        private ConcurrentQueue<Doc> _docs = new ConcurrentQueue<Doc>();
-        private HashSet<string> _cities = new HashSet<string>();
-        private Mutex _citiesMutex = new Mutex();
-        private SemaphoreSlim _semaphore1 = new SemaphoreSlim(0, 163);
-        private SemaphoreSlim _semaphore2 = new SemaphoreSlim(163, 163);
+        private static Parse parse;
+        private ConcurrentQueue<Doc> _docs;
+        private HashSet<string> _cities;
+        private Mutex _citiesMutex;
+        private SemaphoreSlim _semaphore1;
+        private SemaphoreSlim _semaphore2;
         private bool done = false;
-        HashSet<string> stopWords;
-        private HashSet<string> _vocabulary = new HashSet<string>();
-        HashSet<string> bigNumbersHash = new HashSet<string>();
+        private HashSet<string> stopWords;
+        private HashSet<string> bigNumbersHash;
+        private string destinationPath;
+
         //TODO =
         string[] delimiters = { " - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "\\", "," };
         Dictionary<string, string> months = new Dictionary<string, string>();
 
+        public static Parse Instance()
+        {
+
+            if (parse == null)
+            {
+                parse = new Parse();
+            }
+            return parse;
+
+        }
+
+        private Parse()
+        {
+            _docs = new ConcurrentQueue<Doc>();
+            _cities = new HashSet<string>();
+            _citiesMutex = new Mutex();
+            _semaphore1 = new SemaphoreSlim(0, 163);
+            _semaphore2 = new SemaphoreSlim(163, 163);
+            done = false;
+            stopWords = new HashSet<string>();
+            bigNumbersHash = new HashSet<string>();
+            months = new Dictionary<string, string>();
+            InitHeapVariables();
+         }
 
         /// <summary>
         /// Invoke a new thread to iterate entire sub-tree, starting from the given <paramref name="filesPath"/>.
@@ -40,13 +65,17 @@ namespace Model2
         /// <param name="filesPath"></param>
         /// <param name="stopWordsPath"></param>
         /// <param name="shouldStem"></param>
-        public void FromFilesToDocs(string filesPath, string stopWordsPath, bool shouldStem )
+        public void FromFilesToDocs(string filesPath, string destinationPath ,string stopWordsPath, bool shouldStem )
         {
+            //TODO DELETE TIMES AND CONSOLE WRITE
             DateTime totalInitTime = DateTime.Now;
             Task task;
-            HashSet<Task> task2 = new HashSet<Task>();
+            this.destinationPath = destinationPath;
             Console.WriteLine("Started...");
-            FileReader fr = InitHeapVariables(filesPath, stopWordsPath); task = Task.Run(() =>
+
+            FileReader fr = new FileReader(filesPath, stopWordsPath);
+            stopWords = fr.stopWords;
+            task = Task.Run(() =>
             {
                 while (fr.HasNext())
                 {
@@ -116,14 +145,12 @@ namespace Model2
             tasker2.Wait();
             tasker3.Wait();
             tasker4.Wait();
-            Indexer.Instance(@"C:\miniMiniCorpus\great").currenPostingSet.DumpToDisk(false);
-            Indexer.Instance(@"C:\miniMiniCorpus\great").currenPostingSet.mergeFiles();
-            //TODO need to get the path of the posting/temp posting
-
+            task = Task.Run(() => { Indexer.Instance(destinationPath, shouldStem).currenPostingSet.DumpToDisk(false); });
+            task.Wait();
+            Indexer.Instance(destinationPath, shouldStem).currenPostingSet.mergeFiles();
 
             Console.WriteLine("Total runtime  including read from file = " + (DateTime.Now - totalInitTime));
-
-            Console.WriteLine("Total terms in vocabulary = " + _vocabulary.Count);
+         
             Console.WriteLine("shouldStem = " + shouldStem);
 
             //TODO when show dictanary to do this
@@ -137,17 +164,14 @@ namespace Model2
             //Indexer.fullDictionary.Keys.
         }
 
-        private FileReader InitHeapVariables(string filesPath, string stopWordsPath)
+        private void InitHeapVariables()
         {
-            FileReader fr = new FileReader(filesPath, stopWordsPath);
-            stopWords = fr.stopWords;
             bigNumbersHash.Add(Resources.Resource.thousand);
             bigNumbersHash.Add(Resources.Resource.million);
             bigNumbersHash.Add(Resources.Resource.billion);
             bigNumbersHash.Add(Resources.Resource.trillion);
             months.Add("jan", "01"); months.Add("feb", "02"); months.Add("mar", "03"); months.Add("apr", "04"); months.Add("may", "05"); months.Add("jun", "06"); months.Add("jul", "07"); months.Add("aug", "08"); months.Add("sep", "09"); months.Add("oct", "10"); months.Add("nov", "11"); months.Add("dec", "12");
             months.Add("january", "01"); months.Add("february", "02"); months.Add("march", "03"); months.Add("april", "04"); months.Add("june", "06"); months.Add("july", "07"); months.Add("august", "08"); months.Add("september", "09"); months.Add("october", "10"); months.Add("november", "11"); months.Add("december", "12");
-            return fr;
         }
 
         /// <summary>
@@ -197,8 +221,7 @@ namespace Model2
                 splitedText
                 .SkipWhile((newWord) => String.Compare(newWord, Resources.Resource.openText) != 0)
                 .TakeWhile((newWord) => String.Compare(newWord, Resources.Resource.closeText) != 0);
-               // .Where((newWord) => newWord != "");
-
+            
             splitedText = onlyText.ToArray();
             if(splitedText.Length > 0)
             {
@@ -240,7 +263,7 @@ namespace Model2
             numPositions.Clear();
 
             SortedDictionary<string,Term> docVovabulary = AddTermsToVocabulry(splitedText, shouldStem, doc);
-            Indexer index = Indexer.Instance(@"C:\miniMiniCorpus\great");
+            Indexer index = Indexer.Instance(destinationPath,shouldStem);
             index.initIndex(doc ,docVovabulary);
             ////Console.WriteLine(doc._path + "\n" + String.Join(" ", splitedText));
             //  Console.WriteLine("Done with doc. Parsing took " + (DateTime.Now - parseDocTime));
@@ -875,6 +898,7 @@ namespace Model2
                 doc.max_tf = thisDocVocabulary.Values.OrderBy((Term) => Term.Tf).Last().Tf;
                 doc.length = pos;
             }
+            //TODO BUILD DOC INDEX
             return thisDocVocabulary;
         }
     }
