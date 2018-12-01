@@ -62,7 +62,7 @@ namespace Model2
             {
 
                 String line;
-                while (!streamReader.EndOfStream)
+                while (!streamReader.EndOfStream && _currentFile != "stopwords.txt")
                 {
                     while ((line = streamReader.ReadLine()) != null && line.CompareTo("</DOC>") != 0)
                     {

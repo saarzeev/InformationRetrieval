@@ -2,7 +2,7 @@
 
 namespace Model2
 {
-    class Doc
+    public class Doc
     {
         public string _path { get; }
         public StringBuilder _text { get; }

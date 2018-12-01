@@ -65,7 +65,7 @@ namespace Model2
         /// <param name="filesPath"></param>
         /// <param name="stopWordsPath"></param>
         /// <param name="shouldStem"></param>
-        public void FromFilesToDocs(string filesPath, string destinationPath ,string stopWordsPath, bool shouldStem )
+        public void FromFilesToDocs(string filesPath, string destinationPath, string stopWordsPath, bool shouldStem)
         {
             //TODO DELETE TIMES AND CONSOLE WRITE
             DateTime totalInitTime = DateTime.Now;
@@ -145,10 +145,15 @@ namespace Model2
             tasker2.Wait();
             tasker3.Wait();
             tasker4.Wait();
-            task = Task.Run(() => { Indexer.Instance(destinationPath, shouldStem).currenPostingSet.DumpToDisk(false); });
+            Indexer indexer = Indexer.Instance(destinationPath, shouldStem);
+            //final temp writing
+            task = Task.Run(() => { indexer.currenPostingSet.DumpToDisk(false); });
             task.Wait();
-            Indexer.Instance(destinationPath, shouldStem).currenPostingSet.mergeFiles();
-
+            //merging
+           // tasker1 = Task.Run(() => { indexer.currenPostingSet.mergeFiles(); });
+            tasker2 = Task.Run(() => { indexer.WriteDictionary(); });
+           // tasker1.Wait();
+            tasker2.Wait();
             Console.WriteLine("Total runtime  including read from file = " + (DateTime.Now - totalInitTime));
          
             Console.WriteLine("shouldStem = " + shouldStem);

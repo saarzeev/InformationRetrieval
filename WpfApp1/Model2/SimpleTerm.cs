@@ -2,7 +2,7 @@
 
 namespace Model2
 {
-    class SimpleTerm
+   public class SimpleTerm
     {
         private string _term;
         private bool _isLowerCase;
@@ -16,9 +16,20 @@ namespace Model2
             this._postingPath = path;
             this.Df = 1;
         }
-    
+
+        public SimpleTerm(string allTerm)
+        {
+            string[] splited = allTerm.Split(',');
+            _term = splited[0];
+            int df;
+            int.TryParse(splited[1], out df);
+            Df = df;
+            _postingPath = splited[2];
+            _isLowerCase = splited[3] == "1" ? true : false;
+        }
+
         public string GetTerm { get => _term; set => _term = value; }
-        public string PostingPath { get => _postingPath; }
+        public string PostingPath { get => _postingPath; set => _postingPath = value; }
         public bool IsLowerCase { get => _isLowerCase; set => _isLowerCase = value; }
         public int Df { get => _df; set => _df = value; }
 
@@ -28,6 +39,12 @@ namespace Model2
             return this._term.GetHashCode();
         }
 
+        override
+        public string ToString()
+        {
+            string isLower = _isLowerCase ? "1" : "0";
+            return _term + "," + Df + "," + _postingPath + "," + isLower;
+        }
         public bool Equals(string term)
         {
             return this._term.Equals(term);

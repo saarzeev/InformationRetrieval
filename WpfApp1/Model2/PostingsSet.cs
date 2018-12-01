@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Model2
 {
-    class PostingsSet
+    public class PostingsSet
         {
 
         private static int counter = 0;
