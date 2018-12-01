@@ -126,11 +126,18 @@ namespace Model2
         }
 
         public /*SortedDictionary<string, string>*/ void getDictionary()
-        {
+        {//TODO if stemming 
             SortedDictionary<string, string> dictionary = new SortedDictionary<string, string>();
             foreach(SimpleTerm term in fullDictionary.Values)
             {
-                dictionary[term.GetTerm] = term.Df.ToString();
+                if (term.IsLowerCase) {
+                    dictionary[term.GetTerm] = term.Df.ToString();
+                }
+                else
+                {
+                    dictionary[term.GetTerm.ToUpper()] = term.Df.ToString();
+                }
+
             }
             using (StreamWriter file = new StreamWriter(_initialPathForPosting + "\\show.txt"))
             {

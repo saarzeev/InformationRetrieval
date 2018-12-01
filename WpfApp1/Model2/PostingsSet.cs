@@ -232,6 +232,8 @@ namespace Model2
                                                         brokenLine[i++] + "," + //tf,
                                                         brokenLine[i++] + "," //is100,
                                                         );*/
+
+                                    //TODO falls here
                                     string tmp = term + "," + brokenLine[i++] + "," + //relPath,
                                                         brokenLine[i++] + "," + //docID,
                                                         brokenLine[i++] + "," + //tf,

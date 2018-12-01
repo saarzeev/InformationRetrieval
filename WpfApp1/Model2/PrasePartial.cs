@@ -140,6 +140,7 @@ namespace Model2
             if (numPositions.Contains(pos))
             {
                 concatBetweenTerm += splitedText[pos] + " ";
+                //TODO falls here pos++ twice without check
                 pos++;
 
                 while (splitedText[pos].ToLower() == " ")

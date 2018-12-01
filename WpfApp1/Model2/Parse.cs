@@ -150,7 +150,7 @@ namespace Model2
             task = Task.Run(() => { indexer.currenPostingSet.DumpToDisk(false); });
             task.Wait();
             //merging
-           // tasker1 = Task.Run(() => { indexer.currenPostingSet.mergeFiles(); });
+            //tasker1 = Task.Run(() => { indexer.currenPostingSet.mergeFiles(); });
             tasker2 = Task.Run(() => { indexer.WriteDictionary(); });
            // tasker1.Wait();
             tasker2.Wait();
@@ -158,15 +158,6 @@ namespace Model2
          
             Console.WriteLine("shouldStem = " + shouldStem);
 
-            //TODO when show dictanary to do this
-            //foreach(var term in Indexer.fullDictionary.Keys)
-            //{
-            //    if (!Indexer.fullDictionary[term].IsLowerCase)
-            //    {
-            //        Indexer.fullDictionary[term].GetTerm = term.ToUpper();
-            //    }
-            //}
-            //Indexer.fullDictionary.Keys.
         }
 
         private void InitHeapVariables()
@@ -309,7 +300,8 @@ namespace Model2
                     }
                     if (newWord != "")
                     {
-                        if (bigNums != null && newWord[0] <= 57 && newWord[0] >= 48 && Regex.IsMatch(newWord, Resources.Resource.regex_Numbers))
+                        //if (bigNums != null && newWord[0] <= 57 && newWord[0] >= 48 && Regex.IsMatch(newWord, Resources.Resource.regex_Numbers))
+                        if (bigNums != null && newWord[0] <= 57 && newWord[0] >= 48 && QuickDoubleParse(newWord) != Double.NaN)
                         {
                             bigNums.Enqueue(pos);
                         }
@@ -402,7 +394,9 @@ namespace Model2
                 }
 
                 // dispensing cases - depending on the size of the number(int)
-                if (double.TryParse(splitedText[pos], out double number))
+                //if (double.TryParse(splitedText[pos], out double number))
+                double number = QuickDoubleParse(splitedText[pos]);
+                if (number != Double.NaN)
                 {
                     if (number >= 1000 && number < 1000000)
                     {
@@ -461,14 +455,16 @@ namespace Model2
 
                 if (pos - 1 >= 0)
                 {
+                    double doubleNumber = QuickDoubleParse(splitedText[pos - 1]);
                     // number - fraction - word 
                     if (isFraction(splitedText[pos - 1]))
                     {
                         frac = splitedText[pos - 1];
-
                         if (pos - 2 >= 0)
                         {
-                            if (int.TryParse(splitedText[pos - 2], out int numberBeforeFrac))
+                            //if (int.TryParse(splitedText[pos - 2], out int numberBeforeFrac))
+                            double numberBeforeFrac = QuickDoubleParse(splitedText[pos - 2]);
+                            if (numberBeforeFrac != Double.NaN)
                             {
                                 parsed = numberBuilder(numberBeforeFrac, divider, frac, representativeLetter);
                                 splitedText[pos - 2] = parsed;
@@ -480,7 +476,8 @@ namespace Model2
                         }
                     }
                     // number - word 
-                    else if (double.TryParse(splitedText[pos - 1], out double doubleNumber))
+                    //else if (double.TryParse(splitedText[pos - 1], out double doubleNumber))
+                    else if (doubleNumber != Double.NaN)
                     {
                         parsed = numberBuilder(doubleNumber, divider, frac, representativeLetter);
                         splitedText[pos - 1] = parsed;
@@ -642,9 +639,10 @@ namespace Model2
                 splitedText[pos] = canonizedStr;
                 commitChangesToSplittedText = true;
             }
-            double sum = 0;
-
-            if (Regex.IsMatch(splitedMoneyExpr[0], Resources.Resource.regex_Numbers) && double.TryParse(splitedMoneyExpr[0], out sum))
+            //double sum = 0;
+            double sum = QuickDoubleParse(splitedMoneyExpr[0]);
+            //if (Regex.IsMatch(splitedMoneyExpr[0], Resources.Resource.regex_Numbers) && double.TryParse(splitedMoneyExpr[0], out sum))
+            if (Regex.IsMatch(splitedMoneyExpr[0], Resources.Resource.regex_Numbers) && sum != Double.NaN)
             {
                 //splitedText = temp;
                 splitedText[pos] = canonizedStr;
@@ -807,7 +805,10 @@ namespace Model2
 
                 else if (pos - 1 >= 0) {
                     //time with .
-                    bool isTimeWithDot = (splitedText[pos] == "PM" || splitedText[pos] == "AM") && double.TryParse(splitedText[pos - 1], out double suspectedTimeWithDot);
+
+                    //bool isTimeWithDot = (splitedText[pos] == "PM" || splitedText[pos] == "AM") && double.TryParse(splitedText[pos - 1], out double suspectedTimeWithDot);
+                    double suspectedTimeWithDot = QuickDoubleParse(splitedText[pos - 1]);
+                    bool isTimeWithDot = (splitedText[pos] == "PM" || splitedText[pos] == "AM") && suspectedTimeWithDot != Double.NaN;
                     replacedDot = isTimeWithDot ? splitedText[pos - 1].Replace('.', ':') : splitedText[pos - 1];
                     // 2 words
                     if (replacedDot.Contains(':')) {
@@ -905,6 +906,42 @@ namespace Model2
             }
             //TODO BUILD DOC INDEX
             return thisDocVocabulary;
+        }
+
+        private static double QuickDoubleParse(string input)
+        {
+            double result = 0;
+            var pos = 0;
+            var len = input.Length;
+            if (len == 0) return Double.NaN;
+            char c = input[0];
+            double sign = 1;
+            if (c == '-')
+            {
+                sign = -1;
+                ++pos;
+                if (pos >= len) return Double.NaN;
+            }
+
+            while (true) // breaks inside on pos >= len or non-digit character
+            {
+                if (pos >= len) return sign * result;
+                c = input[pos++];
+                if (c < '0' || c > '9') break;
+                result = (result * 10.0) + (c - '0');
+            }
+
+            if (c != '.' && c != ',') return Double.NaN;
+
+            double exp = 0.1;
+            while (pos < len)
+            {
+                c = input[pos++];
+                if (c < '0' || c > '9') return Double.NaN;
+                result += (c - '0') * exp;
+                exp *= 0.1;
+            }
+            return sign * result;
         }
     }
 
