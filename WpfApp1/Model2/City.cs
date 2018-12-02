@@ -2,7 +2,7 @@
 using Newtonsoft.Json.Linq;
 using RestSharp;
 using System;
-
+using System.Threading.Tasks;
 
 namespace Model2
 {
@@ -13,23 +13,27 @@ namespace Model2
         private string _currency = "";
         private string _population = "";
 
+
         public City(string city)
         {
             this._city = city;
+            Task ctor = Task.Run(() => {
+                try
+                {
+                    var client = new RestClient("https://restcountries.eu");
+                    var request = new RestRequest("rest/v2/capital/" + _city, Method.GET);
 
-            try
-            {
-                var client = new RestClient("https://restcountries.eu");
-                var request = new RestRequest("rest/v2/capital/" + _city, Method.GET);
-
-                // execute the request
-                var response = client.Execute(request);
-                string content = response.Content;
-                JArray joResponse = JArray.Parse(content);
-                _country = joResponse[0]["name"].ToString();
-                _population = joResponse[0]["population"].ToString();
-                _currency = joResponse[0]["currencies"][0]["code"].ToString();
-            }catch(Exception e) { }
+                    // execute the request
+                    var response = client.Execute(request);
+                    string content = response.Content;
+                    JArray joResponse = JArray.Parse(content);
+                    _country = joResponse[0]["name"].ToString();
+                    _population = joResponse[0]["population"].ToString();
+                    _currency = joResponse[0]["currencies"][0]["code"].ToString();
+                }
+                catch (Exception e) { }
+            });
+            
             
 
             //TODO - Pass population through the parseBigNumbers();

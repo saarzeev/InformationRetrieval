@@ -25,7 +25,7 @@ namespace Model2
         
         public StringBuilder ToStringBuilder() {
             StringBuilder doc = new StringBuilder();
-            doc.AppendFormat("{0},{1},{2},{3},{4},{5}", this._path, this._indexInFile, this.max_tf, this.uniqWords, this.length, this.city.getCity());
+            doc.AppendFormat("{0},{1},{2},{3},{4},{5}", this._path, this._indexInFile, this.max_tf, this.uniqWords, this.length, (this.city != null ? this.city.getCity() : ""));
             return doc;
         }
 

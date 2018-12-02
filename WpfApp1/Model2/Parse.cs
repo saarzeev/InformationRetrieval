@@ -209,6 +209,7 @@ namespace Model2
             string[] cityTag = searchcity.ToArray();
             if(cityTag != null&& 1 < cityTag.Length && cityTag.Length > 0)
             {
+
                 doc.city = new City(cityTag[1].ToUpper());
                 
                 _citiesMutex.WaitOne();
