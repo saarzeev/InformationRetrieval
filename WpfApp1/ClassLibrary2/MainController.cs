@@ -29,7 +29,19 @@ namespace Controllers
             {
                 //return null;
             }
-            else  indexer.getDictionary();
+            else indexer.getDictionary();
+        }
+
+        public void reset(string path)
+        {
+            if(indexer == null)
+            {
+                indexer = Model2.Indexer.Instance(path, true);
+            }
+            indexer.reset();
+            indexer = null;
+            parser = null;
+            GC.Collect();
         }
     }
 }

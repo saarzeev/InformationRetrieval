@@ -20,6 +20,9 @@ namespace Model2
         public List<PostingsSet> dead;
         public Mutex postingSetMutex = new Mutex();
         public bool isStemming;
+        public string tmpDirectory = "\\tmpPostingFiles";
+        public string postingDirectory = "\\posting";
+        public string postingWithStemmingDirectory = "\\postingWithStemming";
 
         /// <summary>
         /// Get the Indexer's instance
@@ -43,14 +46,26 @@ namespace Model2
 
         }
 
+        public void reset()
+        {
+            Directory.Delete(_initialPathForPosting + tmpDirectory, true);
+            Directory.Delete(_initialPathForPosting + postingWithStemmingDirectory, true);
+            Directory.Delete(_initialPathForPosting + postingDirectory, true);
+            if(File.Exists(_initialPathForPosting + "\\show.txt"))
+            {
+                File.Delete(_initialPathForPosting + "\\show.txt");
+            }
+        }
+
         private Indexer(string path, bool isStemming)
         {
             this._initialPathForPosting = path;
             currenPostingSet = new PostingsSet(path, isStemming);
             dead = new List<PostingsSet>();
-            System.IO.Directory.CreateDirectory(path + "\\postingWithStemming");
-            System.IO.Directory.CreateDirectory(path + "\\posting");
-            System.IO.Directory.CreateDirectory(path + "\\tmpPostingFiles");
+
+            System.IO.Directory.CreateDirectory(path + postingWithStemmingDirectory);
+            System.IO.Directory.CreateDirectory(path + postingDirectory);
+            System.IO.Directory.CreateDirectory(path + tmpDirectory);
         }
 
         public Queue<Posting> setDocVocabularytoFullVocabulary(Doc doc, SortedDictionary<string, Term> docDictionary)
@@ -100,7 +115,7 @@ namespace Model2
 
         public void WriteDictionary()
         {
-            string path = this.isStemming ? this._initialPathForPosting + "\\postingWithStemming" : this._initialPathForPosting + "\\posting";
+            string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
             StringBuilder dictionary = new StringBuilder();
             foreach (SimpleTerm term in fullDictionary.Values)
             {
@@ -115,7 +130,7 @@ namespace Model2
     
         public void LoadDictionery()
         {
-            string path = this.isStemming ? this._initialPathForPosting + "\\postingWithStemming" : this._initialPathForPosting + "\\posting";
+            string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
             path += "\\dictionary.txt";
             if (File.Exists(path))
             {
@@ -164,7 +179,7 @@ namespace Model2
             {
                 allDocPosting.AppendLine(doc.ToStringBuilder().ToString());
             }
-            string path = this.isStemming ? this._initialPathForPosting + "\\postingWithStemming" : this._initialPathForPosting + "\\posting";
+            string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
             path += "\\docIndexer.txt";
             PostingsSet.Zip(allDocPosting, path);
         }

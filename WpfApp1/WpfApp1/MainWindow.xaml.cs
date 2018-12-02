@@ -95,7 +95,7 @@ namespace WpfApp1
 
         private void reset_Click(object sender, RoutedEventArgs e)
         {
-
+            mainController.reset(path_to.Text);
         }
 
         private void load_dictionary_Click(object sender, RoutedEventArgs e)
