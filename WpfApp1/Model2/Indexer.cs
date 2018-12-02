@@ -48,9 +48,18 @@ namespace Model2
 
         public void reset()
         {
-            Directory.Delete(_initialPathForPosting + tmpDirectory, true);
-            Directory.Delete(_initialPathForPosting + postingWithStemmingDirectory, true);
-            Directory.Delete(_initialPathForPosting + postingDirectory, true);
+            if(Directory.Exists(_initialPathForPosting + tmpDirectory)) {
+                Directory.Delete(_initialPathForPosting + tmpDirectory, true);
+            }
+            
+            if (Directory.Exists(_initialPathForPosting + postingWithStemmingDirectory)) {
+                Directory.Delete(_initialPathForPosting + postingWithStemmingDirectory, true);
+            }
+             
+            if (Directory.Exists(_initialPathForPosting + postingDirectory)) {
+                Directory.Delete(_initialPathForPosting + postingDirectory, true);
+            }
+           
             if(File.Exists(_initialPathForPosting + "\\show.txt"))
             {
                 File.Delete(_initialPathForPosting + "\\show.txt");
