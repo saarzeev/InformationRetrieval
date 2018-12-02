@@ -12,6 +12,7 @@ namespace Model2
     public class Indexer
     {
         static public ConcurrentDictionary<string, SimpleTerm> fullDictionary = new ConcurrentDictionary<string, SimpleTerm>();
+        static public ConcurrentQueue<Doc> docsIndexer = new ConcurrentQueue<Doc>();
         static public Mutex dictionaryMutex = new Mutex();
         private string _initialPathForPosting;
         private static Indexer indexer;
@@ -50,6 +51,7 @@ namespace Model2
         {
             string[] docPath = doc._path.Split('\\');
             Queue<Posting> docsPosting = new Queue<Posting>();
+            docsIndexer.Enqueue(doc);
             foreach (string key in docDictionary.Keys)
             {
                 if (fullDictionary.ContainsKey(key))
@@ -147,6 +149,18 @@ namespace Model2
                 }
             }
             //return dictionary;
+        }
+
+        public void writeDocPosting()
+        {
+            StringBuilder allDocPosting = new StringBuilder();
+            foreach(Doc doc in docsIndexer)
+            {
+                allDocPosting.AppendLine(doc.ToStringBuilder().ToString());
+            }
+            string path = this.isStemming ? this._initialPathForPosting + "\\postingWithStemming" : this._initialPathForPosting + "\\posting";
+            path += "\\docIndexer.txt";
+            PostingsSet.Zip(allDocPosting, path);
         }
     }
 } 
