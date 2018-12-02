@@ -9,7 +9,6 @@ namespace Model2
             Parse.Instance().FromFilesToDocs(@"C:\MiniMiniCorpus", @"C:\MiniMiniCorpusOutput", @"C:\Users\Saar\source\repos\InformationRetrieval\stopwords.txt", true);
             //parse.FromFilesToDocs(@"C:\Users\nastia\source\repos\saarzeev\corpus", @"C:\Users\nastia\source\repos\saarzeev\InformationRetrieval\stopwords.txt", false);
             string[] delimiters = { " - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "\\", "," };
-            //TODO parse & index should singleton
         }
     }
 }

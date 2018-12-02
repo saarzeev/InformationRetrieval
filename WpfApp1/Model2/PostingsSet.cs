@@ -254,8 +254,6 @@ namespace Model2
                 
                 DumpToDisk(false, true);
             }
-            //TODO delete tmp posting files after merging is done
         }
-
     }
 }
