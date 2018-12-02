@@ -18,11 +18,13 @@ namespace WpfApp1
     {
         Controllers.MainController mainController;
         private object process;
+        string time;
+        string termNum;
+        string docNum;
 
         public MainWindow()
         {
             InitializeComponent();
-            isOkEnabled();
             mainController = new Controllers.MainController();
         }
 
@@ -75,7 +77,6 @@ namespace WpfApp1
             var dialog = new FolderBrowserDialog();
             dialog.ShowDialog();
             textBox.Text = dialog.SelectedPath;
-            isOkEnabled();
         }
 
         private void start_Click(object sender, RoutedEventArgs e)
@@ -86,11 +87,12 @@ namespace WpfApp1
             }
             else
             {
-               
-                mainController.init(path_from.Text, path_to.Text,(bool)is_stemming.IsChecked);
+               string[] values = mainController.init(path_from.Text, path_to.Text,(bool)is_stemming.IsChecked);
+                time = "TotalTime: "+ values[0];
+                docNum = "Number of docs: " + values[1];
+                termNum = "Number of terms: " + values[2];
+                System.Windows.Forms.MessageBox.Show(time +"\n" + docNum + "\n" + termNum, "process ended!", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
             }
-
-            //when done should pring message
         }
 
         private void reset_Click(object sender, RoutedEventArgs e)

@@ -12,9 +12,14 @@ namespace Controllers
 
         Model2.Parse parser =  Model2.Parse.Instance();
         Model2.Indexer indexer;
-        public void init(string sourcePath, string destination, bool stemming)
+        public string[] init(string sourcePath, string destination, bool stemming)
         {
+            DateTime start = DateTime.Now;
+            indexer = Model2.Indexer.Instance(destination, stemming);
             parser.FromFilesToDocs(sourcePath, destination, sourcePath + "\\stopwords.txt", stemming);
+            string totalTime = (DateTime.Now - start).TotalSeconds.ToString();
+            string[] values = { totalTime, Model2.Indexer.docsIndexer.Count().ToString(), Model2.Indexer.fullDictionary.Count().ToString() };
+            return values;
         }
 
         public void LoadDictionary( string destination, bool stemming)
@@ -23,13 +28,9 @@ namespace Controllers
             indexer.LoadDictionery();
         }
 
-        public /*object*/void  getDictionary(string destination, bool stemming)
+        public void getDictionary(string destination, bool stemming)
         {
-            if (indexer == null )
-            {
-                //return null;
-            }
-            else indexer.getDictionary();
+             indexer.getDictionary();
         }
 
         public void reset(string path)

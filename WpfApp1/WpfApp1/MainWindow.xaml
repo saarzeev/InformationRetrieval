@@ -47,21 +47,6 @@
         
         <Button Margin="10" Content="Start" Grid.Row="4" Grid.Column="0" Name="start" Click="start_Click" ToolTip="Start Indexing" />
         <Button Margin="10" Content="Reset" Grid.Row="4" Grid.Column="1" Name="reset" Click="reset_Click"/>
-        <!--<Popup IsOpen="False" StaysOpen="False" PlacementTarget="{Binding ElementName=show_dictionary}" Name="dictionaryPop" >
-            <ScrollViewer HorizontalScrollBarVisibility="Auto">
-            <ListBox x:Name="dictionaryList">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal" Width="auto">
-                            <TextBlock Text="{Binding Path=Key}" />
-                                <TextBlock Text=" " />
-                                <TextBlock Text="{Binding Path=Value}" />
-                        </StackPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-            </ScrollViewer>
-        </Popup-->
         <Button Margin="10" Content="Load Dictionary" Grid.Row="4" Grid.Column="2" Name="load_dictionary" Click="load_dictionary_Click" />
         <Button Margin="10" Content="Show Dictionary" Grid.Row="4" Grid.Column="3" Name="show_dictionary" Click="show_dictionary_Click" />
 
