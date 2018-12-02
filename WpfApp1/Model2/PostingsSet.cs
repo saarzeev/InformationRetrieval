@@ -134,17 +134,15 @@ namespace Model2
         /// <param name="currChar"></param>
         /// <returns></returns>
         private static bool isSameFile(char lastChar, char currChar)
-        {
-            //TODO the if statement can be simplified if all term are toLower().-THEY ARE!
-            
-            return (((currChar >= 'a' && currChar <= 'z') || (currChar >= 'A' && currChar <= 'Z')) && lastChar == currChar) || //they both begin with the same letter
-                                    ((!(currChar >= 'a' && currChar <= 'z') && !(currChar >= 'A' && currChar <= 'Z') && !(lastChar >= 'a' && lastChar <= 'z') && !(lastChar >= 'A' && lastChar <= 'Z'))); //they both begin with a special char that is not a letter
+        {            
+            return ((currChar >= 'a' && currChar <= 'z') && lastChar == currChar) || //they both begin with the same letter
+                                    ((!(currChar >= 'a' && currChar <= 'z') && !(lastChar >= 'a' && lastChar <= 'z'))); //they both begin with a special char that is not a letter
         }
 
         private void writePosting(StringBuilder postingString, char firstLetter, bool isFinalPostingFile = false)
         {
-            string fileName = ((firstLetter >= 'a' && firstLetter <= 'z') || (firstLetter >= 'A' && firstLetter <= 'Z')) ? "" + firstLetter : "other";
-            string postPath = _path + "\\" + fileName + (isFinalPostingFile ? "FINAL" : this.id.ToString() )+ ".txt";
+            string fileName = (firstLetter >= 'a' && firstLetter <= 'z') ? "" + firstLetter : "other";
+            string postPath = (isFinalPostingFile ? _mergePath :_path)  + "\\" + fileName + (isFinalPostingFile ? "FINAL" : this.id.ToString() )+ ".gz";
 
             Zip(postingString, postPath);
         }
@@ -170,6 +168,11 @@ namespace Model2
             }
         }
 
+        /// <summary>
+        /// Given a file path in <paramref name="bytes"/>, returns a unzipped StringBuilder of the file
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
         public static StringBuilder Unzip(byte[] bytes)
         {
             using (GZipStream stream = new GZipStream(new MemoryStream(bytes),
@@ -217,7 +220,7 @@ namespace Model2
                         int df = -1;
                         if (1 < brokenLine.Length && brokenLine[1] != "")
                         {
-                            int.TryParse(brokenLine[1], out df);
+                            df = (int)Parse.QuickDoubleParse(brokenLine[1]);
 
 
 
@@ -233,7 +236,6 @@ namespace Model2
                                                         brokenLine[i++] + "," //is100,
                                                         );*/
 
-                                    //TODO falls here
                                     string tmp = term + "," + brokenLine[i++] + "," + //relPath,
                                                         brokenLine[i++] + "," + //docID,
                                                         brokenLine[i++] + "," + //tf,
@@ -260,7 +262,7 @@ namespace Model2
                 }
 
                 //At this point,_termsDictionary holds the entire postings collection for letter c.
-                _path = _mergePath;
+                
                 DumpToDisk(false, true);
             }
             //TODO delete tmp posting files after merging is done

@@ -63,6 +63,7 @@ namespace Model2
         /// 
         /// </summary>
         /// <param name="filesPath"></param>
+        /// <param name="destinationPath"></param>
         /// <param name="stopWordsPath"></param>
         /// <param name="shouldStem"></param>
         public void FromFilesToDocs(string filesPath, string destinationPath, string stopWordsPath, bool shouldStem)
@@ -150,10 +151,11 @@ namespace Model2
             task = Task.Run(() => { indexer.currenPostingSet.DumpToDisk(false); });
             task.Wait();
             //merging
-            //tasker1 = Task.Run(() => { indexer.currenPostingSet.mergeFiles(); });
-            tasker2 = Task.Run(() => { indexer.WriteDictionary(); });
-           // tasker1.Wait();
-            tasker2.Wait();
+            Task tasker5 = Task.Run(() => { indexer.currenPostingSet.mergeFiles(); });
+
+            Task tasker6 = Task.Run(() => { indexer.WriteDictionary(); });
+            tasker5.Wait();
+            tasker6.Wait();
             Console.WriteLine("Total runtime  including read from file = " + (DateTime.Now - totalInitTime));
          
             Console.WriteLine("shouldStem = " + shouldStem);
@@ -908,7 +910,12 @@ namespace Model2
             return thisDocVocabulary;
         }
 
-        private static double QuickDoubleParse(string input)
+        /// <summary>
+        /// TryParse() efficient alternative
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static double QuickDoubleParse(string input)
         {
             double result = 0;
             var pos = 0;

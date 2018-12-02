@@ -137,22 +137,22 @@ namespace Model2
 
             concatBetweenTerm = (splitedText[pos] == "between") ? "between " : "Between ";
             pos++;
-            if (numPositions.Contains(pos))
+            if (pos < splitedText.Length && numPositions.Contains(pos))
             {
                 concatBetweenTerm += splitedText[pos] + " ";
                 //TODO falls here pos++ twice without check
                 pos++;
 
-                while (splitedText[pos].ToLower() == " ")
+                while (pos < splitedText.Length && splitedText[pos].ToLower() == " ")
                 {
                     pos++;
                 }
 
-                if (splitedText[pos].ToLower() == "and")
+                if (pos < splitedText.Length && splitedText[pos].ToLower() == "and")
                 {
                     concatBetweenTerm += (splitedText[pos] == "and") ? "and " : "And ";
                     pos++;
-                    if (numPositions.Contains(pos))
+                    if (pos < splitedText.Length && numPositions.Contains(pos))
                     {
 
                         concatBetweenTerm += splitedText[pos] + " ";
