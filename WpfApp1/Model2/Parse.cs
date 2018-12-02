@@ -28,7 +28,8 @@ namespace Model2
         private string destinationPath;
 
         //TODO =
-        string[] delimiters = { " - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "\\", "," };
+        string[] delimiters = {"_", "?" ," - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "," ,"---", "..", "...", " -- " };
+        char[] trimDelimiters = { '.', ':', '/' };
         Dictionary<string, string> months = new Dictionary<string, string>();
 
         public static Parse Instance()
@@ -209,14 +210,14 @@ namespace Model2
             string[] cityTag = searchcity.ToArray();
             if(cityTag != null&& 1 < cityTag.Length && cityTag.Length > 0)
             {
-                if (cityTag.Length > 1)
-                {
-                    doc.city = new City(cityTag[1].ToUpper() + cityTag[2].ToUpper());
-                }
-                else
-                {
-                    doc.city = new City(cityTag[1].ToUpper());
-                }
+                //if (cityTag.Length > 2)
+                //{
+                //    doc.city = new City(cityTag[1].ToUpper() + cityTag[2].ToUpper());
+                //}
+                //else
+                //{
+                //    doc.city = new City(cityTag[1].ToUpper());
+                //}
                 
                 _citiesMutex.WaitOne();
                 _cities.Add(cityTag[1].ToUpper());
@@ -234,7 +235,6 @@ namespace Model2
             {
                 splitedText[0] = " "; 
             }
-            
 
             PopulateQueueWithPositions(splitedText, months, dates, money, specificBigNums, bigNums, betweens, times);
 
@@ -304,12 +304,13 @@ namespace Model2
             {
                 if (word.ToLower() == Resources.Resource.between || !stopWords.Contains(word.ToLower())){
                     string newWord = word;
-                    if ((word.Length - 1 >= 0) && (word[word.Length - 1] == '.' || word[word.Length - 1] == ':') && word.ToLower() != "u.s.")
+                    if (/*(word.Length - 1 >= 0) && (word[word.Length - 1] == '.' || word[word.Length - 1] == ':' || ) &&*/ word.ToLower() != "u.s.")
                     {
-                        newWord = word.Substring(0, word.Length - 1);
+                        newWord = newWord.TrimStart(trimDelimiters).TrimEnd(trimDelimiters);
+                        //newWord = word.Substring(0, word.Length - 1);
                         splitedText[pos] = newWord;
                     }
-                    if (newWord != "")
+                    if (newWord != "" && newWord!= " ")
                     {
                         //if (bigNums != null && newWord[0] <= 57 && newWord[0] >= 48 && Regex.IsMatch(newWord, Resources.Resource.regex_Numbers))
                         if (bigNums != null && newWord[0] <= 57 && newWord[0] >= 48 && QuickDoubleParse(newWord) != Double.NaN)
