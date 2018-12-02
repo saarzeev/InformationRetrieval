@@ -16,7 +16,7 @@ namespace Model2
 
         public City(string city)
         {
-            this._city = city;
+            this._city = city.Split('0')[0];
             Task ctor = Task.Run(() => {
                 try
                 {
