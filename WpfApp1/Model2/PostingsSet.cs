@@ -247,6 +247,7 @@ namespace Model2
                             }
                         }
                     }
+                    File.Delete(file);
                 }
 
                 //At this point,_termsDictionary holds the entire postings collection for letter c.
