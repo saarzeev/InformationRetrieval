@@ -16,12 +16,13 @@ namespace Model2
 
         public City(string city)
         {
-            this._city = city.Split('0')[0];
-            Task ctor = Task.Run(() => {
+            this._city = city.Split(' ')[0];
+            //Task ctor = Task.Run(() => {
                 try
                 {
+
                     var client = new RestClient("https://restcountries.eu");
-                    var request = new RestRequest("rest/v2/capital/" + _city, Method.GET);
+                    var request = new RestRequest("rest/v2/capital/" + city, Method.GET);
 
                     // execute the request
                     var response = client.Execute(request);
@@ -30,9 +31,36 @@ namespace Model2
                     _country = joResponse[0]["name"].ToString();
                     _population = joResponse[0]["population"].ToString();
                     _currency = joResponse[0]["currencies"][0]["code"].ToString();
+
+                    
                 }
                 catch (Exception e) { }
-            });
+
+                if(_country == "" && city.Split(' ').Length > 1)
+                {
+                    try
+                    {
+
+                        var client = new RestClient("https://restcountries.eu");
+                        var request = new RestRequest("rest/v2/capital/" + city.Split(' ')[0], Method.GET);
+
+                        // execute the request
+                        var response = client.Execute(request);
+                        string content = response.Content;
+                        JArray joResponse = JArray.Parse(content);
+                        _country = joResponse[0]["name"].ToString();
+                        _population = joResponse[0]["population"].ToString();
+                        _currency = joResponse[0]["currencies"][0]["code"].ToString();
+
+
+                    }
+                    catch (Exception e) { }
+                }
+                else
+                {
+                    _city = city.Split(' ')[0];
+                }
+            //});
             
             
 
@@ -58,11 +86,11 @@ namespace Model2
         }
         public override string ToString()
         {
-            return "[" +
-                    _city + ", " +
-                    _country + ", " +
-                    _currency + ", " +
-                    _population + "]";
+            return 
+                    _city + "," +
+                    _country + "," +
+                    _currency + "," +
+                    _population;
         }
 
         /// <summary>

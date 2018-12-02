@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Model2
 {
@@ -23,6 +24,9 @@ namespace Model2
         public string tmpDirectory = "\\tmpPostingFiles";
         public string postingDirectory = "\\posting";
         public string postingWithStemmingDirectory = "\\postingWithStemming";
+        private string _cachedPath = "";
+        private StringBuilder _cachedFile = new StringBuilder();
+        private int indexOfCache = 0;
 
         /// <summary>
         /// Get the Indexer's instance
@@ -192,5 +196,90 @@ namespace Model2
             path += "\\docIndexer.txt";
             PostingsSet.Zip(allDocPosting, path);
         }
+
+
+        /// <summary>
+        /// Writes cities index to disk
+        /// </summary>
+        /// <param name="cities"></param>
+        public void WriteCityPosting(HashSet<string> cities)
+        {
+            StringBuilder allCities = new StringBuilder();
+            List<string> sortedCities = cities.ToList();
+            sortedCities.Sort();
+            foreach (string cityStr in cities)
+            {
+                Task<City> task = Task<City>.Run(() => new City(cityStr));
+                StringBuilder tmp = GetTermPosting(cityStr);
+                if (tmp != null)
+                {
+                    string[] cityPosting = tmp.ToString().Split(',');
+                    task.Wait();
+                    if (cityPosting.Length > 0)
+                    {
+                        City city = task.Result;
+                        if (1 < cityPosting.Length && cityPosting[1] != "")
+                        {
+                            allCities.Append(city.ToString() + ",");  //_city + "," + _country + "," +_currency + "," + _population + ","
+                            for (int i = 2; i < cityPosting.Length; i++)
+                            {
+                                if (cityPosting[i] != "")
+                                {
+                                    allCities.Append(cityPosting[i++] + "," + //relPath,
+                                                        cityPosting[i++] + "," //docID
+                                                        );
+                                    i++; //tf
+                                    i++; //is100
+
+                                    while (!cityPosting[i].Contains("]"))
+                                    {
+                                        allCities.Append(cityPosting[i++] + ",");
+                                    }
+                                    allCities.Append(cityPosting[i++] + ","); //gap
+                                }
+                            }
+                        }
+                        allCities.Append("\n");
+                    }
+                }               
+            }
+            string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
+            path += "\\citiesIndexer.txt";
+            PostingsSet.Zip(allCities, path);
+        }
+
+        /// <summary>
+        /// Given a <paramref name="term"/>, returns the term's posting StringBuilder
+        /// </summary>
+        /// <param name="term"></param>
+        /// <param name="isStemmed"></param>
+        /// <returns></returns>
+        public StringBuilder GetTermPosting(string term)
+        {
+            string[] postingFile;
+            term = term.ToLower();
+            string firstLetter = "\\" + (term.ElementAt(0) >= 'a' && term.ElementAt(0) <= 'z' ? term.ElementAt(0).ToString() : "other");
+            string postingPath = _initialPathForPosting +  (isStemming ? postingWithStemmingDirectory + (firstLetter + "FINAL.gz") : postingDirectory + "FINAL.gz");
+            postingFile = GetFile(postingPath).ToString().Split('\n');
+
+            foreach (string posting in postingFile)
+            {
+                if (term == posting.Split(',')[0])
+                {
+                    return new StringBuilder(posting);
+                }
+            }
+            return null;
+        }
+
+        public StringBuilder GetFile(string path)
+        {
+            if (_cachedPath != path)
+            {
+                _cachedFile = PostingsSet.Unzip(File.ReadAllBytes(path));
+                _cachedPath = path;
+            }
+            return _cachedFile;
+        }
     }
-} 
+}
