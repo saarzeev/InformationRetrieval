@@ -555,17 +555,20 @@ namespace Model2
                 string parsed = splitedText[pos];
                 if (pos - 1 >= 0)
                 {
-
-                    if (int.TryParse(splitedText[pos - 1], out int day))
+                    double day = QuickDoubleParse(splitedText[pos - 1]);
+                    //if (int.TryParse(splitedText[pos - 1], out int day))
+                    if (day != Double.NaN)
                     {
                         if (pos + 1 < splitedText.Length)
                         {
                             //day-month-year
-                            if (int.TryParse(splitedText[pos + 1], out int year))
+                            //if (int.TryParse(splitedText[pos + 1], out int year))
+                            double year = QuickDoubleParse(splitedText[pos + 1]);
+                            if (year != Double.NaN)
                             {
                                 if (year >= 1000 && year < 4000)
                                 {
-                                    parsed = BuildDayAndYear(day, year, month, parsed);
+                                    parsed = BuildDayAndYear((int)day, (int)year, month, parsed);
 
                                     splitedText[pos - 1] = parsed;
                                     splitedText[pos] = " ";
@@ -576,7 +579,7 @@ namespace Model2
                         }
 
                         //day-month
-                        parsed = BuildDayOrYear(day, month, parsed);
+                        parsed = BuildDayOrYear((int)day, month, parsed);
 
                         splitedText[pos - 1] = parsed;
                         splitedText[pos] = " ";
@@ -586,16 +589,22 @@ namespace Model2
 
                 if (pos + 1 < splitedText.Length)
                 {
-                    if (int.TryParse(splitedText[pos + 1], out int day))
+                    double day = QuickDoubleParse(splitedText[pos + 1]);
+                    if (day != Double.NaN)
+                    //if (int.TryParse(splitedText[pos + 1], out int day))
                     {
-                        if ((pos + 2) < splitedText.Length) {
+                        if ((pos + 2) < splitedText.Length)
+                        {
 
-                            if (int.TryParse(splitedText[pos + 2], out int year))
+                            double year = QuickDoubleParse(splitedText[pos + 2]);
+                            if (year != Double.NaN)
+                            //if (int.TryParse(splitedText[pos + 2], out int year))
                             {
-                                if (year >= 1000 && year < 4000) {
+                                if (year >= 1000 && year < 4000)
+                                {
 
                                     //month-day-year
-                                    parsed = BuildDayAndYear(day, year, month, parsed);
+                                    parsed = BuildDayAndYear((int)day, (int)year, month, parsed);
 
                                     splitedText[pos] = parsed;
                                     splitedText[pos + 1] = " ";
@@ -605,7 +614,7 @@ namespace Model2
                             }
                         }
                         //month-day
-                        parsed = BuildDayOrYear(day, month, parsed);
+                        parsed = BuildDayOrYear((int)day, month, parsed);
 
                         splitedText[pos] = parsed;
                         splitedText[pos + 1] = " ";

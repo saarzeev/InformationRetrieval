@@ -21,8 +21,8 @@ namespace Model2
         {
             string[] splited = allTerm.Split(',');
             _term = splited[0];
-            int df;
-            int.TryParse(splited[1], out df);
+            int df = (int)Parse.QuickDoubleParse(splited[1]);
+           // int.TryParse(splited[1], out df);
             Df = df;
             _postingPath = splited[2];
             _isLowerCase = splited[3] == "1" ? true : false;
