@@ -21,6 +21,12 @@ namespace Model2
         public Mutex postingSetMutex = new Mutex();
         public bool isStemming;
 
+        /// <summary>
+        /// Get the Indexer's instance
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="isStemming"></param>
+        /// <returns></returns>
         public static Indexer Instance(string path, bool isStemming)
         {
 

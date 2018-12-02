@@ -6,7 +6,7 @@ using System;
 
 namespace Model2
 {
-    class City : IComparable
+    public class City : IComparable
     {
         private string _city;
         private string _country = "";
@@ -29,10 +29,8 @@ namespace Model2
                 _country = joResponse[0]["name"].ToString();
                 _population = joResponse[0]["population"].ToString();
                 _currency = joResponse[0]["currencies"][0]["code"].ToString();
-            }catch(Exception e)
-            {
-                Console.WriteLine(e.StackTrace);
-            }
+            }catch(Exception e) { }
+            
 
             //TODO - Pass population through the parseBigNumbers();
         }
@@ -61,6 +59,15 @@ namespace Model2
                     _country + ", " +
                     _currency + ", " +
                     _population + "]";
+        }
+
+        /// <summary>
+        /// Returns the city's name
+        /// </summary>
+        /// <returns>The city's name</returns>
+        public string getCity()
+        {
+            return _city;
         }
     }
 }

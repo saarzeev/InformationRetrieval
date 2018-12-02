@@ -8,7 +8,7 @@ namespace Model2
         public StringBuilder _text { get; }
         public long _indexInFile { get; }
         public int max_tf;
-        public string city;
+        public City city;
         public int uniqWords;
         public int length;
 
@@ -16,7 +16,7 @@ namespace Model2
         {
             this.max_tf = 0;
             this.uniqWords = 0;
-            this.city = "";
+            this.city = null;
             this._path = path;
             this._text = text;
             this.length = 0;
@@ -25,7 +25,7 @@ namespace Model2
         
         public StringBuilder ToStringBuilder() {
             StringBuilder doc = new StringBuilder();
-            doc.AppendFormat("{0},{1},{2},{3},{4},{5}", this._path, this._indexInFile, this.max_tf, this.uniqWords, this.length,this.city);
+            doc.AppendFormat("{0},{1},{2},{3},{4},{5}", this._path, this._indexInFile, this.max_tf, this.uniqWords, this.length, this.city.getCity());
             return doc;
         }
 
