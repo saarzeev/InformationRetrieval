@@ -156,9 +156,12 @@ namespace Model2
 
             Task tasker7 = Task.Run(() => { indexer.WriteDictionary(); });
             Task tasker8 = Task.Run(() => { indexer.writeDocPosting(); });
+            
             tasker6.Wait();
+            //Task tasker9 = Task.Run(() => { indexer.WriteCityPosting(_cities); }); //This must begin AFTER merging is done
             tasker7.Wait();
             tasker8.Wait();
+            //tasker9.Wait();
             Console.WriteLine("Total runtime  including read from file = " + (DateTime.Now - totalInitTime));
          
             Console.WriteLine("shouldStem = " + shouldStem);
