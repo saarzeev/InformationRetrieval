@@ -148,14 +148,14 @@ namespace Model2
             tasker4.Wait();
             Indexer indexer = Indexer.Instance(destinationPath, shouldStem);
             //final temp writing
-            task = Task.Run(() => { indexer.currenPostingSet.DumpToDisk(false); });
-            task.Wait();
-            //merging
-            Task tasker5 = Task.Run(() => { indexer.currenPostingSet.mergeFiles(); });
-
-            Task tasker6 = Task.Run(() => { indexer.WriteDictionary(); });
+            Task tasker5 = Task.Run(() => { indexer.currenPostingSet.DumpToDisk(false); });
             tasker5.Wait();
+            //merging
+            Task tasker6 = Task.Run(() => { indexer.currenPostingSet.mergeFiles(); });
+
+            Task tasker7 = Task.Run(() => { indexer.WriteDictionary(); });
             tasker6.Wait();
+            tasker7.Wait();
             Console.WriteLine("Total runtime  including read from file = " + (DateTime.Now - totalInitTime));
          
             Console.WriteLine("shouldStem = " + shouldStem);

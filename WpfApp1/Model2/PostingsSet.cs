@@ -228,33 +228,21 @@ namespace Model2
                             {
                                 if (brokenLine[i] != "")
                                 {
-                                    //TODO switch back to StringBuilder
-                                    /*StringBuilder postingStr = new StringBuilder(term + ","); //term,
+                                    StringBuilder postingStr = new StringBuilder(term + ","); //term,
                                     postingStr.Append(brokenLine[i++] + "," + //relPath,
                                                         brokenLine[i++] + "," + //docID,
                                                         brokenLine[i++] + "," + //tf,
                                                         brokenLine[i++] + "," //is100,
-                                                        );*/
+                                                        );
 
-                                    string tmp = term + "," + brokenLine[i++] + "," + //relPath,
-                                                        brokenLine[i++] + "," + //docID,
-                                                        brokenLine[i++] + "," + //tf,
-                                                        brokenLine[i++] + ","; //is100,
-                                    int iBeforeLoop = i;
-                                    string nu = brokenLine[i];
-                                    string nu2 = brokenLine[i + 1];
                                     while (!brokenLine[i].Contains("]"))
                                     {
-                                        tmp += brokenLine[i++] + ",";
-                                        //postingStr.Append(brokenLine[i++] + ",");
+                                        postingStr.Append(brokenLine[i++] + ",");
                                     }
-                                    tmp += brokenLine[i++] + ",";
-                                    tmp += brokenLine[i];
-                                    //postingStr.Append(brokenLine[i++] + ","); //gap],
-                                    //postingStr.Append(brokenLine[i++]); //isLower
+                                    postingStr.Append(brokenLine[i++] + ","); //gap],
+                                    postingStr.Append(brokenLine[i]); //isLower
 
-                                    this.Add(term, new Posting(tmp), limitCapacity: false);
-                                    int stam = 0;
+                                    this.Add(term, new Posting(postingStr), limitCapacity: false);
                                 }
                             }
                         }
