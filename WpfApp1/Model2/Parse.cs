@@ -28,6 +28,7 @@ namespace Model2
         private HashSet<String> counters = new HashSet<string>();
         private string destinationPath;
 
+
         string[] delimiters = {"=","_", "?" ," - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "," ,"---", "..", "...", " -- ", "\\n" };
         char[] trimDelimiters = { '.', ':', '/' };
         Dictionary<string, string> months = new Dictionary<string, string>();

@@ -123,6 +123,7 @@ namespace Model2
                 }
 
                 List<Posting> list = _termsDictionary[term];
+                _termsDictionary.Remove(term);
                 list.Sort((x1, x2) => x2.CompareTo(x1)); //Descending order, from highest to lowest tf
                 postingString.Append(term + "," + list.Count + ",");
                 //term,df,(relPath,docID,tf,is100,[gaps],isLower,)*
@@ -132,6 +133,7 @@ namespace Model2
                 }
                 postingString.Append('\n');
                 finalTerm = term;
+                list = null;
             }
             if (finalTerm != "")
             {
@@ -228,6 +230,7 @@ namespace Model2
                 {
                     StringBuilder currFile = Unzip(File.ReadAllBytes(file));
                     string[] lines = currFile.ToString().Split('\n');
+                    currFile = null;
                     foreach(string line in lines)
                     {
                         string[] brokenLine = line.Split(',');
@@ -339,8 +342,10 @@ namespace Model2
                     
                 }
                 postingString.Append('\n');
+                _citiesDictionary.Remove(city);
             }
 
+            orderedKeys = null;
             //writePosting(postingString, finalTerm.ElementAt(0), isFinalPostingFile);
             string cityIndexPath = _mergePath + "\\" + "CityIndex.gz";
             Zip(postingString, cityIndexPath);
