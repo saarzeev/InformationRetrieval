@@ -141,6 +141,8 @@ namespace Model2
                 }
             });
 
+            Task Taking = Task.Run(() => { City.initCities(); });
+
             task.Wait();
             tasker1.Wait();
             tasker2.Wait();
