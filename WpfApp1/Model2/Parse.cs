@@ -158,10 +158,10 @@ namespace Model2
             Task tasker8 = Task.Run(() => { indexer.writeDocPosting(); });
             
             tasker6.Wait();
-            Task tasker9 = Task.Run(() => { indexer.WriteCityPosting(_cities); }); //This must begin AFTER merging is done
+            //Task tasker9 = Task.Run(() => { indexer.WriteCityPosting(_cities); }); //This must begin AFTER merging is done
             tasker7.Wait();
             tasker8.Wait();
-            tasker9.Wait();
+           // tasker9.Wait();
             Console.WriteLine("Total runtime  including read from file = " + (DateTime.Now - totalInitTime));
          
             Console.WriteLine("shouldStem = " + shouldStem);
@@ -231,7 +231,8 @@ namespace Model2
             IEnumerable<String> onlyText =
                 splitedText
                 .SkipWhile((newWord) => String.Compare(newWord, Resources.Resource.openText) != 0)
-                .TakeWhile((newWord) => String.Compare(newWord, Resources.Resource.closeText) != 0);
+                .TakeWhile((newWord) => String.Compare(newWord, Resources.Resource.closeText) != 0)
+                .Where((newWord) => (newWord == "between" || newWord == "Between" || newWord == "and" || !stopWords.Contains(newWord.ToLower())));
             
             splitedText = onlyText.ToArray();
             if(splitedText.Length > 0)
@@ -305,7 +306,7 @@ namespace Model2
 
             foreach (string word in splitedText)
             {
-                if (word.ToLower() == Resources.Resource.between || !stopWords.Contains(word.ToLower())){
+               // if (word.ToLower() == Resources.Resource.between || !stopWords.Contains(word.ToLower())){
                     string newWord = word;
                     if (/*(word.Length - 1 >= 0) && (word[word.Length - 1] == '.' || word[word.Length - 1] == ':' || ) &&*/ word.ToLower() != "u.s.")
                     {
@@ -341,9 +342,9 @@ namespace Model2
                             times.Enqueue(pos);
                         }
                     }
-                }
+              //  }
                 pos++;
-            }
+           }
         }
 
         private bool isFraction(string suspect)
@@ -889,7 +890,8 @@ namespace Model2
             int pos = 0;
             foreach (string word in splitedText)
             {
-                if (word != " " && word != "" && !stopWords.Contains(word.ToLower()))
+                string toLower = word.ToLower();
+                if (word != " " && word != "" && toLower != "betweens" && toLower != "and" )
                 {
                     //TODO another structer for extra words?
                     
