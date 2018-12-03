@@ -17,7 +17,7 @@ namespace Model2
         private Dictionary<string, List<Posting>> _termsDictionary = new Dictionary<string, List<Posting>>(); //terms, postings
         private Dictionary<string, List<CityPosting>> _citiesDictionary = new Dictionary<string, List<CityPosting>>(); //cities, postings
         private int id;
-        public int capacity = 50000;
+        public int capacity = 100000;
         private string _path = "";
         private string _mergePath = "";
 
@@ -250,11 +250,10 @@ namespace Model2
                                     {
                                         //City city = new City(term)
                                         Tuple<string, string, string> inf = null;
-                                        try
+                                        if (City.citiesInfo.ContainsKey(term))
                                         {
-                                            inf = City.citiesInfo[term.ToUpper()];
+                                            inf = City.citiesInfo[term];
                                         }
-                                        catch { };
 
                                         if (inf != null)
                                         {
