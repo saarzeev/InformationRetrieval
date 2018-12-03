@@ -5,8 +5,8 @@ namespace Model2
     public class Doc
     {
         public string _path { get; }
-        public StringBuilder _text { get; }
-        public long _indexInFile { get; }
+        public StringBuilder _text;
+        public string _indexInFile;
         public int max_tf;
         public string city;
         public int uniqWords;
@@ -14,15 +14,17 @@ namespace Model2
         public string country;
         public string language;
 
-        public Doc(string path, StringBuilder text, long indexInFile)
+        public Doc(string path, StringBuilder text, string index, string city, string countery, string lanuage)
         {
             this.max_tf = 0;
             this.uniqWords = 0;
-            this.city = null;
+            this.city = city;
             this._path = path;
             this._text = text;
+            this._indexInFile = index;
+            this.country = country;
+            this.language = language;
             this.length = 0;
-            this._indexInFile = indexInFile;
         }
         
         public StringBuilder ToStringBuilder() {

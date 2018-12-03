@@ -62,18 +62,77 @@ namespace Model2
             {
 
                 String line;
-                while (!streamReader.EndOfStream && _currentFile != "stopwords.txt")
+               
+
+                while (!streamReader.EndOfStream && _currentFile != path + "\\stopwords.txt")
                 {
-                    while ((line = streamReader.ReadLine()) != null && line.CompareTo("</DOC>") != 0)
-                    {
-                        doc.Append(line);
-                        doc.Append("\\n");
+                    string docID = "";
+                    string countery = "";
+                    string city = "";
+                    string language = "";
+                    bool notText = true;
+                    bool firstAfterText = false;
+                    while ((line = streamReader.ReadLine()) != null && line != "</DOC>")
+                    {   
+                        if (notText)
+                        {
+                            //id
+                            if (line.StartsWith("<DOCNO>"))
+                            {
+                                docID = line.Split(' ')[1];
+                            }
+                            //countery
+                            else if (line.StartsWith("<F P=101>"))
+                            {
+                                string[] del = { "<F P=101>", "</F P=101>", "</F>" ," "};
+                                string[] splited = line.Split(del, StringSplitOptions.RemoveEmptyEntries);
+                                if (splited.Length > 0)
+                                {
+                                    countery = splited[0];
+                                }
+                            }
+                            //city
+                            else if (line.StartsWith("<F P=104>"))
+                            {
+                                string[] del = { "<F P=104>", "</F P=104>", "</F>" ," "};
+                                string[] splited = line.Split(del,StringSplitOptions.RemoveEmptyEntries);
+                                if (splited.Length > 0) { city = splited[0]; }
+                            }
+                            else if(line == "<TEXT>")
+                            {
+                                notText = false;
+                                doc.Append(line);
+                                firstAfterText = true;
+                            }   
+                        }
+                        else
+                        {
+                            if (firstAfterText)
+                            {
+                                if (line.StartsWith("Language")){
+                                    string[] del = { "Language:","<F P=105>", "</F P=105>", "</F>", " "};
+                                    string[] splited = line.Split(del, StringSplitOptions.RemoveEmptyEntries);
+                                    if (splited.Length > 0)
+                                    {
+                                        language = splited[0];
+                                    }
+                                }
+                                firstAfterText = false;
+                            }
+                            doc.AppendFormat("{0}{1}",line,"\\n");
+                        }
+                       
                     }
 
                     if (line != null)
                     {
-                        doc.Append("</DOC>");
-                        retVal = new Doc(this._currentFile, doc, this._docINdexInFile);
+                        retVal = new Doc(this._currentFile, doc, docID, city, countery, language);
+                        notText = true;
+                        firstAfterText = false;
+                        docID = "";
+                        countery = "";
+                        city = "";
+                        language = "";
                         _docINdexInFile++;
                         retValList.Add(retVal);
                         doc = new StringBuilder();

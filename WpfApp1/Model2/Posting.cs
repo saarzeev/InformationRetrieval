@@ -13,7 +13,7 @@ namespace Model2
         public string term;
         public int tf;
         public string docRelativePath;
-        public int docID;
+        public string docID;
         public bool is100;
         public bool isLower;
         public StringBuilder gaps;
@@ -25,12 +25,12 @@ namespace Model2
         /// <param name="docPath"></param>
         /// <param name="docID"></param>
         /// <param name="term"></param>
-        public Posting(string docPath, long docID, Term term)
+        public Posting(string docPath, string docID, Term term)
         {
             this.term = term.GetTerm;
             this.tf = term.Tf;
             this.docRelativePath = docPath;
-            this.docID = (int)docID;
+            this.docID = docID;
             this.is100 = term.IsIn100;
             this.isLower = term.IsLowerCase;
             this.gaps = getGaps(term.Positons);
@@ -46,14 +46,14 @@ namespace Model2
             string[] strArr = stringRep.Split(',');
             this.term = strArr[0];
             this.docRelativePath = strArr[1];
-            double docId = Parse.QuickDoubleParse(strArr[2]);
+            //double docId = Parse.QuickDoubleParse(strArr[2]);
             double tf = Parse.QuickDoubleParse(strArr[3]);
             //if (!int.TryParse(strArr[2], out this.docID) || !int.TryParse(strArr[3], out this.tf))
-            if(docId == Double.NaN || tf == Double.NaN)
+            if(tf == Double.NaN)
             {
                 throw new System.ArgumentException("Parameter parsing failed.", "stringRep");
             }
-            this.docID = (int)docId;
+            this.docID = strArr[2];
             this.tf = (int)tf;
             this.is100 = (strArr[4] == "1");
 

@@ -27,8 +27,7 @@ namespace Model2
         private HashSet<string> bigNumbersHash;
         private string destinationPath;
 
-        //TODO =
-        string[] delimiters = {"_", "?" ," - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "," ,"---", "..", "...", " -- " };
+        string[] delimiters = {"=","_", "?" ," - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "," ,"---", "..", "...", " -- ", "\\n" };
         char[] trimDelimiters = { '.', ':', '/' };
         Dictionary<string, string> months = new Dictionary<string, string>();
 
@@ -158,12 +157,9 @@ namespace Model2
             Task tasker8 = Task.Run(() => { indexer.writeDocPosting(); });
             
             tasker6.Wait();
-            //Task tasker9 = Task.Run(() => { indexer.WriteCityPosting(_cities); }); //This must begin AFTER merging is done
             tasker7.Wait();
             tasker8.Wait();
-           // tasker9.Wait();
             Console.WriteLine("Total runtime  including read from file = " + (DateTime.Now - totalInitTime));
-         
             Console.WriteLine("shouldStem = " + shouldStem);
 
         }
@@ -198,46 +194,17 @@ namespace Model2
             Queue<int> cities = new Queue<int>();
 
             //DateTime parseDocTime = DateTime.Now;
-            StringBuilder text = doc._text.Replace("\\n", " ");
-            text = text.Replace("'", "");
+            StringBuilder text = doc._text.Replace("'", "");
             text = text.Replace("--", "-");
             string toParse = ParsePercent(text.ToString());
             string[] splitedText = toParse.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
-
-            //read city
-            IEnumerable<String> searchcity =
-             splitedText
-             .SkipWhile((newWord) => String.Compare(newWord, Resources.Resource.city_tag) != 0)
-             .TakeWhile((newWord) => String.Compare(newWord, Resources.Resource.closeCity) != 0)
-             .Where((newWord) => newWord != "");
-            string[] cityTag = searchcity.ToArray();
-            if(cityTag != null&& 1 < cityTag.Length && cityTag.Length > 0)
-            {
-                //if (cityTag.Length > 2)
-                //{
-                //    doc.city = new City(cityTag[1].ToUpper() + cityTag[2].ToUpper());
-                //}
-                //else
-                //{
-                //    doc.city = new City(cityTag[1].ToUpper());
-                //}
-                
-                _citiesMutex.WaitOne();
-                _cities.Add(cityTag[1].ToUpper());
-                _citiesMutex.ReleaseMutex();
-            }
-
-            //read doc between TEXT tags
-            IEnumerable<String> onlyText =
-                splitedText
-                .SkipWhile((newWord) => String.Compare(newWord, Resources.Resource.openText) != 0)
-                .TakeWhile((newWord) => String.Compare(newWord, Resources.Resource.closeText) != 0)
-                .Where((newWord) => (newWord == "between" || newWord == "Between" || newWord == "and" || !stopWords.Contains(newWord.ToLower())));
             
-            splitedText = onlyText.ToArray();
-            if(splitedText.Length > 0)
+            splitedText = splitedText.Where((newWord) => ((newWord!="" || newWord != " ") && 
+            (newWord == "between" || newWord == "Between" || newWord == "and" || !stopWords.Contains(newWord.ToLower())))).ToArray();
+            if (splitedText.Length > 0)
             {
-                splitedText[0] = " "; 
+                splitedText[0] = " ";
+                splitedText[splitedText.Length-1] = " ";
             }
 
             PopulateQueueWithPositions(splitedText, months, dates, money, specificBigNums, bigNums, betweens, times);
