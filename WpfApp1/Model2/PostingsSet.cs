@@ -248,8 +248,17 @@ namespace Model2
                                     StringBuilder cityPostingStr = new StringBuilder();
                                     if (isCity)
                                     {
-                                        City city = new City(term);
-                                        cityPostingStr.Append(city.ToString() + ","); //_city + "," + _country + "," +_currency + "," + _population + ","
+                                        //City city = new City(term)
+                                        Tuple<string, string, string> inf = City.citiesInfo[term.ToUpper()];
+                                        if (inf != null)
+                                        {
+                                            cityPostingStr.Append(term + "," + inf.Item1 + "," + inf.Item2 + "," + inf.Item3 + ",");
+                                        }
+                                        else
+                                        {
+                                            cityPostingStr.Append(term + ",,,,");
+                                        }
+                                        //cityPostingStr.Append(city.ToString() + ","); //_city + "," + _country + "," +_currency + "," + _population + ","
                                         cityPostingStr.Append(brokenLine[i] + "," + //relPath
                                                            brokenLine[i + 1] + ","); //docID
                                     }
