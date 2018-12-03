@@ -123,6 +123,10 @@
   <data name="billion" xml:space="preserve">
     <value>billion</value>
   </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="cities" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>cities.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-16</value>
+  </data>
   <data name="city_tag" xml:space="preserve">
     <value>P=104</value>
   </data>

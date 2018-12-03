@@ -15,8 +15,8 @@ namespace Model2
         private static int counter = 0;
         private Mutex mutex = new Mutex();
         private Dictionary<string, List<Posting>> _termsDictionary = new Dictionary<string, List<Posting>>(); //terms, postings
+        private Dictionary<string, List<CityPosting>> _citiesDictionary = new Dictionary<string, List<CityPosting>>(); //cities, postings
         private int id;
-        private static PostingsSet ps;
         public int capacity = 50000;
         private string _path = "";
         private string _mergePath = "";
@@ -59,6 +59,22 @@ namespace Model2
                 return false;
             }
             return true;
+        }
+
+        public void AddCity(string city, CityPosting posting)
+        {
+
+            if (_citiesDictionary.ContainsKey(city))
+            {
+                _citiesDictionary[city].Add(posting);
+
+            }
+            else
+            {
+                List<CityPosting> newList = new List<CityPosting>();
+                newList.Add(posting);
+                _citiesDictionary.Add(city, newList);
+            }
         }
 
         public bool hasCapacity()
@@ -200,11 +216,10 @@ namespace Model2
         /// Merges all temporary posting files into final posting files.
         /// Running this method during the population of the temporary posting files will result in data loss and undesired behaviour.
         /// </summary>
-        public void mergeFiles()
+        public void mergeFiles(HashSet<string> _cities)
         {
             //term,relPath,docID,tf,is100,[gaps],isLower
             //term,df,(relPath,docID,tf,is100,[gaps],isLower,)*
-            
             for (char c = 'a'; c <= 'z'; c++)
             {
                 _termsDictionary = new Dictionary<string, List<Posting>>();
@@ -228,7 +243,18 @@ namespace Model2
                             {
                                 if (brokenLine[i] != "")
                                 {
-                                    StringBuilder postingStr = new StringBuilder(term + ","); //term,
+                                    bool isCity = _cities.Contains(term.ToUpper());
+
+                                    StringBuilder cityPostingStr = new StringBuilder();
+                                    if (isCity)
+                                    {
+                                        City city = new City(term);
+                                        cityPostingStr.Append(city.ToString() + ","); //_city + "," + _country + "," +_currency + "," + _population + ","
+                                        cityPostingStr.Append(brokenLine[i] + "," + //relPath
+                                                           brokenLine[i + 1] + ","); //docID
+                                    }
+
+                                    StringBuilder postingStr = new StringBuilder(term + ","); //term
                                     postingStr.Append(brokenLine[i++] + "," + //relPath,
                                                         brokenLine[i++] + "," + //docID,
                                                         brokenLine[i++] + "," + //tf,
@@ -237,12 +263,23 @@ namespace Model2
 
                                     while (!brokenLine[i].Contains("]"))
                                     {
+                                        if (isCity)
+                                        {
+                                            cityPostingStr.Append(brokenLine[i] + ",");
+                                        }
                                         postingStr.Append(brokenLine[i++] + ",");
+                                    }
+
+                                    if (isCity)
+                                    {
+                                        cityPostingStr.Append(brokenLine[i] + ",");
+                                        this.AddCity(term, new CityPosting(cityPostingStr));
                                     }
                                     postingStr.Append(brokenLine[i++] + ","); //gap],
                                     postingStr.Append(brokenLine[i]); //isLower
 
                                     this.Add(term, new Posting(postingStr), limitCapacity: false);
+                                    
                                 }
                             }
                         }
@@ -254,6 +291,46 @@ namespace Model2
                 
                 DumpToDisk(false, true);
             }
+            WriteCitiesIndex();
+        }
+
+        private void WriteCitiesIndex()
+        {
+            StringBuilder postingString = new StringBuilder("");
+            string finalTerm = "";
+            List<string> orderedKeys = _citiesDictionary.Keys.ToList();
+            orderedKeys.Sort((x, y) => string.Compare(x, y));
+            foreach (string city in orderedKeys)
+            {
+                List<CityPosting> list = _citiesDictionary[city];
+                list.Sort((x1, x2) => x2.CompareTo(x1)); //Descending order, from highest to lowest tf
+                postingString.Append(city + ",");
+                //_city,_country,_currency,population,(relPath,docID,[gaps],)*
+                bool isFirst = true;
+                foreach (CityPosting posting in list)
+                {
+                    City tmp;
+                    if (isFirst)
+                    {
+                        isFirst = false;
+
+                        postingString.Append(posting.GetPostingString().ToString());
+                    }
+                    else
+                    {
+                        postingString.Append(posting.docRelativePath + "," + posting.docID + "," + posting.gaps.ToString() + ",");
+                    }
+                    
+                }
+                postingString.Append('\n');
+            }
+
+            //writePosting(postingString, finalTerm.ElementAt(0), isFinalPostingFile);
+            string cityIndexPath = _mergePath + "\\" + "CityIndex.gz";
+            Zip(postingString, cityIndexPath);
+            postingString = new StringBuilder("");
+            _citiesDictionary = null;
+            GC.Collect();
         }
     }
 }

@@ -26,7 +26,8 @@ namespace Model2
         public string postingWithStemmingDirectory = "\\postingWithStemming";
         private string _cachedPath = "";
         private StringBuilder _cachedFile = new StringBuilder();
-        private int indexOfCache = 0;
+        public HashSet<string> _cities = new HashSet<string>();
+        private StringBuilder citiesIndex = new StringBuilder();
 
         /// <summary>
         /// Get the Indexer's instance

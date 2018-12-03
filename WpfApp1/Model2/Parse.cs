@@ -151,7 +151,7 @@ namespace Model2
             Task tasker5 = Task.Run(() => { indexer.currenPostingSet.DumpToDisk(false); });
             tasker5.Wait();
             //merging
-            Task tasker6 = Task.Run(() => { indexer.currenPostingSet.mergeFiles(); });
+            Task tasker6 = Task.Run(() => { indexer.currenPostingSet.mergeFiles(_cities); });
 
             Task tasker7 = Task.Run(() => { indexer.WriteDictionary(); });
             Task tasker8 = Task.Run(() => { indexer.writeDocPosting(); });
@@ -183,6 +183,12 @@ namespace Model2
         /// <param name="shouldStem"></param>
         private void Parser(Doc doc, bool shouldStem)
         {
+            _citiesMutex.WaitOne();
+            if (doc.city != "")
+            {
+                _cities.Add(doc.city.ToUpper());
+            }
+            _citiesMutex.ReleaseMutex();
             //saving suspicious words Indexes by theme
             Queue<int> dates = new Queue<int>();
             Queue<int> money = new Queue<int>();

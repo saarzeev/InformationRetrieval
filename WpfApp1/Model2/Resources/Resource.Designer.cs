@@ -79,6 +79,15 @@ namespace Model2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [{&quot;currencies&quot;:[{&quot;code&quot;:&quot;AFN&quot;,&quot;name&quot;:&quot;Afghan afghani&quot;,&quot;symbol&quot;:&quot;؋&quot;}],&quot;name&quot;:&quot;Afghanistan&quot;,&quot;capital&quot;:&quot;Kabul&quot;,&quot;population&quot;:27657145},{&quot;currencies&quot;:[{&quot;code&quot;:&quot;EUR&quot;,&quot;name&quot;:&quot;Euro&quot;,&quot;symbol&quot;:&quot;€&quot;}],&quot;name&quot;:&quot;Åland Islands&quot;,&quot;capital&quot;:&quot;Mariehamn&quot;,&quot;population&quot;:28875},{&quot;currencies&quot;:[{&quot;code&quot;:&quot;ALL&quot;,&quot;name&quot;:&quot;Albanian lek&quot;,&quot;symbol&quot;:&quot;L&quot;}],&quot;name&quot;:&quot;Albania&quot;,&quot;capital&quot;:&quot;Tirana&quot;,&quot;population&quot;:2886026},{&quot;currencies&quot;:[{&quot;code&quot;:&quot;DZD&quot;,&quot;name&quot;:&quot;Algerian dinar&quot;,&quot;symbol&quot;:&quot;د.ج&quot;}],&quot;name&quot;:&quot;Algeria&quot;,&quot;capital&quot;:&quot;Algiers&quot;,&quot;population&quot;:40400000},{&quot;cu [rest of string was tru....
+        /// </summary>
+        internal static string cities {
+            get {
+                return ResourceManager.GetString("cities", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to P=104.
         /// </summary>
         internal static string city_tag {
