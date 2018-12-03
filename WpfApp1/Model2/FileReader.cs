@@ -79,7 +79,12 @@ namespace Model2
                             //id
                             if (line.StartsWith("<DOCNO>"))
                             {
-                                docID = line.Split(' ')[1];
+                                string[] del = { "<DOCNO>", "</DOCNO>", " " };
+                                string[] splited = line.Split(del, StringSplitOptions.RemoveEmptyEntries);
+                                if (splited.Length > 0)
+                                {
+                                    docID = splited[0];
+                                }
                             }
                             //countery
                             else if (line.StartsWith("<F P=101>"))
