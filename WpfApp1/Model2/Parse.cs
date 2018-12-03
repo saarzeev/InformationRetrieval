@@ -44,6 +44,11 @@ namespace Model2
 
         }
 
+        public static void DestructParse()
+        {
+            parse = null;
+        }
+
         private Parse()
         {
             _docs = new ConcurrentQueue<Doc>();
