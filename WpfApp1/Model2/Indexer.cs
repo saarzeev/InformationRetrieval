@@ -197,6 +197,7 @@ namespace Model2
             string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
             path += "\\docIndexer.txt";
             PostingsSet.Zip(allDocPosting, path);
+            allDocPosting = null;
         }
 
         /// <summary>
