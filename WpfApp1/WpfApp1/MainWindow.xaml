@@ -34,12 +34,12 @@
 
         <StackPanel Margin="10" Grid.IsSharedSizeScope="True" Grid.RowSpan="3" Grid.Column="3">
             <Label Content="Language" />
-            <ComboBox>
-                <!-- shuld be out of function -->
-                <ComboBoxItem>aa</ComboBoxItem>
-                <ComboBoxItem>bb</ComboBoxItem>
-                <ComboBoxItem>cc</ComboBoxItem>
-                <ComboBoxItem>dd</ComboBoxItem>
+            <ComboBox Name="laguages">
+                <ComboBox.ItemTemplate>
+                <DataTemplate>
+                        <TextBlock Text="{Binding Path=Key}"/>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
             </ComboBox>
             <CheckBox Margin="5" Content="stemming" IsChecked="False" Name="is_stemming"/>
         </StackPanel>

@@ -51,6 +51,24 @@ namespace Model2
 
         }
 
+        public static void DestructIndexer()
+        {
+            indexer = null;
+        }
+
+        public Dictionary<string, string> getLaguages()
+        {
+           Dictionary<string, string> languages = new Dictionary<string, string>();
+           for (int i = 0; i < docsIndexer.Count; i++)
+            {
+                string language = docsIndexer.ElementAt(i).language;
+                if(language != "") {
+                    languages[language] = language;
+                }
+            }
+            return languages;
+        }
+
         public void reset()
         {
             if(Directory.Exists(_initialPathForPosting + tmpDirectory)) {
@@ -68,6 +86,10 @@ namespace Model2
             if(File.Exists(_initialPathForPosting + "\\show.txt"))
             {
                 File.Delete(_initialPathForPosting + "\\show.txt");
+            }
+            if (File.Exists(_initialPathForPosting + "\\Stemmingshow.txt"))
+            {
+                File.Delete(_initialPathForPosting + "\\Stemmingshow.txt");
             }
         }
 

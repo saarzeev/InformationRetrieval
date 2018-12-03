@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -17,14 +17,16 @@ namespace WpfApp1
     public partial class MainWindow : Window
     {
         Controllers.MainController mainController;
-        private object process;
         string time;
         string termNum;
         string docNum;
+        public Dictionary<string,string> laguagesD = new Dictionary<string, string>() ;
 
         public MainWindow()
         {
+            laguagesD.Add("loading...", "loading...");
             InitializeComponent();
+            laguages.ItemsSource = laguagesD;
             mainController = new Controllers.MainController();
         }
 
@@ -90,10 +92,12 @@ namespace WpfApp1
                 try
                 {
                     string[] values = mainController.init(path_from.Text, path_to.Text, (bool)is_stemming.IsChecked);
-                    time = "TotalTime: " + values[0];
+                    time = "TotalTime: " + values[0] + "seconds";
                     docNum = "Number of docs: " + values[1];
                     termNum = "Number of terms: " + values[2];
                     System.Windows.Forms.MessageBox.Show(time + "\n" + docNum + "\n" + termNum, "process ended!", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
+                    laguagesD = mainController.getLaguages();
+                    laguages.ItemsSource = laguagesD;
                 }
                 catch (Exception exception)
                 {
@@ -152,7 +156,9 @@ namespace WpfApp1
             var dialog = System.Windows.Forms.MessageBox.Show("Please choose the path of the folder containing the files to index and " +
                 "the path of the folder for posting files", "Missing path!", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Stop);
         }
-        
+       
+
+
 
     }
 
