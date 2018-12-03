@@ -882,7 +882,7 @@ namespace Model2
                     //TODO another structer for extra words?
                     
                     bool isNumber = Char.IsDigit(word[0]);
-                    string term = shouldStem && !isNumber ? stm.stemTerm(word).ToLower() : word.ToLower();
+                    string term = (shouldStem && !isNumber) ? stm.stemTerm(word).ToLower() : word.ToLower();
                     if (thisDocVocabulary.ContainsKey(term))
                     {
                         if (isNumber)

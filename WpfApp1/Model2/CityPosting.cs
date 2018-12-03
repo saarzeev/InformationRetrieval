@@ -11,7 +11,7 @@ namespace Model2
         public string currency;
         public string population;
         public string docRelativePath;
-        public int docID;
+        public string docID;
         public StringBuilder gaps;
         
 
@@ -25,13 +25,13 @@ namespace Model2
             this.currency = strArr[2];
             this.population = strArr[3];
             this.docRelativePath = strArr[4];
-            double docId = Parse.QuickDoubleParse(strArr[4]);
+            //double docId = Parse.QuickDoubleParse(strArr[4]);
             //if (!int.TryParse(strArr[2], out this.docID) || !int.TryParse(strArr[3], out this.tf))
-            if (docId == Double.NaN)
-            {
-                throw new System.ArgumentException("Parameter parsing failed.", "stringRep");
-            }
-            this.docID = (int)docId;
+            //if (docId == Double.NaN)
+            //{
+            //    throw new System.ArgumentException("Parameter parsing failed.", "stringRep");
+            //}
+            this.docID = strArr[2];
 
             StringBuilder strGaps = new StringBuilder(strArr[6].Remove(0, 1));
             int i = 6;
@@ -64,11 +64,11 @@ namespace Model2
         {
         }
 
-        public CityPosting(string docPath, long docID, Term term)
+        public CityPosting(string docPath, string docID, Term term)
         {
             this.city = term.GetTerm;
             this.docRelativePath = docPath;
-            this.docID = (int)docID;
+            this.docID = docID;
             this.gaps = getGaps(term.Positons);
         }
 

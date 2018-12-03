@@ -141,7 +141,7 @@ namespace WpfApp1
         {
             try
             {
-                mainController.getDictionary(path_to.Text, (bool)is_stemming.IsChecked);
+                mainController.getDictionary();
                 string dictionaryPath = (bool)is_stemming.IsChecked ? "\\Stemmingshow.txt": "\\show.txt";
                 Process.Start(path_to.Text + dictionaryPath);
             }

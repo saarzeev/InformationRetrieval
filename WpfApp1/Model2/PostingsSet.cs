@@ -13,7 +13,6 @@ namespace Model2
         {
 
         private static int counter = 0;
-        private Mutex mutex = new Mutex();
         private Dictionary<string, List<Posting>> _termsDictionary = new Dictionary<string, List<Posting>>(); //terms, postings
         private Dictionary<string, List<CityPosting>> _citiesDictionary = new Dictionary<string, List<CityPosting>>(); //cities, postings
         private int id;

@@ -28,7 +28,7 @@ namespace Controllers
             indexer.LoadDictionery();
         }
 
-        public void getDictionary(string destination, bool stemming)
+        public void getDictionary()
         {
              indexer.getDictionary();
         }
