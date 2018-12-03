@@ -249,7 +249,13 @@ namespace Model2
                                     if (isCity)
                                     {
                                         //City city = new City(term)
-                                        Tuple<string, string, string> inf = City.citiesInfo[term.ToUpper()];
+                                        Tuple<string, string, string> inf = null;
+                                        try
+                                        {
+                                            inf = City.citiesInfo[term.ToUpper()];
+                                        }
+                                        catch { };
+
                                         if (inf != null)
                                         {
                                             cityPostingStr.Append(term + "," + inf.Item1 + "," + inf.Item2 + "," + inf.Item3 + ",");
@@ -283,11 +289,13 @@ namespace Model2
                                     {
                                         cityPostingStr.Append(brokenLine[i] + ",");
                                         this.AddCity(term, new CityPosting(cityPostingStr));
+                                        cityPostingStr = null;
                                     }
                                     postingStr.Append(brokenLine[i++] + ","); //gap],
                                     postingStr.Append(brokenLine[i]); //isLower
 
                                     this.Add(term, new Posting(postingStr), limitCapacity: false);
+                                    postingStr = null;
                                     
                                 }
                             }

@@ -135,23 +135,15 @@ namespace WpfApp1
 
         private void show_dictionary_Click(object sender, RoutedEventArgs e)
         {
-            mainController.getDictionary(path_to.Text, (bool)is_stemming.IsChecked);
-            if(/*dictionary != null*/true)
+            try
             {
-                //dictionaryList.ItemsSource = (IDictionary)dictionary;
-                //dictionaryPop.IsOpen = true;
-                try
-                {
-                    Process.Start(path_to.Text + "\\show.txt");
-                }
-                catch(Exception exception)
-                {
-                    System.Windows.Forms.MessageBox.Show(exception.Message, "Error Occured", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                mainController.getDictionary(path_to.Text, (bool)is_stemming.IsChecked);
+                string dictionaryPath = (bool)is_stemming.IsChecked ? "\\Stemmingshow.txt": "\\show.txt";
+                Process.Start(path_to.Text + dictionaryPath);
             }
-            else
+            catch(Exception exception)
             {
-                System.Windows.Forms.MessageBox.Show("theres no dictionary to show try load or start the posting prosses first", "no dictionary", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Stop);
+                System.Windows.Forms.MessageBox.Show(exception.Message, "Error Occured", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

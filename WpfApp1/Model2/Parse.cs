@@ -25,6 +25,7 @@ namespace Model2
         private bool done = false;
         private HashSet<string> stopWords;
         private HashSet<string> bigNumbersHash;
+        private HashSet<String> counters = new HashSet<string>();
         private string destinationPath;
 
         string[] delimiters = {"=","_", "?" ," - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "," ,"---", "..", "...", " -- ", "\\n" };
@@ -54,6 +55,7 @@ namespace Model2
             bigNumbersHash = new HashSet<string>();
             months = new Dictionary<string, string>();
             InitHeapVariables();
+            
          }
 
         /// <summary>
@@ -172,6 +174,13 @@ namespace Model2
             bigNumbersHash.Add(Resources.Resource.million);
             bigNumbersHash.Add(Resources.Resource.billion);
             bigNumbersHash.Add(Resources.Resource.trillion);
+            
+            counters.Add(Resources.Resource.hundred);
+            counters.Add(Resources.Resource.thousand);
+            counters.Add(Resources.Resource.million);
+            counters.Add(Resources.Resource.billion);
+            counters.Add(Resources.Resource.trillion);
+
             months.Add("jan", "01"); months.Add("feb", "02"); months.Add("mar", "03"); months.Add("apr", "04"); months.Add("may", "05"); months.Add("jun", "06"); months.Add("jul", "07"); months.Add("aug", "08"); months.Add("sep", "09"); months.Add("oct", "10"); months.Add("nov", "11"); months.Add("dec", "12");
             months.Add("january", "01"); months.Add("february", "02"); months.Add("march", "03"); months.Add("april", "04"); months.Add("june", "06"); months.Add("july", "07"); months.Add("august", "08"); months.Add("september", "09"); months.Add("october", "10"); months.Add("november", "11"); months.Add("december", "12");
         }
@@ -203,10 +212,11 @@ namespace Model2
 
             //DateTime parseDocTime = DateTime.Now;
             StringBuilder text = doc._text.Replace("'", "");
+            doc._text = null;
             text = text.Replace("--", "-");
             string toParse = ParsePercent(text.ToString());
+            text = null;
             string[] splitedText = toParse.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
-            
             splitedText = splitedText.Where((newWord) => ((newWord!="" || newWord != " ") && 
             (newWord == "between" || newWord == "Between" || newWord == "and" || !stopWords.Contains(newWord.ToLower())))).ToArray();
             if (splitedText.Length > 0)
@@ -697,12 +707,7 @@ namespace Model2
 
         private string DollarSignToCanonicalForm(ref int pos, string[] splitedText, ref List<int> posToDelete) //Canonical form == NUMBER (counter) Dollars
         {
-            List<String> counters = new List<string>();
-            counters.Add(Resources.Resource.hundred);
-            counters.Add(Resources.Resource.thousand);
-            counters.Add(Resources.Resource.million);
-            counters.Add(Resources.Resource.billion);
-            counters.Add(Resources.Resource.trillion);
+            
             string frac = "";
             string canonizedStr = "";
 

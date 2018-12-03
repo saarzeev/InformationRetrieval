@@ -162,8 +162,8 @@ namespace Model2
             }
         }
 
-        public /*SortedDictionary<string, string>*/ void getDictionary()
-        {//TODO if stemming 
+        public void getDictionary()
+        {
             SortedDictionary<string, string> dictionary = new SortedDictionary<string, string>();
             foreach(SimpleTerm term in fullDictionary.Values)
             {
@@ -176,7 +176,8 @@ namespace Model2
                 }
 
             }
-            using (StreamWriter file = new StreamWriter(_initialPathForPosting + "\\show.txt"))
+            string dictionaryPath = isStemming ? "\\Stemmingshow.txt" : "\\show.txt";
+            using (StreamWriter file = new StreamWriter(_initialPathForPosting + dictionaryPath))
             {
                 foreach (var entry in dictionary)
                 {
@@ -196,57 +197,6 @@ namespace Model2
             string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
             path += "\\docIndexer.txt";
             PostingsSet.Zip(allDocPosting, path);
-        }
-
-
-        /// <summary>
-        /// Writes cities index to disk
-        /// </summary>
-        /// <param name="cities"></param>
-        public void WriteCityPosting(HashSet<string> cities)
-        {
-            StringBuilder allCities = new StringBuilder();
-            List<string> sortedCities = cities.ToList();
-            sortedCities.Sort();
-            foreach (string cityStr in cities)
-            {
-                Task<City> task = Task<City>.Run(() => new City(cityStr));
-                StringBuilder tmp = GetTermPosting(cityStr);
-                if (tmp != null)
-                {
-                    string[] cityPosting = tmp.ToString().Split(',');
-                    task.Wait();
-                    if (cityPosting.Length > 0)
-                    {
-                        City city = task.Result;
-                        if (1 < cityPosting.Length && cityPosting[1] != "")
-                        {
-                            allCities.Append(city.ToString() + ",");  //_city + "," + _country + "," +_currency + "," + _population + ","
-                            for (int i = 2; i < cityPosting.Length; i++)
-                            {
-                                if (cityPosting[i] != "")
-                                {
-                                    allCities.Append(cityPosting[i++] + "," + //relPath,
-                                                        cityPosting[i++] + "," //docID
-                                                        );
-                                    i++; //tf
-                                    i++; //is100
-
-                                    while (!cityPosting[i].Contains("]"))
-                                    {
-                                        allCities.Append(cityPosting[i++] + ",");
-                                    }
-                                    allCities.Append(cityPosting[i++] + ","); //gap
-                                }
-                            }
-                        }
-                        allCities.Append("\n");
-                    }
-                }               
-            }
-            string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
-            path += "\\citiesIndexer.txt";
-            PostingsSet.Zip(allCities, path);
         }
 
         /// <summary>
