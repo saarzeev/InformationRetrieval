@@ -56,95 +56,99 @@ namespace Model2
 
             StringBuilder doc = new StringBuilder("");
 
-            FileStream fs = new FileStream(_currentFile, FileMode.Open, FileAccess.Read);
-            using (var fileStream = File.OpenRead(_currentFile))
-            using (var streamReader = new StreamReader(_currentFile))
+            using (FileStream fs = new FileStream(_currentFile, FileMode.Open, FileAccess.Read))
             {
-
-                String line;
-               
-
-                while (!streamReader.EndOfStream && _currentFile != path + "\\stopwords.txt")
+                using (var fileStream = File.OpenRead(_currentFile))
                 {
-                    string docID = "";
-                    string countery = "";
-                    string city = "";
-                    string language = "";
-                    bool notText = true;
-                    bool firstAfterText = false;
-                    while ((line = streamReader.ReadLine()) != null && line != "</DOC>")
-                    {   
-                        if (notText)
+                    using (var streamReader = new StreamReader(_currentFile))
+                    {
+
+                        String line;
+
+
+                        while (!streamReader.EndOfStream && _currentFile != path + "\\stopwords.txt")
                         {
-                            //id
-                            if (line.StartsWith("<DOCNO>"))
+                            string docID = "";
+                            string countery = "";
+                            string city = "";
+                            string language = "";
+                            bool notText = true;
+                            bool firstAfterText = false;
+                            while ((line = streamReader.ReadLine()) != null && line != "</DOC>")
                             {
-                                string[] del = { "<DOCNO>", "</DOCNO>", " " };
-                                string[] splited = line.Split(del, StringSplitOptions.RemoveEmptyEntries);
-                                if (splited.Length > 0)
+                                if (notText)
                                 {
-                                    docID = splited[0];
-                                }
-                            }
-                            //countery
-                            else if (line.StartsWith("<F P=101>"))
-                            {
-                                string[] del = { "<F P=101>", "</F P=101>", "</F>" ," "};
-                                string[] splited = line.Split(del, StringSplitOptions.RemoveEmptyEntries);
-                                if (splited.Length > 0)
-                                {
-                                    countery = splited[0];
-                                }
-                            }
-                            //city
-                            else if (line.StartsWith("<F P=104>"))
-                            {
-                                string[] del = { "<F P=104>", "</F P=104>", "</F>" ," "};
-                                string[] splited = line.Split(del,StringSplitOptions.RemoveEmptyEntries);
-                                if (splited.Length > 0) { city = splited[0]; }
-                            }
-                            else if(line == "<TEXT>")
-                            {
-                                notText = false;
-                                doc.Append(line);
-                                firstAfterText = true;
-                            }   
-                        }
-                        else
-                        {
-                            if (firstAfterText)
-                            {
-                                if (line.StartsWith("Language")){
-                                    string[] del = { "Language:","<F P=105>", "</F P=105>", "</F>", " "};
-                                    string[] splited = line.Split(del, StringSplitOptions.RemoveEmptyEntries);
-                                    if (splited.Length > 0)
+                                    //id
+                                    if (line.StartsWith("<DOCNO>"))
                                     {
-                                        language = splited[0];
+                                        string[] del = { "<DOCNO>", "</DOCNO>", " " };
+                                        string[] splited = line.Split(del, StringSplitOptions.RemoveEmptyEntries);
+                                        if (splited.Length > 0)
+                                        {
+                                            docID = splited[0];
+                                        }
+                                    }
+                                    //countery
+                                    else if (line.StartsWith("<F P=101>"))
+                                    {
+                                        string[] del = { "<F P=101>", "</F P=101>", "</F>", " " };
+                                        string[] splited = line.Split(del, StringSplitOptions.RemoveEmptyEntries);
+                                        if (splited.Length > 0)
+                                        {
+                                            countery = splited[0];
+                                        }
+                                    }
+                                    //city
+                                    else if (line.StartsWith("<F P=104>"))
+                                    {
+                                        string[] del = { "<F P=104>", "</F P=104>", "</F>", " " };
+                                        string[] splited = line.Split(del, StringSplitOptions.RemoveEmptyEntries);
+                                        if (splited.Length > 0) { city = splited[0]; }
+                                    }
+                                    else if (line == "<TEXT>")
+                                    {
+                                        notText = false;
+                                        doc.Append(line);
+                                        firstAfterText = true;
                                     }
                                 }
-                                firstAfterText = false;
-                            }
-                            doc.AppendFormat("{0}{1}",line,"\\n");
-                        }
-                       
-                    }
+                                else
+                                {
+                                    if (firstAfterText)
+                                    {
+                                        if (line.StartsWith("Language"))
+                                        {
+                                            string[] del = { "Language:", "<F P=105>", "</F P=105>", "</F>", " " };
+                                            string[] splited = line.Split(del, StringSplitOptions.RemoveEmptyEntries);
+                                            if (splited.Length > 0)
+                                            {
+                                                language = splited[0];
+                                            }
+                                        }
+                                        firstAfterText = false;
+                                    }
+                                    doc.AppendFormat("{0}{1}", line, "\\n");
+                                }
 
-                    if (line != null)
-                    {
-                        retVal = new Doc(this._currentFile, doc, docID, city, countery, language);
-                        notText = true;
-                        firstAfterText = false;
-                        docID = "";
-                        countery = "";
-                        city = "";
-                        language = "";
-                        _docINdexInFile++;
-                        retValList.Add(retVal);
-                        doc = new StringBuilder();
+                            }
+
+                            if (line != null)
+                            {
+                                retVal = new Doc(this._currentFile, doc, docID, city, countery, language);
+                                notText = true;
+                                firstAfterText = false;
+                                docID = "";
+                                countery = "";
+                                city = "";
+                                language = "";
+                                _docINdexInFile++;
+                                retValList.Add(retVal);
+                                doc = new StringBuilder();
+                            }
+                        }
                     }
                 }
             }
-
             _currentFile = "";
             
             return retValList;
