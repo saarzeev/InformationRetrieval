@@ -87,17 +87,31 @@ namespace WpfApp1
             }
             else
             {
-               string[] values = mainController.init(path_from.Text, path_to.Text,(bool)is_stemming.IsChecked);
-                time = "TotalTime: "+ values[0];
-                docNum = "Number of docs: " + values[1];
-                termNum = "Number of terms: " + values[2];
-                System.Windows.Forms.MessageBox.Show(time +"\n" + docNum + "\n" + termNum, "process ended!", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
+                try
+                {
+                    string[] values = mainController.init(path_from.Text, path_to.Text, (bool)is_stemming.IsChecked);
+                    time = "TotalTime: " + values[0];
+                    docNum = "Number of docs: " + values[1];
+                    termNum = "Number of terms: " + values[2];
+                    System.Windows.Forms.MessageBox.Show(time + "\n" + docNum + "\n" + termNum, "process ended!", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
+                }
+                catch (Exception exception)
+                {
+                    System.Windows.Forms.MessageBox.Show(exception.Message, "Error Occured",  MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
         private void reset_Click(object sender, RoutedEventArgs e)
         {
-            mainController.reset(path_to.Text);
+            try
+            {
+                mainController.reset(path_to.Text);
+            }
+            catch(Exception exception)
+            {
+                System.Windows.Forms.MessageBox.Show(exception.Message, "Error Occured", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void load_dictionary_Click(object sender, RoutedEventArgs e)
@@ -108,7 +122,14 @@ namespace WpfApp1
             }
             else
             {
-                mainController.LoadDictionary(path_to.Text, (bool)is_stemming.IsChecked);
+                try
+                {
+                    mainController.LoadDictionary(path_to.Text, (bool)is_stemming.IsChecked);
+                }
+                catch (Exception exception)
+                {
+                    System.Windows.Forms.MessageBox.Show(exception.Message, "Error Occured", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
@@ -119,8 +140,14 @@ namespace WpfApp1
             {
                 //dictionaryList.ItemsSource = (IDictionary)dictionary;
                 //dictionaryPop.IsOpen = true;
-                Process.Start(path_to.Text + "\\show.txt");
-
+                try
+                {
+                    Process.Start(path_to.Text + "\\show.txt");
+                }
+                catch(Exception exception)
+                {
+                    System.Windows.Forms.MessageBox.Show(exception.Message, "Error Occured", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             else
             {
