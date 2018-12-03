@@ -11,6 +11,8 @@ namespace Model2
         public string city;
         public int uniqWords;
         public int length;
+        public string country;
+        public string language;
 
         public Doc(string path, StringBuilder text, long indexInFile)
         {
