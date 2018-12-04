@@ -915,6 +915,7 @@ namespace Model2
                 doc.uniqWords = thisDocVocabulary.Count();
                 doc.max_tf = thisDocVocabulary.Values.OrderBy((Term) => Term.Tf).Last().Tf;
                 doc.length = pos;
+                
             }
             //TODO BUILD DOC INDEX
             return thisDocVocabulary;
