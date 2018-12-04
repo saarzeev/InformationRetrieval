@@ -156,7 +156,6 @@ namespace Model2
             StringBuilder dictionary = new StringBuilder();
             foreach (SimpleTerm term in fullDictionary.Values)
             {
-                //TODO add spesific position(line|byte)
                 string fileName = term.GetTerm[0] < 'a' || term.GetTerm[0] > 'z' ? "otherFINAL.txt" : term.GetTerm[0] + "FINAL.txt";
                 term.PostingPath = path + "\\" + fileName;
                 dictionary.AppendLine(term.ToString());
@@ -201,7 +200,7 @@ namespace Model2
             string dictionaryPath = isStemming ? "\\Stemmingshow.txt" : "\\show.txt";
             using (StreamWriter file = new StreamWriter(_initialPathForPosting + dictionaryPath))
             {
-                file.WriteLine("[{0} {1} {2}]","TERM" , "DF   " ,"TF");
+                file.WriteLine("[{0} {1} {2}]","TERM", " DF " ,"TF");
                 foreach (var entry in dictionary)
                 {
                     file.WriteLine("[{0} {1} {2}]", entry.Key, entry.Value.Item1, entry.Value.Item2);

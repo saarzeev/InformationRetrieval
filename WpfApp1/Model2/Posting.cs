@@ -46,15 +46,11 @@ namespace Model2
             string[] strArr = stringRep.Split(',');
             this.term = strArr[0];
             this.docRelativePath = strArr[1];
-            //double docId = Parse.QuickDoubleParse(strArr[2]);
-            double tf = Parse.QuickDoubleParse(strArr[3]);
-            //if (!int.TryParse(strArr[2], out this.docID) || !int.TryParse(strArr[3], out this.tf))
-            if(tf == Double.NaN)
+            if (!int.TryParse(strArr[3], out this.tf))
             {
                 throw new System.ArgumentException("Parameter parsing failed.", "stringRep");
             }
             this.docID = strArr[2];
-            this.tf = (int)tf;
             this.is100 = (strArr[4] == "1");
 
             StringBuilder strGaps = new StringBuilder(strArr[5].Remove(0, 1));

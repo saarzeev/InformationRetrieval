@@ -238,7 +238,7 @@ namespace Model2
                         int df = -1;
                         if (1 < brokenLine.Length && brokenLine[1] != "")
                         {
-                            df = (int)Parse.QuickDoubleParse(brokenLine[1]);
+                            int.TryParse(brokenLine[1],out df);
 
                             for (int i = 2; i < brokenLine.Length; i++)
                             {
@@ -266,7 +266,7 @@ namespace Model2
                                         {
                                             cityPostingStr.Append(term + ",,,,");
                                         }
-                                        //cityPostingStr.Append(city.ToString() + ","); //_city + "," + _country + "," +_currency + "," + _population + ","
+                                        //_city + "," + _country + "," +_currency + "," + _population + ","
                                         cityPostingStr.Append(brokenLine[i] + "," + //relPath
                                                            brokenLine[i + 1] + ","); //docID
                                     }
@@ -346,7 +346,6 @@ namespace Model2
             }
 
             orderedKeys = null;
-            //writePosting(postingString, finalTerm.ElementAt(0), isFinalPostingFile);
             string cityIndexPath = _mergePath + "\\" + "CityIndex.gz";
             Zip(postingString, cityIndexPath);
             postingString = new StringBuilder("");

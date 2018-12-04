@@ -21,13 +21,11 @@ namespace Model2
                 var client = new RestClient("https://restcountries.eu");
                 var request = new RestRequest("rest/v2/all?fields=capital;name;population;currencies", Method.GET);
 
-                // execute the request
+               
                 var response = client.Execute(request);
                 string content = response.Content;
                 JArray joResponse = JArray.Parse(content);
-                //_country = joResponse[0]["name"].ToString();
-                //_population = joResponse[0]["population"].ToString();
-                //_currency = joResponse[0]["currencies"][0]["code"].ToString();
+               
                 isInit = true;
                 foreach (JObject item in joResponse)
                 {

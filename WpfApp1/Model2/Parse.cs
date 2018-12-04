@@ -76,12 +76,9 @@ namespace Model2
         /// <param name="shouldStem"></param>
         public void FromFilesToDocs(string filesPath, string destinationPath, string stopWordsPath, bool shouldStem)
         {
-            //TODO DELETE TIMES AND CONSOLE WRITE
-            DateTime totalInitTime = DateTime.Now;
+          
             Task task;
             this.destinationPath = destinationPath;
-            Console.WriteLine("Started...");
-
             FileReader fr = new FileReader(filesPath, stopWordsPath);
             stopWords = fr.stopWords;
             task = Task.Run(() =>
@@ -169,8 +166,6 @@ namespace Model2
             tasker6.Wait();
             tasker7.Wait();
             tasker8.Wait();
-            Console.WriteLine("Total runtime  including read from file = " + (DateTime.Now - totalInitTime));
-            Console.WriteLine("shouldStem = " + shouldStem);
 
         }
 
@@ -215,8 +210,7 @@ namespace Model2
             Queue<int> times = new Queue<int>();
             HashSet<int> numPositions = new HashSet<int>();
             Queue<int> cities = new Queue<int>();
-
-            //DateTime parseDocTime = DateTime.Now;
+           
             StringBuilder text = doc._text.Replace("'", "");
             doc._text = null;
             text = text.Replace("--", "-");
@@ -256,7 +250,7 @@ namespace Model2
             {
                 splitedText = ParseNumbers(bigNums.Dequeue(), splitedText, numPositions);
             }
-            //don't move!
+          
             while (betweens.Count != 0)
             {
                 splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText, numPositions);
@@ -267,8 +261,7 @@ namespace Model2
             SortedDictionary<string,Term> docVovabulary = AddTermsToVocabulry(splitedText, shouldStem, doc);
             Indexer index = Indexer.Instance(destinationPath,shouldStem);
             index.initIndex(doc ,docVovabulary);
-            ////Console.WriteLine(doc._path + "\n" + String.Join(" ", splitedText));
-            //  Console.WriteLine("Done with doc. Parsing took " + (DateTime.Now - parseDocTime));
+         
         }
 
 
@@ -297,18 +290,15 @@ namespace Model2
 
             foreach (string word in splitedText)
             {
-               // if (word.ToLower() == Resources.Resource.between || !stopWords.Contains(word.ToLower())){
                     string newWord = word;
-                    if (/*(word.Length - 1 >= 0) && (word[word.Length - 1] == '.' || word[word.Length - 1] == ':' || ) &&*/ word.ToLower() != "u.s.")
+                    if (word.ToLower() != "u.s.")
                     {
                         newWord = newWord.TrimStart(trimDelimiters).TrimEnd(trimDelimiters);
-                        //newWord = word.Substring(0, word.Length - 1);
                         splitedText[pos] = newWord;
                     }
                     if (newWord != "" && newWord!= " ")
                     {
-                        //if (bigNums != null && newWord[0] <= 57 && newWord[0] >= 48 && Regex.IsMatch(newWord, Resources.Resource.regex_Numbers))
-                        if (bigNums != null && newWord[0] <= 57 && newWord[0] >= 48 && QuickDoubleParse(newWord) != Double.NaN)
+                        if (bigNums != null && newWord[0] <= 57 && newWord[0] >= 48 && Regex.IsMatch(newWord, Resources.Resource.regex_Numbers))
                         {
                             bigNums.Enqueue(pos);
                         }
@@ -333,7 +323,6 @@ namespace Model2
                             times.Enqueue(pos);
                         }
                     }
-              //  }
                 pos++;
            }
         }
@@ -401,9 +390,7 @@ namespace Model2
                 }
 
                 // dispensing cases - depending on the size of the number(int)
-                //if (double.TryParse(splitedText[pos], out double number))
-                double number = QuickDoubleParse(splitedText[pos]);
-                if (number != Double.NaN)
+                if (double.TryParse(splitedText[pos], out double number))
                 {
                     if (number >= 1000 && number < 1000000)
                     {
@@ -462,16 +449,13 @@ namespace Model2
 
                 if (pos - 1 >= 0)
                 {
-                    double doubleNumber = QuickDoubleParse(splitedText[pos - 1]);
                     // number - fraction - word 
                     if (isFraction(splitedText[pos - 1]))
                     {
                         frac = splitedText[pos - 1];
                         if (pos - 2 >= 0)
                         {
-                            //if (int.TryParse(splitedText[pos - 2], out int numberBeforeFrac))
-                            double numberBeforeFrac = QuickDoubleParse(splitedText[pos - 2]);
-                            if (numberBeforeFrac != Double.NaN)
+                            if (int.TryParse(splitedText[pos - 2], out int numberBeforeFrac))
                             {
                                 parsed = numberBuilder(numberBeforeFrac, divider, frac, representativeLetter);
                                 splitedText[pos - 2] = parsed;
@@ -483,8 +467,7 @@ namespace Model2
                         }
                     }
                     // number - word 
-                    //else if (double.TryParse(splitedText[pos - 1], out double doubleNumber))
-                    else if (doubleNumber != Double.NaN)
+                    else if (double.TryParse(splitedText[pos - 1], out double doubleNumber))
                     {
                         parsed = numberBuilder(doubleNumber, divider, frac, representativeLetter);
                         splitedText[pos - 1] = parsed;
@@ -560,16 +543,12 @@ namespace Model2
                 string parsed = splitedText[pos];
                 if (pos - 1 >= 0)
                 {
-                    double day = QuickDoubleParse(splitedText[pos - 1]);
-                    //if (int.TryParse(splitedText[pos - 1], out int day))
-                    if (day != Double.NaN)
+                    if (int.TryParse(splitedText[pos - 1], out int day))
                     {
                         if (pos + 1 < splitedText.Length)
                         {
                             //day-month-year
-                            //if (int.TryParse(splitedText[pos + 1], out int year))
-                            double year = QuickDoubleParse(splitedText[pos + 1]);
-                            if (year != Double.NaN)
+                            if (int.TryParse(splitedText[pos + 1], out int year))
                             {
                                 if (year >= 1000 && year < 4000)
                                 {
@@ -593,17 +572,12 @@ namespace Model2
                 }
 
                 if (pos + 1 < splitedText.Length)
-                {
-                    double day = QuickDoubleParse(splitedText[pos + 1]);
-                    if (day != Double.NaN)
-                    //if (int.TryParse(splitedText[pos + 1], out int day))
+                {              
+                    if (int.TryParse(splitedText[pos + 1], out int day))
                     {
                         if ((pos + 2) < splitedText.Length)
                         {
-
-                            double year = QuickDoubleParse(splitedText[pos + 2]);
-                            if (year != Double.NaN)
-                            //if (int.TryParse(splitedText[pos + 2], out int year))
+                            if (int.TryParse(splitedText[pos + 2], out int year))
                             {
                                 if (year >= 1000 && year < 4000)
                                 {
@@ -651,16 +625,14 @@ namespace Model2
                 {
                     splitedMoneyExpr[0] = splitedText[pos - 1];
                 }
-                //splitedText = temp;
+               
                 splitedText[pos] = canonizedStr;
                 commitChangesToSplittedText = true;
             }
-            //double sum = 0;
-            double sum = QuickDoubleParse(splitedMoneyExpr[0]);
-            //if (Regex.IsMatch(splitedMoneyExpr[0], Resources.Resource.regex_Numbers) && double.TryParse(splitedMoneyExpr[0], out sum))
-            if (Regex.IsMatch(splitedMoneyExpr[0], Resources.Resource.regex_Numbers) && sum != Double.NaN)
+            double sum = 0;
+            if (Regex.IsMatch(splitedMoneyExpr[0], Resources.Resource.regex_Numbers) && double.TryParse(splitedMoneyExpr[0], out sum))
             {
-                //splitedText = temp;
+            
                 splitedText[pos] = canonizedStr;
                 if (frac != "")
                 {
@@ -809,17 +781,14 @@ namespace Model2
                 if (replacedDot.Contains(':') || Regex.IsMatch(replacedDot, Resources.Resource.regex_PM_AM_withHoursOnly)) {
                     if (System.DateTime.TryParse(replacedDot, out var dateTime))
                     {
-                        splitedText[pos] = dateTime.GetDateTimeFormats()[108];
+                        splitedText[pos] = dateTime.GetDateTimeFormats()[109];
                         return splitedText;
                     }
                 }
 
                 else if (pos - 1 >= 0) {
                     //time with .
-
-                    //bool isTimeWithDot = (splitedText[pos] == "PM" || splitedText[pos] == "AM") && double.TryParse(splitedText[pos - 1], out double suspectedTimeWithDot);
-                    double suspectedTimeWithDot = QuickDoubleParse(splitedText[pos - 1]);
-                    bool isTimeWithDot = (splitedText[pos] == "PM" || splitedText[pos] == "AM") && suspectedTimeWithDot != Double.NaN;
+                    bool isTimeWithDot = (splitedText[pos] == "PM" || splitedText[pos] == "AM") && double.TryParse(splitedText[pos - 1], out double suspectedTimeWithDot); 
                     replacedDot = isTimeWithDot ? splitedText[pos - 1].Replace('.', ':') : splitedText[pos - 1];
                     // 2 words
                     if (replacedDot.Contains(':')) {
@@ -827,7 +796,7 @@ namespace Model2
                         string suspectedTime = replacedDot + " " + splitedText[pos];
                         if (System.DateTime.TryParse(suspectedTime, out var dateTime))
                         {
-                            splitedText[pos - 1] = dateTime.GetDateTimeFormats()[108];
+                            splitedText[pos - 1] = dateTime.GetDateTimeFormats()[109];
                             splitedText[pos] = " ";
                             return splitedText;
                         }
@@ -837,31 +806,7 @@ namespace Model2
             }
             return splitedText;
         }
-    
-    //private string[] ParsePercent(int pos, string[] splitedText)
-    //{
-    //    if (splitedText[pos] != " ")
-    //    {
-    //        if (pos - 1 >= 0)
-    //        {
-    //            if (double.TryParse(splitedText[pos - 1], out double percent))
-    //            {
-    //                int intFormat = (int)percent;
-    //                if (intFormat == percent)
-    //                {
-    //                    splitedText[pos - 1] = intFormat + "%";
-    //                    splitedText[pos] = " ";
-    //                    return splitedText;
-    //                }
-    //                splitedText[pos - 1] = percent + "%";
-    //                splitedText[pos] = " ";
-    //                return splitedText;
-    //            }
-               
-    //        }
-    //    }
-    //        return splitedText;
-    // }
+
     //parse expressions that formated: <number-percentage|percent> to another format: <number%>
     private string ParsePercent(string text)
     {
@@ -877,10 +822,9 @@ namespace Model2
             foreach (string word in splitedText)
             {
                 string toLower = word.ToLower();
-                if (word != " " && word != "" && toLower != "betweens" && toLower != "and" )
+                if (word != " " && word != "" && toLower != "betweens" && toLower != "and" && toLower.Length>1)
                 {
-                    //TODO another structer for extra words?
-                    
+
                     bool isNumber = Char.IsDigit(word[0]);
                     string term = (shouldStem && !isNumber) ? stm.stemTerm(word).ToLower() : word.ToLower();
                     if (thisDocVocabulary.ContainsKey(term))
@@ -917,50 +861,11 @@ namespace Model2
                 doc.length = pos;
                 
             }
-            //TODO BUILD DOC INDEX
+            
             return thisDocVocabulary;
         }
 
-        /// <summary>
-        /// TryParse() efficient alternative
-        /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static double QuickDoubleParse(string input)
-        {
-            double result = 0;
-            var pos = 0;
-            var len = input.Length;
-            if (len == 0) return Double.NaN;
-            char c = input[0];
-            double sign = 1;
-            if (c == '-')
-            {
-                sign = -1;
-                ++pos;
-                if (pos >= len) return Double.NaN;
-            }
-
-            while (true) // breaks inside on pos >= len or non-digit character
-            {
-                if (pos >= len) return sign * result;
-                c = input[pos++];
-                if (c < '0' || c > '9') break;
-                result = (result * 10.0) + (c - '0');
-            }
-
-            if (c != '.' && c != ',') return Double.NaN;
-
-            double exp = 0.1;
-            while (pos < len)
-            {
-                c = input[pos++];
-                if (c < '0' || c > '9') return Double.NaN;
-                result += (c - '0') * exp;
-                exp *= 0.1;
-            }
-            return sign * result;
-        }
+      
     }
 
 }
