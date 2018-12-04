@@ -245,16 +245,17 @@ namespace Model2
                             {
                                 if (brokenLine[i] != "")
                                 {
-                                    bool isCity = _cities.Contains(term.ToUpper());
-
+                                    string ToUpper = term.ToUpper();
+                                    bool isCity = _cities.Contains(ToUpper);
+                                    
                                     StringBuilder cityPostingStr = new StringBuilder();
                                     if (isCity)
                                     {
                                         //City city = new City(term)
                                         Tuple<string, string, string> inf = null;
-                                        if (City.citiesInfo.ContainsKey(term))
+                                        if (City.citiesInfo.ContainsKey(ToUpper))
                                         {
-                                            inf = City.citiesInfo[term];
+                                            inf = City.citiesInfo[ToUpper];
                                         }
 
                                         if (inf != null)
@@ -290,7 +291,7 @@ namespace Model2
                                     if (isCity)
                                     {
                                         cityPostingStr.Append(brokenLine[i] + ",");
-                                        this.AddCity(term, new CityPosting(cityPostingStr));
+                                        this.AddCity(ToUpper, new CityPosting(cityPostingStr));
                                         cityPostingStr = null;
                                     }
                                     postingStr.Append(brokenLine[i++] + ","); //gap],

@@ -89,7 +89,7 @@ namespace Model2
 
         public StringBuilder ToStringBuilder()
         {
-            StringBuilder posting = new StringBuilder(this.city + ",");
+            StringBuilder posting = new StringBuilder();
             posting.Append(this.country + ",");
             posting.Append(this.currency + ",");
             posting.Append(this.population + ",");
