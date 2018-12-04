@@ -382,7 +382,7 @@ namespace Model2
         /// <param name="splitedText"></param>
         /// <param name="numPositions"></param>
         /// <returns></returns>
-        private string[] ParseNumbers(int pos, string[] splitedText, HashSet<int> numPositions)
+        public string[] ParseNumbers(int pos , string[] splitedText, HashSet<int> numPositions)
         {
             if (splitedText[pos] != " ")
             {

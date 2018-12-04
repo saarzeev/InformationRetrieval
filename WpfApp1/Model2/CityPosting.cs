@@ -87,7 +87,7 @@ namespace Model2
             return gaps;
         }
 
-        public StringBuilder GetPostingString()
+        public StringBuilder ToStringBuilder()
         {
             StringBuilder posting = new StringBuilder(this.city + ",");
             posting.Append(this.country + ",");

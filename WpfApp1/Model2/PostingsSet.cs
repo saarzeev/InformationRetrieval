@@ -259,7 +259,8 @@ namespace Model2
 
                                         if (inf != null)
                                         {
-                                            cityPostingStr.Append(term + "," + inf.Item1 + "," + inf.Item2 + "," + inf.Item3 + ",");
+                                            string[] population = { inf.Item2 };
+                                            cityPostingStr.Append(term + "," + inf.Item1 + "," + Parse.Instance().ParseNumbers(0,population,new HashSet<int>())[0] + "," + inf.Item3 + ",");
                                         }
                                         else
                                         {
@@ -332,7 +333,7 @@ namespace Model2
                     {
                         isFirst = false;
 
-                        postingString.Append(posting.GetPostingString().ToString());
+                        postingString.Append(posting.ToStringBuilder().ToString());
                     }
                     else
                     {
