@@ -29,8 +29,8 @@ namespace Model2
         private string destinationPath;
 
 
-        string[] delimiters = {"=","_", "?" ," - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "," ,"---", "..", "...", " -- ", "\\n" };
-        char[] trimDelimiters = { '.', ':', '/' };
+        string[] delimiters = {"=","_", "?" ," - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "," ,"---", "..", "...", " -- ", "\\n", "----" };
+        char[] trimDelimiters = { '.', ':', '/' , '-'};
         Dictionary<string, string> months = new Dictionary<string, string>();
 
         public static Parse Instance()
