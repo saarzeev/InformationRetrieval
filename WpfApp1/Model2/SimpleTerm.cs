@@ -26,8 +26,10 @@ namespace Model2
             int df = (int)Parse.QuickDoubleParse(splited[1]);
            // int.TryParse(splited[1], out df);
             Df = df;
-            _postingPath = splited[2];
-            _isLowerCase = splited[3] == "1" ? true : false;
+            int tf = (int)Parse.QuickDoubleParse(splited[2]);
+            Tf = tf;
+            _postingPath = splited[3];
+            _isLowerCase = splited[4] == "1" ? true : false;
         }
 
         public void addTf(int tf)
@@ -51,7 +53,7 @@ namespace Model2
         public string ToString()
         {
             string isLower = _isLowerCase ? "1" : "0";
-            return _term + "," + Df + "," + _postingPath + "," + isLower;
+            return _term + "," + Df + "," + Tf +"," + _postingPath + "," + isLower;
         }
         public bool Equals(string term)
         {

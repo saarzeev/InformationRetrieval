@@ -187,27 +187,26 @@ namespace Model2
 
         public void getDictionary()
         {
-            SortedDictionary<string, string> dictionary = new SortedDictionary<string, string>();
+            SortedDictionary<string, Tuple<string, string>> dictionary = new SortedDictionary<string, Tuple<string,string>>();
             foreach(SimpleTerm term in fullDictionary.Values)
             {
                 if (term.IsLowerCase) {
-                    dictionary[term.GetTerm] = term.Df.ToString();
+                    dictionary[term.GetTerm] = new Tuple<string, string>(term.Df.ToString(), term.Tf.ToString());
                 }
                 else
                 {
-                    dictionary[term.GetTerm.ToUpper()] = term.Df.ToString();
+                    dictionary[term.GetTerm.ToUpper()] = new Tuple<string, string>(term.Df.ToString(), term.Tf.ToString());
                 }
-
             }
             string dictionaryPath = isStemming ? "\\Stemmingshow.txt" : "\\show.txt";
             using (StreamWriter file = new StreamWriter(_initialPathForPosting + dictionaryPath))
             {
+                file.WriteLine("[{0} {1} {2}]","TERM" , "DF   " ,"TF");
                 foreach (var entry in dictionary)
                 {
-                    file.WriteLine("[{0} {1}]", entry.Key, entry.Value);
+                    file.WriteLine("[{0} {1} {2}]", entry.Key, entry.Value.Item1, entry.Value.Item2);
                 }
             }
-            //return dictionary;
         }
 
         public void writeDocPosting()
