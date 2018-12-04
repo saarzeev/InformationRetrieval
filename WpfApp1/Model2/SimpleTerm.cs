@@ -8,13 +8,15 @@ namespace Model2
         private bool _isLowerCase;
         private string _postingPath;
         private int _df;
+        private int _tf;
 
-        public SimpleTerm(string term, string path, bool isLower)
+        public SimpleTerm(string term, string path, bool isLower, int tf = 0)
         {
             this._term = term;
             this._isLowerCase = isLower;
             this._postingPath = path;
             this.Df = 1;
+            this.Tf = tf;
         }
 
         public SimpleTerm(string allTerm)
@@ -28,10 +30,16 @@ namespace Model2
             _isLowerCase = splited[3] == "1" ? true : false;
         }
 
+        public void addTf(int tf)
+        {
+            this.Tf += tf;
+        }
+
         public string GetTerm { get => _term; set => _term = value; }
         public string PostingPath { get => _postingPath; set => _postingPath = value; }
         public bool IsLowerCase { get => _isLowerCase; set => _isLowerCase = value; }
         public int Df { get => _df; set => _df = value; }
+        public int Tf { get => _tf; set => _tf = value; }
 
         override
         public int GetHashCode()

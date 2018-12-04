@@ -221,6 +221,9 @@ namespace Model2
         {
             //term,relPath,docID,tf,is100,[gaps],isLower
             //term,df,(relPath,docID,tf,is100,[gaps],isLower,)*
+            var orderd = Indexer.fullDictionary.Values.OrderBy((simple) => simple.Tf);
+            var max = orderd.Take(10);
+            var min = orderd.Reverse().Take(10);
             for (char c = 'a'; c <= 'z'; c++)
             {
                 _termsDictionary = new Dictionary<string, List<Posting>>();

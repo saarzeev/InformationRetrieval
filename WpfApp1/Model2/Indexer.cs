@@ -119,10 +119,11 @@ namespace Model2
                         fullDictionary[key].IsLowerCase = true;
                     }
                     fullDictionary[key].Df++;
+                    fullDictionary[key].addTf(docDictionary[key].Tf);
                 }
                 else
                 {
-                    SimpleTerm newTerm = new SimpleTerm(key, "", docDictionary[key].IsLowerCase);
+                    SimpleTerm newTerm = new SimpleTerm(key, "", docDictionary[key].IsLowerCase, docDictionary[key].Tf);
                     fullDictionary.TryAdd(key, newTerm);
                 }
                 docsPosting.Enqueue(new Posting(docPath[docPath.Length - 1], doc._indexInFile, docDictionary[key]));
