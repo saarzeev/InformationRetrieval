@@ -96,6 +96,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="packages\Newtonsoft.Json.12.0.1\.signature.p7s" />
+    <None Include="packages\Newtonsoft.Json.12.0.1\LICENSE.md" />
+    <None Include="packages\Newtonsoft.Json.12.0.1\Newtonsoft.Json.12.0.1.nupkg" />
+    <None Include="packages\RestSharp.106.5.4\.signature.p7s" />
+    <None Include="packages\RestSharp.106.5.4\RestSharp.106.5.4.nupkg" />
     <None Include="Resources\stopwords.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -118,6 +123,39 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\cities.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\net20\Newtonsoft.Json.dll" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\net20\Newtonsoft.Json.pdb" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\net20\Newtonsoft.Json.xml" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\net35\Newtonsoft.Json.dll" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\net35\Newtonsoft.Json.pdb" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\net35\Newtonsoft.Json.xml" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\net40\Newtonsoft.Json.dll" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\net40\Newtonsoft.Json.pdb" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\net40\Newtonsoft.Json.xml" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.pdb" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.xml" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\netstandard1.0\Newtonsoft.Json.dll" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\netstandard1.0\Newtonsoft.Json.pdb" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\netstandard1.0\Newtonsoft.Json.xml" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\netstandard1.3\Newtonsoft.Json.dll" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\netstandard1.3\Newtonsoft.Json.pdb" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\netstandard1.3\Newtonsoft.Json.xml" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\netstandard2.0\Newtonsoft.Json.dll" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\netstandard2.0\Newtonsoft.Json.pdb" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\netstandard2.0\Newtonsoft.Json.xml" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\portable-net40+sl5+win8+wp8+wpa81\Newtonsoft.Json.dll" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\portable-net40+sl5+win8+wp8+wpa81\Newtonsoft.Json.pdb" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\portable-net40+sl5+win8+wp8+wpa81\Newtonsoft.Json.xml" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\portable-net45+win8+wp8+wpa81\Newtonsoft.Json.dll" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\portable-net45+win8+wp8+wpa81\Newtonsoft.Json.pdb" />
+    <Content Include="packages\Newtonsoft.Json.12.0.1\lib\portable-net45+win8+wp8+wpa81\Newtonsoft.Json.xml" />
+    <Content Include="packages\RestSharp.106.5.4\lib\net452\RestSharp.dll" />
+    <Content Include="packages\RestSharp.106.5.4\lib\net452\RestSharp.xml" />
+    <Content Include="packages\RestSharp.106.5.4\lib\netstandard2.0\RestSharp.dll" />
+    <Content Include="packages\RestSharp.106.5.4\lib\netstandard2.0\RestSharp.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
