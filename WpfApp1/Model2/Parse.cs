@@ -297,7 +297,7 @@ namespace Model2
                         newWord = newWord.TrimStart(trimDelimiters).TrimEnd(trimDelimiters);
                         splitedText[pos] = newWord;
                     }
-                    if (newWord != "" && newWord!= " ")
+                    if (newWord.Length > 1)
                     {
                         if (bigNums != null && newWord[0] <= 57 && newWord[0] >= 48 && Regex.IsMatch(newWord, Resources.Resource.regex_Numbers))
                         {
