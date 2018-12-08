@@ -17,7 +17,7 @@ namespace Controllers
             indexer = Model2.Indexer.Instance(destination, stemming);
             parser.FromFilesToDocs(sourcePath, destination, sourcePath + "\\stopwords.txt", stemming);
             string totalTime = (DateTime.Now - start).TotalSeconds.ToString();
-            string[] values = { totalTime, Model2.Indexer.docsIndexer.Count().ToString(), Model2.Indexer.fullDictionary.Count().ToString() };
+            string[] values = { totalTime, Model2.Indexer.docsIndexer.Count().ToString(), indexer.termCount.ToString() };
             Model2.Parse.DestructParse();
             return values;
         }

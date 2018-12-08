@@ -85,7 +85,7 @@ namespace Model2
         /// A wrapper method.
         /// Writes to path the entire collection of postings in the following format:
         /// term,df,(relPath,docID,tf,is100,[gaps],isLower,)*
-        /// When done, collection is set to null and GC is called.
+        /// When done, collection is set to null .
         /// </summary>
         public void DumpToDisk(bool shouldRunAsDifferentTask = true, bool isFinalPostingFile = false)
         {
@@ -140,7 +140,7 @@ namespace Model2
             }
             postingString = new StringBuilder("");
             _termsDictionary = null;
-            GC.Collect();
+           // GC.Collect();
         }
 
 
@@ -221,7 +221,6 @@ namespace Model2
         {
             //term,relPath,docID,tf,is100,[gaps],isLower
             //term,df,(relPath,docID,tf,is100,[gaps],isLower,)*
-           
             for (char c = 'a'; c <= 'z'; c++)
             {
                 _termsDictionary = new Dictionary<string, List<Posting>>();
@@ -337,7 +336,7 @@ namespace Model2
                     }
                     else
                     {
-                        postingString.Append(posting.docRelativePath + "," + posting.docID + "," + posting.gaps.ToString() + ",");
+                        postingString.AppendFormat (",{0},{1},{2}{3}{4}", posting.docRelativePath ,posting.docID ,"[",posting.gaps.ToString(),"]");
                     }
                     
                 }
@@ -350,7 +349,7 @@ namespace Model2
             Zip(postingString, cityIndexPath);
             postingString = new StringBuilder("");
             _citiesDictionary = null;
-            GC.Collect();
+            //GC.Collect();
         }
     }
 }

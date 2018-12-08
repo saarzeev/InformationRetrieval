@@ -31,7 +31,7 @@ namespace Model2
             //{
             //    throw new System.ArgumentException("Parameter parsing failed.", "stringRep");
             //}
-            this.docID = strArr[2];
+            this.docID = strArr[5];
 
             StringBuilder strGaps = new StringBuilder(strArr[6].Remove(0, 1));
             int i = 6;

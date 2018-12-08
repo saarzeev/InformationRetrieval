@@ -28,6 +28,7 @@ namespace Model2
         private StringBuilder _cachedFile = new StringBuilder();
         public HashSet<string> _cities = new HashSet<string>();
         private StringBuilder citiesIndex = new StringBuilder();
+        public int termCount = 0;
 
         /// <summary>
         /// Get the Indexer's instance

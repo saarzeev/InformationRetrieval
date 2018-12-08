@@ -29,7 +29,7 @@ namespace Model2
         private string destinationPath;
 
 
-        string[] delimiters = {"=","_", "?" ," - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "," ,"---", "..", "...", " -- ", "\\n", "----" };
+        string[] delimiters = {"=","_", "?" ," - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "," ,"---", "..", "...", " -- ", "\\n", "----", "$$" , "$$$" };
         char[] trimDelimiters = { '.', ':', '/' , '-'};
         Dictionary<string, string> months = new Dictionary<string, string>();
 
@@ -162,9 +162,10 @@ namespace Model2
 
             Task tasker7 = Task.Run(() => { indexer.WriteDictionary(); });
             Task tasker8 = Task.Run(() => { indexer.writeDocPosting(); });
-            
-            tasker6.Wait();
             tasker7.Wait();
+            indexer.termCount = Indexer.fullDictionary.Count();
+            Indexer.fullDictionary = null;
+            tasker6.Wait();
             tasker8.Wait();
 
         }
@@ -217,7 +218,7 @@ namespace Model2
             string toParse = ParsePercent(text.ToString());
             text = null;
             string[] splitedText = toParse.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
-            splitedText = splitedText.Where((newWord) => ((newWord!="" || newWord != " ") && 
+            splitedText = splitedText.Where((newWord) => ((newWord.Length > 1) && 
             (newWord == "between" || newWord == "Between" || newWord == "and" || !stopWords.Contains(newWord.ToLower())))).ToArray();
             if (splitedText.Length > 0)
             {
@@ -822,7 +823,7 @@ namespace Model2
             foreach (string word in splitedText)
             {
                 string toLower = word.ToLower();
-                if (word != " " && word != "" && toLower != "betweens" && toLower != "and" && toLower.Length>1)
+                if (toLower.Length > 1 && toLower != "betweens" && toLower != "and" )
                 {
 
                     bool isNumber = Char.IsDigit(word[0]);

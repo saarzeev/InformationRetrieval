@@ -52,7 +52,8 @@ namespace Model2
         public string ToString()
         {
             string isLower = _isLowerCase ? "1" : "0";
-            return _term + "," + Df + "," + Tf +"," + _postingPath + "," + isLower;
+            System.Text.StringBuilder str = new System.Text.StringBuilder();
+            return str.AppendFormat("{0},{1},{2},{3},{4}",_term, Df,Tf ,_postingPath ,isLower).ToString();
         }
         public bool Equals(string term)
         {

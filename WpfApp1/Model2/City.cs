@@ -35,7 +35,6 @@ namespace Model2
                         string country = item["name"].ToString();
                         string population = item["population"].ToString();
                         string currencies = item["currencies"][0]["code"].ToString();
-
                         citiesInfo.Add(city, new Tuple<string, string, string>(country, population, currencies));
                     }
                     catch { }
