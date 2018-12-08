@@ -97,7 +97,7 @@ namespace Model2
                 }
                 done = true;
             });
-
+            Task loadCities = Task.Run(() => { City.initCities(); });
             Task tasker1 = Task.Run(() =>
             {
                 while (!done || _docs.Count > 0)
@@ -146,8 +146,7 @@ namespace Model2
                 }
             });
 
-            Task Taking = Task.Run(() => { City.initCities(); });
-
+            loadCities.Wait();
             task.Wait();
             tasker1.Wait();
             tasker2.Wait();
@@ -157,6 +156,8 @@ namespace Model2
             //final temp writing
             Task tasker5 = Task.Run(() => { indexer.currenPostingSet.DumpToDisk(false); });
             tasker5.Wait();
+            indexer.dead.Clear();
+            indexer.dead = null;
             //merging
             Task tasker6 = Task.Run(() => { indexer.currenPostingSet.mergeFiles(_cities); });
 
@@ -164,10 +165,11 @@ namespace Model2
             Task tasker8 = Task.Run(() => { indexer.writeDocPosting(); });
             tasker7.Wait();
             indexer.termCount = Indexer.fullDictionary.Count();
-            Indexer.fullDictionary = null;
-            tasker6.Wait();
+            Indexer.fullDictionary.Clear();
             tasker8.Wait();
-
+            indexer.docsCount = Indexer.docsIndexer.Count();
+            tasker6.Wait();
+            
         }
 
         private void InitHeapVariables()

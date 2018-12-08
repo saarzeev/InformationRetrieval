@@ -4,12 +4,13 @@ using System.Text;
 
 namespace Model2
 {
-    public class CityPosting : IComparable
+    public class CityPosting /*: IComparable*/
     {
-        public string city;
+        /*public string city;
         public string country;
         public string currency;
-        public string population;
+        public string population;*/
+        //public City city;
         public string docRelativePath;
         public string docID;
         public StringBuilder gaps;
@@ -17,27 +18,25 @@ namespace Model2
 
         //_city + "," + _country + "," +_currency + "," + _population + "," + relPath+ "," + docID + "," + [gaps]
 
-        public CityPosting(string stringRep)
+        public CityPosting(string stringRep/*, City city*/) //stringRep =relPath + docID + [gaps]
         {
+            //city = city;
             string[] strArr = stringRep.Split(',');
-            this.city = strArr[0];
-            this.country = strArr[1];
-            this.currency = strArr[2];
-            this.population = strArr[3];
-            this.docRelativePath = strArr[4];
+
+            this.docRelativePath = strArr[0];
             //double docId = Parse.QuickDoubleParse(strArr[4]);
             //if (!int.TryParse(strArr[2], out this.docID) || !int.TryParse(strArr[3], out this.tf))
             //if (docId == Double.NaN)
             //{
             //    throw new System.ArgumentException("Parameter parsing failed.", "stringRep");
             //}
-            this.docID = strArr[5];
+            this.docID = strArr[1];
 
-            StringBuilder strGaps = new StringBuilder(strArr[6].Remove(0, 1));
-            int i = 6;
+            StringBuilder strGaps = new StringBuilder(strArr[2].Remove(0, 1));
+            int i = 2;
             while (!strArr[i].Contains("]"))
             {
-                if (i == 6)
+                if (i == 2)
                 {
                     i++;
                     continue;
@@ -45,7 +44,7 @@ namespace Model2
                 strGaps.Append("," + strArr[i]);
                 i++;
             }
-            if (i == 6)
+            if (i == 2)
             {
                 char[] trim = new char[] { '[', ']' };
                 strGaps = new StringBuilder(strArr[i].Trim(trim));
@@ -60,13 +59,21 @@ namespace Model2
             this.gaps = strGaps;
         }
 
-        public CityPosting(StringBuilder str):this(str.ToString())
+        public CityPosting(StringBuilder str/*, City city*/):this(str.ToString()/*, city*/)
         {
         }
 
         public CityPosting(string docPath, string docID, Term term)
         {
-            this.city = term.GetTerm;
+            //this.city = term.GetTerm;
+            /*if (City.citiesInfo.ContainsKey(term.GetTerm.ToUpper()))
+            {
+                this.city = City.citiesInfo[term.GetTerm.ToUpper()];
+            }
+            else
+            {
+                this.city = new City(term.GetTerm.ToUpper());
+            }*/
             this.docRelativePath = docPath;
             this.docID = docID;
             this.gaps = getGaps(term.Positons);
@@ -90,9 +97,9 @@ namespace Model2
         public StringBuilder ToStringBuilder()
         {
             StringBuilder posting = new StringBuilder();
-            posting.Append(this.country + ",");
-            posting.Append(this.currency + ",");
-            posting.Append(this.population + ",");
+            /*posting.Append(this.city.GetCountry + ",");
+            posting.Append(this.city.GetCurrency + ",");
+            posting.Append(this.city.GetPop + ",");*/
             posting.Append(this.docRelativePath + ",");
             posting.Append(this.docID + ",");
             posting.Append("[");
@@ -102,9 +109,9 @@ namespace Model2
             return posting;
         }
 
-        public int CompareTo(object obj)
+        /*public int CompareTo(object obj)
         {
-            return this.city.CompareTo(((CityPosting)obj).city);
-        }
+            return this.city.CompareTo(((CityPosting)obj).city.GetCity);
+        }*/
     }
 }

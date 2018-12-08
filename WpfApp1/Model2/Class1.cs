@@ -10,7 +10,8 @@ namespace Model2
         static void Main(string[] args)
         {
             // Parse parse = new Parse();
-            //Parse.Instance().FromFilesToDocs(@"C:\MiniMiniCorpus", @"C:\MiniMiniCorpusOutput", @"C:\Users\Saar\source\repos\InformationRetrieval\stopwords.txt", false);
+            //City.initCities();
+            //Parse.Instance().FromFilesToDocs(@"d:\documents\users\kovalkov\Downloads\mini", @"d:\documents\users\kovalkov\Downloads\miniOutput", @"d:\documents\users\kovalkov\Downloads\mini\stopwords.txt", false);
             ////parse.FromFilesToDocs(@"C:\Users\nastia\source\repos\saarzeev\corpus", @"C:\Users\nastia\source\repos\saarzeev\InformationRetrieval\stopwords.txt", false);
             ////string[] delimiters = { " - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "\\", "," };
             //City.initCities();

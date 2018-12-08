@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Model2;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,10 +18,11 @@ namespace Controllers
             indexer = Model2.Indexer.Instance(destination, stemming);
             parser.FromFilesToDocs(sourcePath, destination, sourcePath + "\\stopwords.txt", stemming);
             string totalTime = (DateTime.Now - start).TotalSeconds.ToString();
-            string[] values = { totalTime, Model2.Indexer.docsIndexer.Count().ToString(), indexer.termCount.ToString() };
+            string[] values = { totalTime, indexer.docsCount.ToString(), indexer.termCount.ToString() };
             Model2.Parse.DestructParse();
             return values;
         }
+
 
         public void LoadDictionary( string destination, bool stemming)
         {

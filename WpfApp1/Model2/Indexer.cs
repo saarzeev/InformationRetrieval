@@ -29,6 +29,7 @@ namespace Model2
         public HashSet<string> _cities = new HashSet<string>();
         private StringBuilder citiesIndex = new StringBuilder();
         public int termCount = 0;
+        public int docsCount = 0;
 
         /// <summary>
         /// Get the Indexer's instance
@@ -60,7 +61,7 @@ namespace Model2
         public Dictionary<string, string> getLaguages()
         {
            Dictionary<string, string> languages = new Dictionary<string, string>();
-           for (int i = 0; i < docsIndexer.Count; i++)
+           for (int i = 0; i < this.docsCount; i++)
             {
                 string language = docsIndexer.ElementAt(i).language;
                 if(language != "") {

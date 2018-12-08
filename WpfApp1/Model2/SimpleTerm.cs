@@ -53,7 +53,9 @@ namespace Model2
         {
             string isLower = _isLowerCase ? "1" : "0";
             System.Text.StringBuilder str = new System.Text.StringBuilder();
-            return str.AppendFormat("{0},{1},{2},{3},{4}",_term, Df,Tf ,_postingPath ,isLower).ToString();
+            string toString = str.AppendFormat("{0},{1},{2},{3},{4}", _term, Df, Tf, _postingPath, isLower).ToString();
+            str = null;
+            return toString;
         }
         public bool Equals(string term)
         {

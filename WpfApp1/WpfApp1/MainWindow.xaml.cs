@@ -89,8 +89,8 @@ namespace WpfApp1
             }
             else
             {
-                try
-                {
+                //try
+                //{
                     string[] values = mainController.init(path_from.Text, path_to.Text, (bool)is_stemming.IsChecked);
                     time = "TotalTime: " + values[0] + "seconds";
                     docNum = "Number of docs: " + values[1];
@@ -98,11 +98,11 @@ namespace WpfApp1
                     System.Windows.Forms.MessageBox.Show(time + "\n" + docNum + "\n" + termNum, "process ended!", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
                     laguagesD = mainController.getLaguages();
                     laguages.ItemsSource = laguagesD;
-                }
+                /*}
                 catch (Exception exception)
                 {
                     System.Windows.Forms.MessageBox.Show(exception.Message, "Error Occured",  MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                }*/
             }
         }
 

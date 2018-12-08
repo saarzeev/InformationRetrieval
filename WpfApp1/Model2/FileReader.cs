@@ -143,7 +143,7 @@ namespace Model2
                                 language = "";
                                 _docINdexInFile++;
                                 retValList.Add(retVal);
-                                doc = new StringBuilder();
+                                doc = new StringBuilder("");
                             }
                         }
                     }

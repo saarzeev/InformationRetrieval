@@ -15,6 +15,7 @@ namespace Model2
         private static int counter = 0;
         private Dictionary<string, List<Posting>> _termsDictionary = new Dictionary<string, List<Posting>>(); //terms, postings
         private Dictionary<string, List<CityPosting>> _citiesDictionary = new Dictionary<string, List<CityPosting>>(); //cities, postings
+        private Mutex mutex = new Mutex();
         private int id;
         public int capacity = 100000;
         private string _path = "";
@@ -66,7 +67,6 @@ namespace Model2
             if (_citiesDictionary.ContainsKey(city))
             {
                 _citiesDictionary[city].Add(posting);
-
             }
             else
             {
@@ -118,13 +118,13 @@ namespace Model2
                 if (lastChar != ' ' && !isSameFile(lastChar, currChar))
                 {
                     writePosting(postingString, lastChar, isFinalPostingFile);
-                    postingString = new StringBuilder("");
+                    postingString.Clear();
                 }
 
                 List<Posting> list = _termsDictionary[term];
                 _termsDictionary.Remove(term);
                 list.Sort((x1, x2) => x2.CompareTo(x1)); //Descending order, from highest to lowest tf
-                postingString.Append(term + "," + list.Count + ",");
+                postingString.AppendFormat("{0},{1},",term, list.Count);
                 //term,df,(relPath,docID,tf,is100,[gaps],isLower,)*
                 foreach (Posting posting in list)
                 {
@@ -138,9 +138,9 @@ namespace Model2
             {
                 writePosting(postingString, finalTerm.ElementAt(0), isFinalPostingFile);
             }
-            postingString = new StringBuilder("");
+            postingString.Clear();
             _termsDictionary = null;
-           // GC.Collect();
+            GC.Collect();
         }
 
 
@@ -221,7 +221,7 @@ namespace Model2
         {
             //term,relPath,docID,tf,is100,[gaps],isLower
             //term,df,(relPath,docID,tf,is100,[gaps],isLower,)*
-            for (char c = 'a'; c <= 'z'; c++)
+            for (char c = 'z'; c >= 'a'; c--)
             {
                 _termsDictionary = new Dictionary<string, List<Posting>>();
                 string[] allTempFilesOfLetter = Directory.GetFiles(_path, c + "*", SearchOption.AllDirectories);
@@ -229,8 +229,8 @@ namespace Model2
                 {
                     StringBuilder currFile = Unzip(File.ReadAllBytes(file));
                     string[] lines = currFile.ToString().Split('\n');
-                    currFile = null;
-                    foreach(string line in lines)
+                    currFile.Clear();
+                    foreach (string line in lines)
                     {
                         string[] brokenLine = line.Split(',');
                         string term = brokenLine[0];
@@ -245,36 +245,19 @@ namespace Model2
                                 {
                                     string ToUpper = term.ToUpper();
                                     bool isCity = _cities.Contains(ToUpper);
-                                    
+
                                     StringBuilder cityPostingStr = new StringBuilder();
                                     if (isCity)
-                                    {
-                                        //City city = new City(term)
-                                        Tuple<string, string, string> inf = null;
-                                        if (City.citiesInfo.ContainsKey(ToUpper))
-                                        {
-                                            inf = City.citiesInfo[ToUpper];
-                                        }
-
-                                        if (inf != null)
-                                        {
-                                            string[] population = { inf.Item2 };
-                                            cityPostingStr.Append(term + "," + inf.Item1 + "," + Parse.Instance().ParseNumbers(0,population,new HashSet<int>())[0] + "," + inf.Item3 + ",");
-                                        }
-                                        else
-                                        {
-                                            cityPostingStr.Append(term + ",,,,");
-                                        }
-                                        //_city + "," + _country + "," +_currency + "," + _population + ","
-                                        cityPostingStr.Append(brokenLine[i] + "," + //relPath
-                                                           brokenLine[i + 1] + ","); //docID
+                                    { 
+                                        cityPostingStr.AppendFormat("{0},{1},",brokenLine[i] , //relPath
+                                                           brokenLine[i + 1]); //docID
                                     }
 
                                     StringBuilder postingStr = new StringBuilder(term + ","); //term
-                                    postingStr.Append(brokenLine[i++] + "," + //relPath,
-                                                        brokenLine[i++] + "," + //docID,
-                                                        brokenLine[i++] + "," + //tf,
-                                                        brokenLine[i++] + "," //is100,
+                                    postingStr.AppendFormat("{0},{1},{2},{3},", brokenLine[i++] , //relPath,
+                                                        brokenLine[i++] , //docID,
+                                                        brokenLine[i++] , //tf,
+                                                        brokenLine[i++]  //is100,
                                                         );
 
                                     while (!brokenLine[i].Contains("]"))
@@ -289,14 +272,14 @@ namespace Model2
                                     if (isCity)
                                     {
                                         cityPostingStr.Append(brokenLine[i] + ",");
-                                        this.AddCity(ToUpper, new CityPosting(cityPostingStr));
-                                        cityPostingStr = null;
+                                        this.AddCity(ToUpper, new CityPosting(cityPostingStr/*, city*/));
+                                        cityPostingStr.Clear();
                                     }
                                     postingStr.Append(brokenLine[i++] + ","); //gap],
                                     postingStr.Append(brokenLine[i]); //isLower
 
                                     this.Add(term, new Posting(postingStr), limitCapacity: false);
-                                    postingStr = null;
+                                    postingStr.Clear();
                                     
                                 }
                             }
@@ -321,35 +304,42 @@ namespace Model2
             foreach (string city in orderedKeys)
             {
                 List<CityPosting> list = _citiesDictionary[city];
-                list.Sort((x1, x2) => x2.CompareTo(x1)); //Descending order, from highest to lowest tf
                 postingString.Append(city + ",");
+                City currCity = null;
+                mutex.WaitOne();
+                if (!City.citiesInfo.ContainsKey(city))
+                {
+                   new City(city);
+                }
+
+                if (City.citiesInfo.ContainsKey(city))
+                {
+                    currCity = City.citiesInfo[city];
+                }
+                mutex.ReleaseMutex();
                 //_city,_country,_currency,population,(relPath,docID,[gaps],)*
                 bool isFirst = true;
                 foreach (CityPosting posting in list)
                 {
-                    City tmp;
                     if (isFirst)
                     {
                         isFirst = false;
+                        postingString.AppendFormat("{0},{1},{2}", currCity.GetCountry, currCity.GetCurrency, currCity.GetPop);
+                    }
+                    postingString.AppendFormat (",{0},{1},{2}{3}{4}", posting.docRelativePath ,posting.docID ,"[",posting.gaps.ToString(),"]");
 
-                        postingString.Append(posting.ToStringBuilder().ToString());
-                    }
-                    else
-                    {
-                        postingString.AppendFormat (",{0},{1},{2}{3}{4}", posting.docRelativePath ,posting.docID ,"[",posting.gaps.ToString(),"]");
-                    }
                     
                 }
                 postingString.Append('\n');
                 _citiesDictionary.Remove(city);
+                list.Clear();
             }
-
+            _citiesDictionary.Clear();
             orderedKeys = null;
             string cityIndexPath = _mergePath + "\\" + "CityIndex.gz";
             Zip(postingString, cityIndexPath);
-            postingString = new StringBuilder("");
-            _citiesDictionary = null;
-            //GC.Collect();
+            postingString.Clear();
+            GC.Collect();
         }
     }
 }
