@@ -4,14 +4,14 @@ namespace Model2
 {
     public class Doc
     {
-        public string _path { get; }
-        public StringBuilder _text;
-        public string _indexInFile;
-        public int max_tf;
-        public string city;
-        public int uniqWords;
-        public int length;
-        public string countery;
+        public string _path { get; set; }
+        public StringBuilder _text { get; set; }
+        public string _indexInFile { get; set; }
+        public int max_tf { get; set; }
+        public string city { get; set; }
+        public int uniqWords { get; set; }
+        public int length { get; set; }
+        public string countery { get; set; }
         public string language { get; set; }
 
         public Doc(string path, StringBuilder text, string index, string city, string countery, string language)

@@ -1,7 +1,10 @@
-﻿using SearchEngine;
+﻿using Newtonsoft.Json;
+using SearchEngine;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -169,7 +172,7 @@ namespace Model2
             tasker8.Wait();
             indexer.docsCount = Indexer.docsIndexer.Count();
             tasker6.Wait();
-            
+
         }
 
         private void InitHeapVariables()

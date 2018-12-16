@@ -1,4 +1,5 @@
 ﻿
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,15 +11,27 @@ namespace Model2
     /// </summary>
     public class Posting : IComparable
     {
-        public string term;
-        public int tf;
-        public string docRelativePath;
-        public string docID;
-        public bool is100;
-        public bool isLower;
-        public StringBuilder gaps;
+        [JsonIgnore]
+        public string term { get;  }
+        public int tf { get; set; }
+        public string path { get; set; }
+        public string dId { get; set; }
+        public bool is100 { get; set; }
+        public bool lower { get; set; }
+        public HashSet<int> gaps { get; set; }
 
-       
+        [JsonConstructor]
+        public Posting(string term, int tf, string docRelativePath, string docID, bool is100, bool isLower, HashSet<int> gaps)
+        {
+            this.term = term;
+            this.tf = tf;
+            this.path = docRelativePath;
+            this.dId = docID;
+            this.is100 = is100;
+            this.lower = isLower;
+            this.gaps = gaps;
+        }
+
         /// <summary>
         /// Posting c'tor
         /// </summary>
@@ -29,11 +42,11 @@ namespace Model2
         {
             this.term = term.GetTerm;
             this.tf = term.Tf;
-            this.docRelativePath = docPath;
-            this.docID = docID;
+            this.path = docPath;
+            this.dId = docID;
             this.is100 = term.IsIn100;
-            this.isLower = term.IsLowerCase;
-            this.gaps = getGaps(term.Positons);
+            this.lower = term.IsLowerCase;
+            this.gaps = term.Positons;//getGaps(term.Positons);
         }
         /// <summary>
         /// Given a string representation, constructs a Posting object
@@ -45,12 +58,13 @@ namespace Model2
         {
             string[] strArr = stringRep.Split(',');
             this.term = strArr[0];
-            this.docRelativePath = strArr[1];
-            if (!int.TryParse(strArr[3], out this.tf))
+            this.path = strArr[1];
+            if (!int.TryParse(strArr[3], out int tmp))
             {
                 throw new System.ArgumentException("Parameter parsing failed.", "stringRep");
             }
-            this.docID = strArr[2];
+            this.tf = tmp;
+            this.dId = strArr[2];
             this.is100 = (strArr[4] == "1");
 
             StringBuilder strGaps = new StringBuilder(strArr[5].Remove(0, 1));
@@ -77,12 +91,14 @@ namespace Model2
            
             i++;
 
-            this.gaps = strGaps;
+          //  this.gaps = strGaps;
 
-            this.isLower = (strArr[i] == "1");
+            this.lower = (strArr[i] == "1");
 
 
         }
+
+      
         /// <summary>
         /// Given a StringBuilder representation, constructs a Posting object
         /// Format is:
@@ -99,16 +115,16 @@ namespace Model2
         /// <returns></returns>
         public StringBuilder GetPostingString()
         {
-            StringBuilder posting = new StringBuilder(this.term + ",");
-            posting.Append(this.docRelativePath + ",");
-            posting.Append(this.docID + ",");
+            StringBuilder posting = new StringBuilder(/*this.term + ","*/);
+            posting.Append(this.path + ",");
+            posting.Append(this.dId + ",");
             posting.Append(this.tf + ",");
             string is100 = this.is100 ? "1" : "0";
             posting.Append(is100 + ",");
             posting.Append("[");
             posting.Append(this.gaps);
             posting.Append("],");
-            string isLower = this.isLower ? "1" : "0";
+            string isLower = this.lower ? "1" : "0";
             posting.Append(isLower);
             return posting;
         }

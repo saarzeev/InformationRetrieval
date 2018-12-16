@@ -107,5 +107,13 @@
       <Name>Model2</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Json.Net">
+      <Version>1.0.10</Version>
+    </PackageReference>
+    <PackageReference Include="NetJSON">
+      <Version>1.2.9</Version>
+    </PackageReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

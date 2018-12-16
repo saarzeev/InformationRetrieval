@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -11,19 +12,25 @@ namespace Model2
         public string currency;
         public string population;*/
         //public City city;
-        public string docRelativePath;
-        public string docID;
-        public StringBuilder gaps;
-        
+        public string path { get; set; }
+        public string docID { get; set; }
+        public HashSet<int> gaps { get; set; }
+        //public StringBuilder gaps;
 
-        //_city + "," + _country + "," +_currency + "," + _population + "," + relPath+ "," + docID + "," + [gaps]
+        [JsonConstructor]
+        public CityPosting(string docRelativePath, string docID, HashSet<int> gaps)
+        {
+            this.path = docRelativePath;
+            this.docID = docID;
+            this.gaps = gaps;
+        }
 
         public CityPosting(string stringRep/*, City city*/) //stringRep =relPath + docID + [gaps]
         {
             //city = city;
             string[] strArr = stringRep.Split(',');
 
-            this.docRelativePath = strArr[0];
+            this.path = strArr[0];
             //double docId = Parse.QuickDoubleParse(strArr[4]);
             //if (!int.TryParse(strArr[2], out this.docID) || !int.TryParse(strArr[3], out this.tf))
             //if (docId == Double.NaN)
@@ -56,7 +63,7 @@ namespace Model2
 
             i++;
 
-            this.gaps = strGaps;
+           // this.gaps = strGaps;
         }
 
         public CityPosting(StringBuilder str/*, City city*/):this(str.ToString()/*, city*/)
@@ -74,9 +81,9 @@ namespace Model2
             {
                 this.city = new City(term.GetTerm.ToUpper());
             }*/
-            this.docRelativePath = docPath;
+            this.path = docPath;
             this.docID = docID;
-            this.gaps = getGaps(term.Positons);
+            this.gaps = term.Positons; /*getGaps(term.Positons);*/
         }
 
         private StringBuilder getGaps(HashSet<int> positionsHash)
@@ -100,7 +107,7 @@ namespace Model2
             /*posting.Append(this.city.GetCountry + ",");
             posting.Append(this.city.GetCurrency + ",");
             posting.Append(this.city.GetPop + ",");*/
-            posting.Append(this.docRelativePath + ",");
+            posting.Append(this.path + ",");
             posting.Append(this.docID + ",");
             posting.Append("[");
             posting.Append(this.gaps);

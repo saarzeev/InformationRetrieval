@@ -5,7 +5,8 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
+using System.IO.Compression;
 
 namespace Model2
 {
@@ -115,12 +116,12 @@ namespace Model2
             {
                 if (fullDictionary.ContainsKey(key))
                 {
-                    string posting = fullDictionary[key].PostingPath;
-                    if (docDictionary[key].IsLowerCase && !fullDictionary[key].IsLowerCase)
+                    string posting = fullDictionary[key].path;
+                    if (docDictionary[key].IsLowerCase && !fullDictionary[key].lower)
                     {
-                        fullDictionary[key].IsLowerCase = true;
+                        fullDictionary[key].lower = true;
                     }
-                    fullDictionary[key].Df++;
+                    fullDictionary[key].df++;
                     fullDictionary[key].addTf(docDictionary[key].Tf);
                 }
                 else
@@ -155,15 +156,23 @@ namespace Model2
         public void WriteDictionary()
         {
             string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
-            StringBuilder dictionary = new StringBuilder();
-            foreach (SimpleTerm term in fullDictionary.Values)
+           // StringBuilder dictionary = new StringBuilder();
+            foreach (string term in fullDictionary.Keys/*SimpleTerm term in fullDictionary.Values*/)
             {
-                string fileName = term.GetTerm[0] < 'a' || term.GetTerm[0] > 'z' ? "otherFINAL.txt" : term.GetTerm[0] + "FINAL.txt";
-                term.PostingPath = path + "\\" + fileName;
-                dictionary.AppendLine(term.ToString());
+                string fileName = /*term._*/term[0] < 'a' || term/*._term*/[0] > 'z' ? "otherFINAL.txt" : term/*._term*/[0] + "FINAL.txt";
+                /*term.path*/ fullDictionary[term].path = path + "\\" + fileName;
+               // dictionary.AppendLine(term.ToString());
             }
             path += "\\dictionary.txt";
-            PostingsSet.Zip(dictionary, path, System.IO.Compression.CompressionLevel.Fastest);
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.Formatting = Formatting.Indented;
+            //byte[] dictToWrite = Encoding.ASCII.GetBytes(currDict);
+            // PostingsSet.Zip(dictToWrite/*dictionary*/, path, System.IO.Compression.CompressionLevel.Fastest);
+            using (StreamWriter sw = new StreamWriter(path))
+            using (JsonWriter writer = new JsonTextWriter(sw))
+            {
+                serializer.Serialize(writer, fullDictionary);
+            }
         }
     
         public void LoadDictionery()
@@ -172,17 +181,24 @@ namespace Model2
             path += "\\dictionary.txt";
             if (File.Exists(path))
             {
-                StringBuilder dictionary = PostingsSet.Unzip(File.ReadAllBytes(path));
-                char[] del = { '\r', '\n' };
-                string[] lineByLine = dictionary.ToString().Split(del);
-                for (int i = 0; i < lineByLine.Length; i++)
+                using (StreamReader file = File.OpenText(path))
                 {
-                    if (lineByLine[i].Length > 1)
-                    {
-                        SimpleTerm term = new SimpleTerm(lineByLine[i]);
-                        fullDictionary[term.GetTerm] = term;
-                    }
+                    JsonSerializer serializer = new JsonSerializer();
+                   fullDictionary = (ConcurrentDictionary<string,SimpleTerm>)serializer.Deserialize(file, typeof(ConcurrentDictionary<string, SimpleTerm>));
                 }
+                //string dict = Encoding.ASCII.GetString(PostingsSet.Unzip(File.ReadAllBytes(path)));
+                //fullDictionary = NetJSON.NetJSON.Deserialize<ConcurrentDictionary<string,SimpleTerm>>(dict);
+                //StringBuilder dictionary = PostingsSet.Unzip(File.ReadAllBytes(path));
+                //char[] del = { '\r', '\n' };
+                //string[] lineByLine = dictionary.ToString().Split(del);
+                //for (int i = 0; i < lineByLine.Length; i++)
+                //{
+                //    if (lineByLine[i].Length > 1)
+                //    {
+                //        SimpleTerm term = new SimpleTerm(lineByLine[i]);
+                //        fullDictionary[term.GetTerm] = term;
+                //    }
+                //}
             }
         }
 
@@ -191,12 +207,12 @@ namespace Model2
             SortedDictionary<string, Tuple<string, string>> dictionary = new SortedDictionary<string, Tuple<string,string>>();
             foreach(SimpleTerm term in fullDictionary.Values)
             {
-                if (term.IsLowerCase) {
-                    dictionary[term.GetTerm] = new Tuple<string, string>(term.Df.ToString(), term.Tf.ToString());
+                if (term.lower) {
+                    dictionary[term._term] = new Tuple<string, string>(term.df.ToString(), term.tf.ToString());
                 }
                 else
                 {
-                    dictionary[term.GetTerm.ToUpper()] = new Tuple<string, string>(term.Df.ToString(), term.Tf.ToString());
+                    dictionary[term._term.ToUpper()] = new Tuple<string, string>(term.df.ToString(), term.tf.ToString());
                 }
             }
             string dictionaryPath = isStemming ? "\\Stemmingshow.txt" : "\\show.txt";
@@ -212,15 +228,27 @@ namespace Model2
 
         public void writeDocPosting()
         {
-            StringBuilder allDocPosting = new StringBuilder();
-            foreach(Doc doc in docsIndexer)
-            {
-                allDocPosting.AppendLine(doc.ToStringBuilder().ToString());
-            }
+            //StringBuilder allDocPosting = new StringBuilder();
+            //foreach(Doc doc in docsIndexer)
+            //{
+            //    allDocPosting.AppendLine(doc.ToStringBuilder().ToString());
+            //}
             string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
             path += "\\docIndexer.txt";
-            PostingsSet.Zip(allDocPosting, path);
-            allDocPosting = null;
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.NullValueHandling = NullValueHandling.Ignore;
+            serializer.Formatting = Formatting.Indented; 
+            using (StreamWriter sw = new StreamWriter(path))
+            using (JsonWriter writer = new JsonTextWriter(sw))
+            {
+                serializer.Serialize(writer, docsIndexer.ToArray());
+            }
+            //String currDict = NetJSON.NetJSON.Serialize(docsIndexer.ToArray());
+            //byte[] allDocPosting = Encoding.ASCII.GetBytes(currDict);
+
+            //PostingsSet.Zip(allDocPosting, path);
+            //currDict = null;
+            //allDocPosting = null;
         }
 
         /// <summary>
@@ -229,32 +257,32 @@ namespace Model2
         /// <param name="term"></param>
         /// <param name="isStemmed"></param>
         /// <returns></returns>
-        public StringBuilder GetTermPosting(string term)
-        {
-            string[] postingFile;
-            term = term.ToLower();
-            string firstLetter = "\\" + (term.ElementAt(0) >= 'a' && term.ElementAt(0) <= 'z' ? term.ElementAt(0).ToString() : "other");
-            string postingPath = _initialPathForPosting +  (isStemming ? postingWithStemmingDirectory + (firstLetter + "FINAL.gz") : postingDirectory + "FINAL.gz");
-            postingFile = GetFile(postingPath).ToString().Split('\n');
+        //public StringBuilder GetTermPosting(string term)
+        //{
+        //    string[] postingFile;
+        //    term = term.ToLower();
+        //    string firstLetter = "\\" + (term.ElementAt(0) >= 'a' && term.ElementAt(0) <= 'z' ? term.ElementAt(0).ToString() : "other");
+        //    string postingPath = _initialPathForPosting +  (isStemming ? postingWithStemmingDirectory + (firstLetter + "FINAL.gz") : postingDirectory + "FINAL.gz");
+        //    postingFile = GetFile(postingPath).ToString().Split('\n');
 
-            foreach (string posting in postingFile)
-            {
-                if (term == posting.Split(',')[0])
-                {
-                    return new StringBuilder(posting);
-                }
-            }
-            return null;
-        }
+        //    foreach (string posting in postingFile)
+        //    {
+        //        if (term == posting.Split(',')[0])
+        //        {
+        //            return new StringBuilder(posting);
+        //        }
+        //    }
+        //    return null;
+        //}
 
-        public StringBuilder GetFile(string path)
-        {
-            if (_cachedPath != path)
-            {
-                _cachedFile = PostingsSet.Unzip(File.ReadAllBytes(path));
-                _cachedPath = path;
-            }
-            return _cachedFile;
-        }
+        //public StringBuilder GetFile(string path)
+        //{
+        //    if (_cachedPath != path)
+        //    {
+        //        _cachedFile = PostingsSet.Unzip(File.ReadAllBytes(path));
+        //        _cachedPath = path;
+        //    }
+        //    return _cachedFile;
+        //}
     }
 }
