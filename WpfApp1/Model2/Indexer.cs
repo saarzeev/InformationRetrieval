@@ -16,6 +16,7 @@ namespace Model2
         static public ConcurrentQueue<Doc> docsIndexer = new ConcurrentQueue<Doc>();
         static public Mutex dictionaryMutex = new Mutex();
         private string _initialPathForPosting;
+        private string postingPathForSearch;
         private static Indexer indexer;
         public PostingsSet currenPostingSet;
         public List<PostingsSet> dead;
@@ -169,13 +170,13 @@ namespace Model2
         public void LoadDictionery()
         {
             string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
-            path += "\\dictionary.txt";
+            path += "\\dictionary.gz";
             if (File.Exists(path))
             {
                 StringBuilder dictionary = PostingsSet.Unzip(File.ReadAllBytes(path));
-                char[] del = { '\r', '\n' };
-                string[] lineByLine = dictionary.ToString().Split(del);
-                this._initialPathForPosting = lineByLine[0];
+                string[] del = {"\r\n"};
+                string[] lineByLine = dictionary.ToString().Split(del, StringSplitOptions.RemoveEmptyEntries);
+                this.postingPathForSearch = lineByLine[0];
                 for (int i = 1; i < lineByLine.Length; i++)
                 {
                     if (lineByLine[i].Length > 1)
