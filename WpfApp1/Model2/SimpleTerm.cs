@@ -6,15 +6,17 @@ namespace Model2
     {
         private string _term;
         private bool _isLowerCase;
-        private string _postingPath;
+        // private string _postingPath;\
+        private long position;
         private int _df;
         private int _tf;
 
-        public SimpleTerm(string term, string path, bool isLower, int tf = 0)
+        public SimpleTerm(string term, /*string path,*/ bool isLower, int tf = 0)
         {
             this._term = term;
             this._isLowerCase = isLower;
-            this._postingPath = path;
+           
+       //     this._postingPath = path;
             this.Df = 1;
             this.Tf = tf;
         }
@@ -27,7 +29,8 @@ namespace Model2
             Df = df;
             int.TryParse(splited[2], out int tf);
             Tf = tf;
-            _postingPath = splited[3];
+            long.TryParse(splited[3], out long Position);
+            //_postingPath = splited[3];
             _isLowerCase = splited[4] == "1" ? true : false;
         }
 
@@ -37,10 +40,11 @@ namespace Model2
         }
 
         public string GetTerm { get => _term; set => _term = value; }
-        public string PostingPath { get => _postingPath; set => _postingPath = value; }
+        //public string PostingPath { get => _postingPath; set => _postingPath = value; }
         public bool IsLowerCase { get => _isLowerCase; set => _isLowerCase = value; }
         public int Df { get => _df; set => _df = value; }
         public int Tf { get => _tf; set => _tf = value; }
+        public long Position { get => position; set => position = value; }
 
         override
         public int GetHashCode()
@@ -53,7 +57,7 @@ namespace Model2
         {
             string isLower = _isLowerCase ? "1" : "0";
             System.Text.StringBuilder str = new System.Text.StringBuilder();
-            string toString = str.AppendFormat("{0},{1},{2},{3},{4}", _term, Df, Tf, _postingPath, isLower).ToString();
+            string toString = str.AppendFormat("{0},{1},{2},{3},{4}", _term, Df, Tf,Position, /*_postingPath,*/ isLower).ToString();
             str = null;
             return toString;
         }

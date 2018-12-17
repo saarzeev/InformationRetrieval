@@ -115,7 +115,6 @@ namespace Model2
             {
                 if (fullDictionary.ContainsKey(key))
                 {
-                    string posting = fullDictionary[key].PostingPath;
                     if (docDictionary[key].IsLowerCase && !fullDictionary[key].IsLowerCase)
                     {
                         fullDictionary[key].IsLowerCase = true;
@@ -125,7 +124,7 @@ namespace Model2
                 }
                 else
                 {
-                    SimpleTerm newTerm = new SimpleTerm(key, "", docDictionary[key].IsLowerCase, docDictionary[key].Tf);
+                    SimpleTerm newTerm = new SimpleTerm(key/*, ""*/, docDictionary[key].IsLowerCase, docDictionary[key].Tf);
                     fullDictionary.TryAdd(key, newTerm);
                 }
                 docsPosting.Enqueue(new Posting(docPath[docPath.Length - 1], doc._indexInFile, docDictionary[key]));
@@ -156,13 +155,14 @@ namespace Model2
         {
             string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
             StringBuilder dictionary = new StringBuilder();
+            dictionary.AppendLine(path);
             foreach (SimpleTerm term in fullDictionary.Values)
             {
-                string fileName = term.GetTerm[0] < 'a' || term.GetTerm[0] > 'z' ? "otherFINAL.txt" : term.GetTerm[0] + "FINAL.txt";
-                term.PostingPath = path + "\\" + fileName;
+                //string fileName = term.GetTerm[0] < 'a' || term.GetTerm[0] > 'z' ? "otherFINAL.txt" : term.GetTerm[0] + "FINAL.txt";
+                //term.PostingPath = path + "\\" + fileName;
                 dictionary.AppendLine(term.ToString());
             }
-            path += "\\dictionary.txt";
+            path += "\\dictionary.gz";
             PostingsSet.Zip(dictionary, path, System.IO.Compression.CompressionLevel.Fastest);
         }
     
@@ -175,7 +175,8 @@ namespace Model2
                 StringBuilder dictionary = PostingsSet.Unzip(File.ReadAllBytes(path));
                 char[] del = { '\r', '\n' };
                 string[] lineByLine = dictionary.ToString().Split(del);
-                for (int i = 0; i < lineByLine.Length; i++)
+                this._initialPathForPosting = lineByLine[0];
+                for (int i = 1; i < lineByLine.Length; i++)
                 {
                     if (lineByLine[i].Length > 1)
                     {

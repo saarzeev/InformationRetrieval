@@ -160,16 +160,16 @@ namespace Model2
             indexer.dead = null;
             //merging
             Task tasker6 = Task.Run(() => { indexer.currenPostingSet.mergeFiles(_cities); });
-
-            Task tasker7 = Task.Run(() => { indexer.WriteDictionary(); });
             Task tasker8 = Task.Run(() => { indexer.writeDocPosting(); });
-            tasker7.Wait();
-            indexer.termCount = Indexer.fullDictionary.Count();
-            Indexer.fullDictionary.Clear();
+            
             tasker8.Wait();
             indexer.docsCount = Indexer.docsIndexer.Count();
             tasker6.Wait();
-            
+            Task tasker7 = Task.Run(() => { indexer.WriteDictionary(); });
+            tasker7.Wait();
+            indexer.termCount = Indexer.fullDictionary.Count();
+            Indexer.fullDictionary.Clear();
+
         }
 
         private void InitHeapVariables()

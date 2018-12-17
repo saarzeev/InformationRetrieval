@@ -143,7 +143,99 @@ namespace Model2
             GC.Collect();
         }
 
+        private void PerformDumpToDiskLineByLine ()
+        {
+            char lastChar = ' ';
+            char currChar = ' ';
+            StringBuilder postingString = new StringBuilder("");
+            string finalTerm = "";
+            List<string> orderedKeys = _termsDictionary.Keys.ToList();
+            orderedKeys.Sort((x, y) => string.Compare(x, y));
+            long pos = 0;
+            foreach (string term in orderedKeys)
+            {
+                Indexer.fullDictionary[term].Position = pos;
+                lastChar = currChar;
+                currChar = term.ElementAt(0);
+                if (lastChar != ' ' && !isSameFile(lastChar, currChar))
+                {
+                    pos = 0;
+                    Indexer.fullDictionary[term].Position = pos;
+                    string fileName = (lastChar >= 'a' && lastChar <= 'z') ? "" + lastChar : "other";
+                    string postPath = (_mergePath  + "\\" + fileName + "FINAL,txt");
+                    using (FileStream fs = new FileStream(postPath, FileMode.Append, FileAccess.Write))
+                    {
+                        using (StreamWriter sw = new StreamWriter(fs))
+                        {
+                            sw.Write(postingString);
+                        }
+                    }
+                    postingString.Clear();
+                }
 
+                List<Posting> list = _termsDictionary[term];
+                _termsDictionary.Remove(term);
+                list.Sort((x1, x2) => x2.CompareTo(x1)); //Descending order, from highest to lowest tf
+                postingString.AppendFormat("{0},{1},", term, list.Count);
+                //term,df,(relPath,docID,tf,is100,[gaps],isLower,)*
+                foreach (Posting posting in list)
+                {
+                    postingString.Append(posting.GetPostingString().Remove(0, term.Length + 1) + ",");
+                }
+                postingString.Append('\n');
+                pos = postingString.Length + 1;
+                finalTerm = term;
+                list = null;
+            }
+            if (finalTerm != "")
+            {
+                string fileName = (lastChar >= 'a' && lastChar <= 'z') ? "" + lastChar : "other";
+                string postPath = (_mergePath + "\\" + fileName + "FINAL.txt");
+                using (FileStream fs = new FileStream(postPath, FileMode.Append, FileAccess.Write))
+                {
+                    using (StreamWriter sw = new StreamWriter(fs))
+                    {
+                        sw.Write(postingString);
+                    }
+                }
+            }
+            postingString.Clear();
+            _termsDictionary = null;
+            GC.Collect();
+            //StringBuilder postingString = new StringBuilder("");
+            //List<string> orderedKeys = _termsDictionary.Keys.ToList();
+            //orderedKeys.Sort((x, y) => string.Compare(x, y));
+            //foreach (string term in orderedKeys)
+            //{
+            //    List<Posting> list = _termsDictionary[term];
+            //    _termsDictionary.Remove(term);
+            //    list.Sort((x1, x2) => x2.CompareTo(x1)); //Descending order, from highest to lowest tf
+            //    postingString.AppendFormat("{0},{1},", term, list.Count);
+            //    //term,df,(relPath,docID,tf,is100,[gaps],isLower,)*
+            //    foreach (Posting posting in list)
+            //    {
+            //        postingString.Append(posting.GetPostingString().Remove(0, term.Length + 1) + ",");
+            //    }
+            //    string path = (c != 'o' || term[0] == 'o') ? new StringBuilder().AppendFormat("{0}{1}{2}{3}", _mergePath, "\\", c, "Final.txt").ToString() :
+            //        new StringBuilder().AppendFormat("{0}{1}{2}", _mergePath, "\\", "otherFinal.txt").ToString();
+            //    using (FileStream fs = new FileStream(path, FileMode.Append, FileAccess.Write))
+            //    {
+            //        using (StreamWriter sw = new StreamWriter(fs))
+            //        {
+            //            Indexer.fullDictionary[term].Position = fs.Position;
+            //            //byte[] info = new UTF8Encoding(true).GetBytes(postingString.ToString());
+            //            //fs.Write(info, 0, info.Length);
+            //            sw.WriteLine(postingString);
+            //        }
+
+            //    }
+            //    list = null;
+            //    postingString.Clear();
+            //}
+            //_termsDictionary = null;
+            //GC.Collect();
+        }
+        
         /// <summary>
         /// Returns whether or not the current term should be in the same file with the previous one.
         /// </summary>
@@ -289,8 +381,8 @@ namespace Model2
                 }
 
                 //At this point,_termsDictionary holds the entire postings collection for letter c.
-                
-                DumpToDisk(false, true);
+
+                PerformDumpToDiskLineByLine();
             }
             WriteCitiesIndex();
         }
