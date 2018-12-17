@@ -27,6 +27,7 @@ namespace Model2
         private HashSet<string> bigNumbersHash;
         private HashSet<String> counters = new HashSet<string>();
         private string destinationPath;
+        public static List<Task> writingList = new List<Task>();
 
 
         string[] delimiters = {"=","_", "?" ," - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "," ,"---", "..", "...", " -- ", "\\n", "----", "$$" , "$$$" };
@@ -154,14 +155,14 @@ namespace Model2
             tasker4.Wait();
             Indexer indexer = Indexer.Instance(destinationPath, shouldStem);
             //final temp writing
-            Task tasker5 = Task.Run(() => { indexer.currenPostingSet.DumpToDisk(false); });
+            Task tasker5 = Task.Run(() => { indexer.currenPostingSet.DumpToDisk(); });
+            Task.WaitAll(writingList.ToArray());
             tasker5.Wait();
             indexer.dead.Clear();
             indexer.dead = null;
             //merging
             Task tasker6 = Task.Run(() => { indexer.currenPostingSet.mergeFiles(_cities); });
             Task tasker8 = Task.Run(() => { indexer.writeDocPosting(); });
-            
             tasker8.Wait();
             indexer.docsCount = Indexer.docsIndexer.Count();
             tasker6.Wait();

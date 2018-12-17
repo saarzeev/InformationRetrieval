@@ -87,22 +87,18 @@ namespace Model2
         /// term,df,(relPath,docID,tf,is100,[gaps],isLower,)*
         /// When done, collection is set to null .
         /// </summary>
-        public void DumpToDisk(bool shouldRunAsDifferentTask = true, bool isFinalPostingFile = false)
+        public void DumpToDisk()
         {
-            if (shouldRunAsDifferentTask)
-            {
-                Task writer = Task.Run(() =>
+            Task writer = new Task(() =>
                 {
                     PerformDumpToDisk();
                 });
-            }
-            else
-            {
-                PerformDumpToDisk(isFinalPostingFile);
-            }
+             
+            Parse.writingList.Add(writer);
+            writer.Start();
         }
 
-        private void PerformDumpToDisk(bool isFinalPostingFile = false)
+        private void PerformDumpToDisk()
         {
             char lastChar = ' ';
             char currChar = ' ';
@@ -117,7 +113,7 @@ namespace Model2
                 currChar = term.ElementAt(0);
                 if (lastChar != ' ' && !isSameFile(lastChar, currChar))
                 {
-                    writePosting(postingString, lastChar, isFinalPostingFile);
+                    writePosting(postingString, lastChar);
                     postingString.Clear();
                 }
 
@@ -136,7 +132,7 @@ namespace Model2
             }
             if (finalTerm != "")
             {
-                writePosting(postingString, finalTerm.ElementAt(0), isFinalPostingFile);
+                writePosting(postingString, finalTerm.ElementAt(0));
             }
             postingString.Clear();
             _termsDictionary = null;
@@ -162,7 +158,7 @@ namespace Model2
                     pos = 0;
                     Indexer.fullDictionary[term].Position = pos;
                     string fileName = (lastChar >= 'a' && lastChar <= 'z') ? "" + lastChar : "other";
-                    string postPath = (_mergePath  + "\\" + fileName + "FINAL,txt");
+                    string postPath = (_mergePath  + "\\" + fileName + "FINAL.txt");
                     using (FileStream fs = new FileStream(postPath, FileMode.Append, FileAccess.Write))
                     {
                         using (StreamWriter sw = new StreamWriter(fs))
@@ -202,38 +198,6 @@ namespace Model2
             postingString.Clear();
             _termsDictionary = null;
             GC.Collect();
-            //StringBuilder postingString = new StringBuilder("");
-            //List<string> orderedKeys = _termsDictionary.Keys.ToList();
-            //orderedKeys.Sort((x, y) => string.Compare(x, y));
-            //foreach (string term in orderedKeys)
-            //{
-            //    List<Posting> list = _termsDictionary[term];
-            //    _termsDictionary.Remove(term);
-            //    list.Sort((x1, x2) => x2.CompareTo(x1)); //Descending order, from highest to lowest tf
-            //    postingString.AppendFormat("{0},{1},", term, list.Count);
-            //    //term,df,(relPath,docID,tf,is100,[gaps],isLower,)*
-            //    foreach (Posting posting in list)
-            //    {
-            //        postingString.Append(posting.GetPostingString().Remove(0, term.Length + 1) + ",");
-            //    }
-            //    string path = (c != 'o' || term[0] == 'o') ? new StringBuilder().AppendFormat("{0}{1}{2}{3}", _mergePath, "\\", c, "Final.txt").ToString() :
-            //        new StringBuilder().AppendFormat("{0}{1}{2}", _mergePath, "\\", "otherFinal.txt").ToString();
-            //    using (FileStream fs = new FileStream(path, FileMode.Append, FileAccess.Write))
-            //    {
-            //        using (StreamWriter sw = new StreamWriter(fs))
-            //        {
-            //            Indexer.fullDictionary[term].Position = fs.Position;
-            //            //byte[] info = new UTF8Encoding(true).GetBytes(postingString.ToString());
-            //            //fs.Write(info, 0, info.Length);
-            //            sw.WriteLine(postingString);
-            //        }
-
-            //    }
-            //    list = null;
-            //    postingString.Clear();
-            //}
-            //_termsDictionary = null;
-            //GC.Collect();
         }
         
         /// <summary>
