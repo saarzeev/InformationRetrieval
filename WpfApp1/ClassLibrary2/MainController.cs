@@ -48,11 +48,11 @@ namespace Controllers
             parser = null;
         }
 
-        public Dictionary<string,string> getLaguages()
+        /*public Dictionary<string,string> getLaguages()
         {
             Dictionary < string,string> languages = indexer.getLaguages();
             Model2.Indexer.DestructIndexer();
             return languages;
-        }
+        }*/
     }
 }

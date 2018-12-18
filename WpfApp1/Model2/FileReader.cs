@@ -30,7 +30,6 @@ namespace Model2
             using (var streamReader = new StreamReader(stopWordPath))
             {
                 String line;
-                //TODO stopWords is in the corpus 
                 HashSet<string> stopWord = new HashSet<string>(); 
                 while (!streamReader.EndOfStream)
                 {
@@ -69,11 +68,11 @@ namespace Model2
                         while (!streamReader.EndOfStream && _currentFile != path + "\\stopwords.txt")
                         {
                             string docID = "";
-                            string countery = "";
+                            //string countery = "";
                             string city = "";
-                            string language = "";
+                            //string language = "";
                             bool notText = true;
-                            bool firstAfterText = false;
+                            //bool firstAfterText = false;
                             while ((line = streamReader.ReadLine()) != null && line != "</DOC>")
                             {
                                 if (notText)
@@ -89,7 +88,7 @@ namespace Model2
                                         }
                                     }
                                     //countery
-                                    else if (line.StartsWith("<F P=101>"))
+                                    /*else if (line.StartsWith("<F P=101>"))
                                     {
                                         string[] del = { "<F P=101>", "</F P=101>", "</F>", " " };
                                         string[] splited = line.Split(del, StringSplitOptions.RemoveEmptyEntries);
@@ -97,7 +96,7 @@ namespace Model2
                                         {
                                             countery = splited[0];
                                         }
-                                    }
+                                    }*/
                                     //city
                                     else if (line.StartsWith("<F P=104>"))
                                     {
@@ -109,12 +108,12 @@ namespace Model2
                                     {
                                         notText = false;
                                         doc.Append(line);
-                                        firstAfterText = true;
+                                        //firstAfterText = true;
                                     }
                                 }
                                 else
                                 {
-                                    if (firstAfterText)
+                                    /*if (firstAfterText)
                                     {
                                         if (line.StartsWith("Language"))
                                         {
@@ -126,7 +125,7 @@ namespace Model2
                                             }
                                         }
                                         firstAfterText = false;
-                                    }
+                                    }*/
                                     doc.AppendFormat("{0}{1}", line, "\\n");
                                 }
 
@@ -134,13 +133,13 @@ namespace Model2
 
                             if (line != null)
                             {
-                                retVal = new Doc(this._currentFile, doc, docID, city, countery, language);
+                                retVal = new Doc(this._currentFile, doc, docID, city/*, countery, language*/);
                                 notText = true;
-                                firstAfterText = false;
+                                //firstAfterText = false;
                                 docID = "";
-                                countery = "";
+                                //countery = "";
                                 city = "";
-                                language = "";
+                                //language = "";
                                 _docINdexInFile++;
                                 retValList.Add(retVal);
                                 doc = new StringBuilder("");

@@ -96,7 +96,7 @@ namespace WpfApp1
                     docNum = "Number of docs: " + values[1];
                     termNum = "Number of terms: " + values[2];
                     System.Windows.Forms.MessageBox.Show(time + "\n" + docNum + "\n" + termNum, "process ended!", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
-                    laguagesD = mainController.getLaguages();
+                    //laguagesD = mainController.getLaguages();
                     laguages.ItemsSource = laguagesD;
                 /*}
                 catch (Exception exception)

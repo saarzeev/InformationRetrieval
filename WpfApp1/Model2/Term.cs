@@ -26,7 +26,7 @@ namespace Model2
             this._isIn100 = firstPos <= 100 ? true : false;
             _positons = new HashSet<int>();
             _positons.Add(firstPos);
-            _isLowerCase = false;
+            _isLowerCase = true;
         }
 
         public bool IsIn100 { get => _isIn100; }

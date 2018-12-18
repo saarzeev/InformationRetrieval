@@ -59,7 +59,7 @@ namespace Model2
             indexer = null;
         }
 
-        public Dictionary<string, string> getLaguages()
+        /*public Dictionary<string, string> getLaguages()
         {
            Dictionary<string, string> languages = new Dictionary<string, string>();
            for (int i = 0; i < this.docsCount; i++)
@@ -70,7 +70,7 @@ namespace Model2
                 }
             }
             return languages;
-        }
+        }*/
 
         public void reset()
         {
@@ -122,11 +122,13 @@ namespace Model2
                     }
                     fullDictionary[key].Df++;
                     fullDictionary[key].addTf(docDictionary[key].Tf);
+                    doc.entities.Add(new KeyValuePair<int, SimpleTerm>(docDictionary[key].Tf, fullDictionary[key]));
                 }
                 else
                 {
                     SimpleTerm newTerm = new SimpleTerm(key/*, ""*/, docDictionary[key].IsLowerCase, docDictionary[key].Tf);
                     fullDictionary.TryAdd(key, newTerm);
+                    doc.entities.Add(new KeyValuePair<int, SimpleTerm>(docDictionary[key].Tf, newTerm));
                 }
                 docsPosting.Enqueue(new Posting(docPath[docPath.Length - 1], doc._indexInFile, docDictionary[key]));
             }
@@ -217,6 +219,7 @@ namespace Model2
             StringBuilder allDocPosting = new StringBuilder();
             foreach(Doc doc in docsIndexer)
             {
+                doc.UpdateEntities();
                 allDocPosting.AppendLine(doc.ToStringBuilder().ToString());
             }
             string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
