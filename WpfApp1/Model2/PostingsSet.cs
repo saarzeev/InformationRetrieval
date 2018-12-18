@@ -87,15 +87,23 @@ namespace Model2
         /// term,df,(relPath,docID,tf,is100,[gaps],isLower,)*
         /// When done, collection is set to null .
         /// </summary>
-        public void DumpToDisk()
+        public void DumpToDisk(bool final = false)
         {
-            Task writer = new Task(() =>
-                {
-                    PerformDumpToDisk();
-                });
-             
-            Parse.writingList.Add(writer);
-            writer.Start();
+            if (final)
+            {
+                PerformDumpToDisk();
+
+            }
+            else
+            {
+                Task writer = new Task(() =>
+                    {
+                        PerformDumpToDisk();
+                    });
+
+                Parse.writingList.Add(writer);
+                writer.Start();
+            }
         }
 
         private void PerformDumpToDisk()
@@ -141,6 +149,7 @@ namespace Model2
 
         private void PerformDumpToDiskLineByLine ()
         {
+           
             char lastChar = ' ';
             char currChar = ' ';
             StringBuilder postingString = new StringBuilder("");
@@ -229,7 +238,7 @@ namespace Model2
         /// <param name="compressionLevel"></param>
         public static void Zip(StringBuilder str, string path, CompressionLevel compressionLevel = CompressionLevel.Fastest)
         {
-            byte[] raw = Encoding.ASCII.GetBytes(str.ToString());
+            byte[] raw = Encoding.UTF8.GetBytes(str.ToString());
             using (MemoryStream memory = new MemoryStream())
             {
                 using (GZipStream gzip = new GZipStream(memory,
@@ -265,7 +274,7 @@ namespace Model2
                         }
                     }
                     while (count > 0);
-                    return new StringBuilder(Encoding.ASCII.GetString(memory.ToArray()));
+                    return new StringBuilder(Encoding.UTF8.GetString(memory.ToArray()));
                 }
             }
         }

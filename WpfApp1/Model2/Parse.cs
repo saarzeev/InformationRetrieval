@@ -155,8 +155,8 @@ namespace Model2
             tasker4.Wait();
             Indexer indexer = Indexer.Instance(destinationPath, shouldStem);
             //final temp writing
-            Task tasker5 = Task.Run(() => { indexer.currenPostingSet.DumpToDisk(); });
             Task.WaitAll(writingList.ToArray());
+            Task tasker5 = Task.Run(() => { indexer.currenPostingSet.DumpToDisk(true); });
             tasker5.Wait();
             indexer.dead.Clear();
             indexer.dead = null;

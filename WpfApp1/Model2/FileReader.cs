@@ -61,10 +61,7 @@ namespace Model2
                 {
                     using (var streamReader = new StreamReader(_currentFile))
                     {
-
                         String line;
-
-
                         while (!streamReader.EndOfStream && _currentFile != path + "\\stopwords.txt")
                         {
                             string docID = "";
