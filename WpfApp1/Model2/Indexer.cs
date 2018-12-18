@@ -176,7 +176,7 @@ namespace Model2
             if (File.Exists(path))
             {
                 //StringBuilder dictionary = PostingsSet.Unzip(File.ReadAllBytes(path));
-                string dictionary = (File.ReadAllText(path, Encoding.UTF8));
+                string dictionary = (File.ReadAllText(path, Encoding.ASCII));
                 string[] del = {"\r\n"};
                 string[] lineByLine = dictionary/*.ToString()*/.Split(del, StringSplitOptions.RemoveEmptyEntries);
                 this.postingPathForSearch = lineByLine[0];

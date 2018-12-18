@@ -59,7 +59,7 @@ namespace Model2
             {
                 using (var fileStream = File.OpenRead(_currentFile))
                 {
-                    using (var streamReader = new StreamReader(_currentFile))
+                    using (var streamReader = new StreamReader(_currentFile,Encoding.ASCII))
                     {
                         String line;
                         while (!streamReader.EndOfStream && _currentFile != path + "\\stopwords.txt")

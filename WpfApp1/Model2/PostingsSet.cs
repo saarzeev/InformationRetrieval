@@ -243,7 +243,7 @@ namespace Model2
             //string k = str.ToString();
             using (FileStream fs = new FileStream(path, FileMode.Append, FileAccess.Write))
             {
-                using (StreamWriter sw = new StreamWriter(fs, Encoding.UTF8))
+                using (StreamWriter sw = new StreamWriter(fs, Encoding.ASCII))
                 {
                     sw.Write(str);
                 }
@@ -304,7 +304,7 @@ namespace Model2
                 foreach (string file in allTempFilesOfLetter)
                 {
                     //StringBuilder currFile = Unzip(File.ReadAllBytes(file));
-                    string currFile = File.ReadAllText(file, Encoding.UTF8);
+                    string currFile = File.ReadAllText(file, Encoding.ASCII);
                     string[] lines = currFile./*ToString().*/Split('\n');
                     //currFile.Clear();
                     foreach (string line in lines)
