@@ -109,7 +109,7 @@ namespace Model2
 
         public Queue<Posting> setDocVocabularytoFullVocabulary(Doc doc, SortedDictionary<string, Term> docDictionary)
         {
-            string[] docPath = doc._path.Split('\\');
+           // string[] docPath = doc._path.Split('\\');
             Queue<Posting> docsPosting = new Queue<Posting>();
             docsIndexer.Enqueue(doc);
             foreach (string key in docDictionary.Keys)
@@ -130,7 +130,7 @@ namespace Model2
                     fullDictionary.TryAdd(key, newTerm);
                     doc.entities.Add(new KeyValuePair<int, SimpleTerm>(docDictionary[key].Tf, newTerm));
                 }
-                docsPosting.Enqueue(new Posting(docPath[docPath.Length - 1], doc._indexInFile, docDictionary[key]));
+                docsPosting.Enqueue(new Posting(/*docPath[docPath.Length - 1],*/ doc._indexInFile, docDictionary[key]));
             }
             return docsPosting;
         }

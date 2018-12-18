@@ -12,8 +12,6 @@ namespace Model2
     {
         public string term;
         public int tf;
-        //TODO DIE
-        public string docRelativePath;
         public string docID;
         public bool is100;
         public bool isLower;
@@ -27,11 +25,10 @@ namespace Model2
         /// <param name="docPath"></param>
         /// <param name="docID"></param>
         /// <param name="term"></param>
-        public Posting(string docPath, string docID, Term term)
+        public Posting(/*string docPath,*/ string docID, Term term)
         {
             this.term = term.GetTerm;
             this.tf = term.Tf;
-            this.docRelativePath = docPath;
             this.docID = docID;
             this.is100 = term.IsIn100;
             this.isLower = term.IsLowerCase;
@@ -47,19 +44,18 @@ namespace Model2
         {
             string[] strArr = stringRep.Split(',');
             this.term = strArr[0];
-            this.docRelativePath = strArr[1];
-            if (!int.TryParse(strArr[3], out this.tf))
+            if (!int.TryParse(strArr[2], out this.tf))
             {
                 throw new System.ArgumentException("Parameter parsing failed.", "stringRep");
             }
-            this.docID = strArr[2];
-            this.is100 = (strArr[4] == "1");
+            this.docID = strArr[1];
+            this.is100 = (strArr[3] == "1");
 
-            StringBuilder strGaps = new StringBuilder(strArr[5].Remove(0, 1));
-            int i = 5;
+            StringBuilder strGaps = new StringBuilder(strArr[4].Remove(0, 1));
+            int i = 4;
             while (!strArr[i].Contains("]"))
             {
-                if(i == 5)
+                if(i == 4)
                 {
                     i++;
                     continue;
@@ -67,7 +63,7 @@ namespace Model2
                 strGaps.Append("," + strArr[i]);
                 i++;
             }
-            if (i == 5)
+            if (i == 4)
             {
                 char[] trim = new char[] { '[', ']' };
                 strGaps = new StringBuilder(strArr[i].Trim(trim));
@@ -102,7 +98,6 @@ namespace Model2
         public StringBuilder GetPostingString()
         {
             StringBuilder posting = new StringBuilder(this.term + ",");
-            posting.Append(this.docRelativePath + ",");
             posting.Append(this.docID + ",");
             posting.Append(this.tf + ",");
             string is100 = this.is100 ? "1" : "0";

@@ -314,12 +314,11 @@ namespace Model2
                                     StringBuilder cityPostingStr = new StringBuilder();
                                     if (isCity)
                                     { 
-                                        //TODO after posting update just i
-                                        cityPostingStr.AppendFormat("{0},",brokenLine[i + 1]); //docID
+                                        cityPostingStr.AppendFormat("{0},",brokenLine[i]); //docID
                                     }
 
                                     StringBuilder postingStr = new StringBuilder(term + ","); //term
-                                    postingStr.AppendFormat("{0},{1},{2},{3},", brokenLine[i++] , //relPath,
+                                    postingStr.AppendFormat("{0},{1},{2},", 
                                                         brokenLine[i++] , //docID,
                                                         brokenLine[i++] , //tf,
                                                         brokenLine[i++]  //is100,
@@ -342,7 +341,6 @@ namespace Model2
                                     }
                                     postingStr.Append(brokenLine[i++] + ","); //gap],
                                     postingStr.Append(brokenLine[i]); //isLower
-
                                     this.Add(term, new Posting(postingStr), limitCapacity: false);
                                     postingStr.Clear();
                                     
