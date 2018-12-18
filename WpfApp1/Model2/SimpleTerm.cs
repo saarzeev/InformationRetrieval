@@ -57,7 +57,7 @@ namespace Model2
         {
             string isLower = _isLowerCase ? "1" : "0";
             System.Text.StringBuilder str = new System.Text.StringBuilder();
-            string toString = str.AppendFormat("{0},{1},{2},{3},{4}", _term, Df, Tf,Position, /*_postingPath,*/ isLower).ToString();
+            string toString = str.AppendFormat("{0},{1},{2},{3},{4}", _term, Df, Tf,Position, isLower).ToString();
             str = null;
             return toString;
         }

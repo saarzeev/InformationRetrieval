@@ -92,10 +92,10 @@ namespace Model2
             if (final)
             {
                 PerformDumpToDisk();
-
             }
             else
             {
+               
                 Task writer = new Task(() =>
                     {
                         PerformDumpToDisk();
@@ -116,7 +116,10 @@ namespace Model2
             orderedKeys.Sort((x, y) => string.Compare(x, y));
             foreach (string term in orderedKeys)
             {
-
+                if(term == "chikvaizde")
+                {
+                    int i = 6;
+                }
                 lastChar = currChar;
                 currChar = term.ElementAt(0);
                 if (lastChar != ' ' && !isSameFile(lastChar, currChar))
@@ -149,7 +152,6 @@ namespace Model2
 
         private void PerformDumpToDiskLineByLine ()
         {
-           
             char lastChar = ' ';
             char currChar = ' ';
             StringBuilder postingString = new StringBuilder("");
@@ -238,16 +240,24 @@ namespace Model2
         /// <param name="compressionLevel"></param>
         public static void Zip(StringBuilder str, string path, CompressionLevel compressionLevel = CompressionLevel.Fastest)
         {
-            byte[] raw = Encoding.UTF8.GetBytes(str.ToString());
-            using (MemoryStream memory = new MemoryStream())
+            //string k = str.ToString();
+            using (FileStream fs = new FileStream(path, FileMode.Append, FileAccess.Write))
             {
-                using (GZipStream gzip = new GZipStream(memory,
-                    compressionLevel))
+                using (StreamWriter sw = new StreamWriter(fs, Encoding.UTF8))
                 {
-                    gzip.Write(raw, 0, raw.Length);
+                    sw.Write(str);
                 }
-                File.WriteAllBytes(path, memory.ToArray());
             }
+            //byte[] raw = Encoding.UTF8.GetBytes(k);
+            //using (MemoryStream memory = new MemoryStream())
+            //{
+            //    using (GZipStream gzip = new GZipStream(memory,
+            //        compressionLevel))
+            //    {
+            //        gzip.Write(raw, 0, raw.Length);
+            //    }
+            //    File.WriteAllBytes(path, memory.ToArray());
+            //}
         }
 
         /// <summary>
@@ -255,28 +265,29 @@ namespace Model2
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
-        public static StringBuilder Unzip(byte[] bytes)
+        public static StringBuilder Unzip(/*byte[]*/ StringBuilder bytes)
         {
-            using (GZipStream stream = new GZipStream(new MemoryStream(bytes),
-             CompressionMode.Decompress))
-            {
-                const int size = 4096;
-                byte[] buffer = new byte[size];
-                using (MemoryStream memory = new MemoryStream())
-                {
-                    int count = 0;
-                    do
-                    {
-                        count = stream.Read(buffer, 0, size);
-                        if (count > 0)
-                        {
-                            memory.Write(buffer, 0, count);
-                        }
-                    }
-                    while (count > 0);
-                    return new StringBuilder(Encoding.UTF8.GetString(memory.ToArray()));
-                }
-            }
+            return null;
+            //using (GZipStream stream = new GZipStream(new MemoryStream(bytes),
+            // CompressionMode.Decompress))
+            //{
+            //    const int size = 4096;
+            //    byte[] buffer = new byte[size];
+            //    using (MemoryStream memory = new MemoryStream())
+            //    {
+            //        int count = 0;
+            //        do
+            //        {
+            //            count = stream.Read(buffer, 0, size);
+            //            if (count > 0)
+            //            {
+            //                memory.Write(buffer, 0, count);
+            //            }
+            //        }
+            //        while (count > 0);
+            //        return new StringBuilder(Encoding.UTF8.GetString(memory.ToArray()));
+            //    }
+            //}
         }
         /// <summary>
         /// Merges all temporary posting files into final posting files.
@@ -292,9 +303,10 @@ namespace Model2
                 string[] allTempFilesOfLetter = Directory.GetFiles(_path, c + "*", SearchOption.AllDirectories);
                 foreach (string file in allTempFilesOfLetter)
                 {
-                    StringBuilder currFile = Unzip(File.ReadAllBytes(file));
-                    string[] lines = currFile.ToString().Split('\n');
-                    currFile.Clear();
+                    //StringBuilder currFile = Unzip(File.ReadAllBytes(file));
+                    string currFile = File.ReadAllText(file, Encoding.UTF8);
+                    string[] lines = currFile./*ToString().*/Split('\n');
+                    //currFile.Clear();
                     foreach (string line in lines)
                     {
                         string[] brokenLine = line.Split(',');

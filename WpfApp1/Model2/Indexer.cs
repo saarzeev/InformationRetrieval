@@ -175,9 +175,10 @@ namespace Model2
             path += "\\dictionary.gz";
             if (File.Exists(path))
             {
-                StringBuilder dictionary = PostingsSet.Unzip(File.ReadAllBytes(path));
+                //StringBuilder dictionary = PostingsSet.Unzip(File.ReadAllBytes(path));
+                string dictionary = (File.ReadAllText(path, Encoding.UTF8));
                 string[] del = {"\r\n"};
-                string[] lineByLine = dictionary.ToString().Split(del, StringSplitOptions.RemoveEmptyEntries);
+                string[] lineByLine = dictionary/*.ToString()*/.Split(del, StringSplitOptions.RemoveEmptyEntries);
                 this.postingPathForSearch = lineByLine[0];
                 for (int i = 1; i < lineByLine.Length; i++)
                 {
@@ -254,12 +255,13 @@ namespace Model2
 
         public StringBuilder GetFile(string path)
         {
-            if (_cachedPath != path)
-            {
-                _cachedFile = PostingsSet.Unzip(File.ReadAllBytes(path));
-                _cachedPath = path;
-            }
-            return _cachedFile;
+            //if (_cachedPath != path)
+            //{
+            //    _cachedFile = PostingsSet.Unzip(File.ReadAllBytes(path));
+            //    _cachedPath = path;
+            //}
+            //return _cachedFile;
+            return null;
         }
     }
 }

@@ -155,23 +155,25 @@ namespace Model2
             tasker4.Wait();
             Indexer indexer = Indexer.Instance(destinationPath, shouldStem);
             //final temp writing
+           
+           
             Task.WaitAll(writingList.ToArray());
             Task tasker5 = Task.Run(() => { indexer.currenPostingSet.DumpToDisk(true); });
             tasker5.Wait();
-            indexer.dead.Clear();
-            indexer.dead = null;
+            // indexer.dead.Clear();
+            // indexer.dead = null;
             //merging
+
             Task tasker6 = Task.Run(() => { indexer.currenPostingSet.mergeFiles(_cities); });
             Task tasker8 = Task.Run(() => { indexer.writeDocPosting(); });
             tasker8.Wait();
             indexer.docsCount = Indexer.docsIndexer.Count();
             tasker6.Wait();
             Indexer.docsIndexer = null;
-           Task tasker7 = Task.Run(() => { indexer.WriteDictionary(); });
+            Task tasker7 = Task.Run(() => { indexer.WriteDictionary(); });
             tasker7.Wait();
             indexer.termCount = Indexer.fullDictionary.Count();
             Indexer.fullDictionary.Clear();
-
         }
 
         private void InitHeapVariables()
