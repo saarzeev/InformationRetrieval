@@ -185,7 +185,7 @@ namespace Model2
                 //term,df,(relPath,docID,tf,is100,[gaps],isLower,)*
                 foreach (Posting posting in list)
                 {
-                    postingString.Append(posting.GetPostingString().Remove(0, term.Length + 1) + ",");
+                    postingString.Append(posting.GetPostingStringFinal().Remove(0, term.Length + 1) + ",");
                 }
                 postingString.Append('\n');
                 pos = postingString.Length + 1;
@@ -330,16 +330,16 @@ namespace Model2
                                         {
                                             cityPostingStr.Append(brokenLine[i] + ",");
                                         }
-                                        postingStr.Append(brokenLine[i++] + ",");
+                                        i++;
                                     }
 
                                     if (isCity)
                                     {
-                                        cityPostingStr.Append(brokenLine[i] + ",");
+                                        cityPostingStr.Append(brokenLine[i] + ",");//gap],
                                         this.AddCity(ToUpper, new CityPosting(cityPostingStr));
                                         cityPostingStr.Clear();
                                     }
-                                    postingStr.Append(brokenLine[i++] + ","); //gap],
+                                    i++;
                                     postingStr.Append(brokenLine[i]); //isLower
                                     this.Add(term, new Posting(postingStr), limitCapacity: false);
                                     postingStr.Clear();

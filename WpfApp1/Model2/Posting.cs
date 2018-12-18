@@ -15,7 +15,6 @@ namespace Model2
         public string docID;
         public bool is100;
         public bool isLower;
-        //TODO DIE
         public StringBuilder gaps;
 
        
@@ -50,35 +49,40 @@ namespace Model2
             }
             this.docID = strArr[1];
             this.is100 = (strArr[3] == "1");
-
-            StringBuilder strGaps = new StringBuilder(strArr[4].Remove(0, 1));
-            int i = 4;
-            while (!strArr[i].Contains("]"))
+            if (strArr[4][0] == '[')
             {
-                if(i == 4)
+                StringBuilder strGaps = new StringBuilder(strArr[4].Remove(0, 1));
+                int i = 4;
+                while (!strArr[i].Contains("]"))
                 {
+                    if (i == 4)
+                    {
+                        i++;
+                        continue;
+                    }
+                    strGaps.Append("," + strArr[i]);
                     i++;
-                    continue;
                 }
-                strGaps.Append("," + strArr[i]);
+                if (i == 4)
+                {
+                    char[] trim = new char[] { '[', ']' };
+                    strGaps = new StringBuilder(strArr[i].Trim(trim));
+                }
+                else
+                {
+                    strGaps.Append("," + strArr[i].Remove(strArr[i].IndexOf(']')));
+                }
+
                 i++;
-            }
-            if (i == 4)
-            {
-                char[] trim = new char[] { '[', ']' };
-                strGaps = new StringBuilder(strArr[i].Trim(trim));
+
+                this.gaps = strGaps;
+
+                this.isLower = (strArr[i] == "1");
             }
             else
             {
-                strGaps.Append("," + strArr[i].Remove(strArr[i].IndexOf(']')));
+                this.isLower = (strArr[4] == "1");
             }
-           
-            i++;
-
-            this.gaps = strGaps;
-
-            this.isLower = (strArr[i] == "1");
-
 
         }
         /// <summary>
@@ -109,8 +113,18 @@ namespace Model2
             posting.Append(isLower);
             return posting;
         }
+        public StringBuilder GetPostingStringFinal()
+        {
+            StringBuilder posting = new StringBuilder(this.term + ",");
+            posting.Append(this.docID + ",");
+            posting.Append(this.tf + ",");
+            string is100 = this.is100 ? "1" : "0";
+            posting.Append(is100 + ",");
+            string isLower = this.isLower ? "1" : "0";
+            posting.Append(isLower);
+            return posting;
+        }
 
-   
         public StringBuilder getGaps(HashSet<int> positionsHash)
         {
             int[] positions = new int[positionsHash.Count];
