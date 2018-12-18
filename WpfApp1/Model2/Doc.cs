@@ -27,17 +27,13 @@ namespace Model2
         /// <param name="city"></param>
         /// <param name="countery"></param>
         /// <param name="language"></param>
-        public Doc(string path, StringBuilder text, string index, string city, string countery = "", string language = "")
+        public Doc(/*string path,*/ StringBuilder text, string index, string city, string countery = "", string language = "")
         {
             this.max_tf = 0;
             this.uniqWords = 0;
             this.city = city;
-            //TODO DIE
-            this._path = path;
             this._text = text;
             this._indexInFile = index;
-            //this.countery = countery;
-            //this.language = language;
             this.length = 0;
         }
         
@@ -47,7 +43,7 @@ namespace Model2
         /// <returns></returns>
         public StringBuilder ToStringBuilder() {
             StringBuilder doc = new StringBuilder();
-            doc.AppendFormat("{0},{1},{2},{3},{4},{5}", this._path, this._indexInFile, this.max_tf, this.uniqWords, this.length, this.city/*,this.language,this.countery*/);
+            doc.AppendFormat("{0},{1},{2},{3},{4}", this._indexInFile, this.max_tf, this.uniqWords, this.length, this.city);
 
             for (int i = 0; i < entities.Count; i++)
             {

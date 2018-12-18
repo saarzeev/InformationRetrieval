@@ -223,7 +223,7 @@ namespace Model2
                 allDocPosting.AppendLine(doc.ToStringBuilder().ToString());
             }
             string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
-            path += "\\docIndexer.txt";
+            path += "\\docIndexer.gz";
             PostingsSet.Zip(allDocPosting, path);
             allDocPosting = null;
         }
