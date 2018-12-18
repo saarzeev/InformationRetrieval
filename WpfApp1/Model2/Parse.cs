@@ -166,7 +166,8 @@ namespace Model2
             tasker8.Wait();
             indexer.docsCount = Indexer.docsIndexer.Count();
             tasker6.Wait();
-            Task tasker7 = Task.Run(() => { indexer.WriteDictionary(); });
+            Indexer.docsIndexer = null;
+           Task tasker7 = Task.Run(() => { indexer.WriteDictionary(); });
             tasker7.Wait();
             indexer.termCount = Indexer.fullDictionary.Count();
             Indexer.fullDictionary.Clear();

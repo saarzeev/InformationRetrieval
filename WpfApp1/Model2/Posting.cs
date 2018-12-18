@@ -12,10 +12,12 @@ namespace Model2
     {
         public string term;
         public int tf;
+        //TODO DIE
         public string docRelativePath;
         public string docID;
         public bool is100;
         public bool isLower;
+        //TODO DIE
         public StringBuilder gaps;
 
        

@@ -314,8 +314,8 @@ namespace Model2
                                     StringBuilder cityPostingStr = new StringBuilder();
                                     if (isCity)
                                     { 
-                                        cityPostingStr.AppendFormat("{0},{1},",brokenLine[i] , //relPath
-                                                           brokenLine[i + 1]); //docID
+                                        //TODO after posting update just i
+                                        cityPostingStr.AppendFormat("{0},",brokenLine[i + 1]); //docID
                                     }
 
                                     StringBuilder postingStr = new StringBuilder(term + ","); //term
@@ -337,7 +337,7 @@ namespace Model2
                                     if (isCity)
                                     {
                                         cityPostingStr.Append(brokenLine[i] + ",");
-                                        this.AddCity(ToUpper, new CityPosting(cityPostingStr/*, city*/));
+                                        this.AddCity(ToUpper, new CityPosting(cityPostingStr));
                                         cityPostingStr.Clear();
                                     }
                                     postingStr.Append(brokenLine[i++] + ","); //gap],
@@ -391,9 +391,7 @@ namespace Model2
                         isFirst = false;
                         postingString.AppendFormat("{0},{1},{2}", currCity.GetCountry, currCity.GetCurrency, currCity.GetPop);
                     }
-                    postingString.AppendFormat (",{0},{1},{2}{3}{4}", posting.docRelativePath ,posting.docID ,"[",posting.gaps.ToString(),"]");
-
-                    
+                    postingString.AppendFormat (",{0},{1}{2}{3}", posting.docID ,"[",posting.gaps.ToString(),"]");
                 }
                 postingString.Append('\n');
                 _citiesDictionary.Remove(city);

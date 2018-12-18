@@ -32,6 +32,7 @@ namespace Model2
             this.max_tf = 0;
             this.uniqWords = 0;
             this.city = city;
+            //TODO DIE
             this._path = path;
             this._text = text;
             this._indexInFile = index;
