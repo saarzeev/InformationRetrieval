@@ -347,7 +347,7 @@ namespace Model2
         /// <param name="divider"></param>
         /// <param name="frac"></param>
         /// <param name="representativeString"></param>
-        /// <returns></returns
+        /// <returns> parsed number</returns>
         private string numberBuilder(double number, double divider, string frac, string representativeString) {
 
             double doubleFormat = number / divider;

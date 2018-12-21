@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -12,7 +13,13 @@ namespace Model2
             // Parse parse = new Parse();
             //City.initCities();
             //Parse.Instance().FromFilesToDocs(@"d:\documents\users\kovalkov\Downloads\mini", @"d:\documents\users\kovalkov\Downloads\miniOutput", @"d:\documents\users\kovalkov\Downloads\mini\stopwords.txt", false);
-            ////parse.FromFilesToDocs(@"C:\Users\nastia\source\repos\saarzeev\corpus", @"C:\Users\nastia\source\repos\saarzeev\InformationRetrieval\stopwords.txt", false);
+            //DateTime startingTime = DateTime.Now;
+            Parse.Instance().FromFilesToDocs(@"C:\minicorpus",@"c:\minicorpusoutput", @"C:\minicorpus\stopwords.txt", false);
+            //Console.WriteLine(DateTime.Now - startingTime);
+            Searcher searcher = new Searcher(@"c:\minicorpusoutput", false);
+            List<string> nu = new List<string>();
+            nu.AddRange(new string[] { "fellow", "founder-states", "potala", "szymanski", "szymanski", "szymanski", "szymanski" });
+            searcher.GetTermsPosting(nu);
             ////string[] delimiters = { " - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "\\", "," };
             //City.initCities();
            // string path = @"C:\Users\nastia\source\posting\{0}FINAL.gz";

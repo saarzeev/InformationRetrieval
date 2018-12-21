@@ -9,15 +9,17 @@ using System.Threading.Tasks;
 
 namespace Model2
 {
-
+    /// <summary>
+    /// Indexer class
+    /// </summary>
     public class Indexer
     {
         static public ConcurrentDictionary<string, SimpleTerm> fullDictionary = new ConcurrentDictionary<string, SimpleTerm>();
         static public ConcurrentQueue<Doc> docsIndexer = new ConcurrentQueue<Doc>();
         static public Mutex dictionaryMutex = new Mutex();
-        private string _initialPathForPosting;
-        private string postingPathForSearch;
-        private static Indexer indexer;
+        public string _initialPathForPosting;
+        public string postingPathForSearch;
+        public static Indexer indexer;
         public PostingsSet currenPostingSet;
         public List<PostingsSet> dead;
         public Mutex postingSetMutex = new Mutex();
@@ -25,10 +27,8 @@ namespace Model2
         public string tmpDirectory = "\\tmpPostingFiles";
         public string postingDirectory = "\\posting";
         public string postingWithStemmingDirectory = "\\postingWithStemming";
-        private string _cachedPath = "";
-        private StringBuilder _cachedFile = new StringBuilder();
         public HashSet<string> _cities = new HashSet<string>();
-        private StringBuilder citiesIndex = new StringBuilder();
+        public StringBuilder citiesIndex = new StringBuilder();
         public int termCount = 0;
         public int docsCount = 0;
 
@@ -54,24 +54,19 @@ namespace Model2
 
         }
 
+
+        /// <summary>
+        /// Indexer destructor
+        /// </summary>
         public static void DestructIndexer()
         {
             indexer = null;
         }
 
-        /*public Dictionary<string, string> getLaguages()
-        {
-           Dictionary<string, string> languages = new Dictionary<string, string>();
-           for (int i = 0; i < this.docsCount; i++)
-            {
-                string language = docsIndexer.ElementAt(i).language;
-                if(language != "") {
-                    languages[language] = language;
-                }
-            }
-            return languages;
-        }*/
 
+        /// <summary>
+        /// Delete files and directories required for operation
+        /// </summary>
         public void reset()
         {
             if(Directory.Exists(_initialPathForPosting + tmpDirectory)) {
@@ -107,6 +102,12 @@ namespace Model2
             System.IO.Directory.CreateDirectory(path + tmpDirectory);
         }
 
+        /// <summary>
+        /// Append Doc's dictionary to the full dictionary
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <param name="docDictionary"></param>
+        /// <returns></returns>
         public Queue<Posting> setDocVocabularytoFullVocabulary(Doc doc, SortedDictionary<string, Term> docDictionary)
         {
            // string[] docPath = doc._path.Split('\\');
@@ -144,7 +145,6 @@ namespace Model2
             {
                 Posting posting = postingOfDoc.Dequeue();
                 if (!currenPostingSet.Add(posting.term, posting)) {
-                    //int nu = currenPostingSet.capacity;
                     currenPostingSet.DumpToDisk();
                     dead.Add(currenPostingSet);
                     currenPostingSet = new PostingsSet(this._initialPathForPosting, this.isStemming);
@@ -169,16 +169,19 @@ namespace Model2
             PostingsSet.Zip(dictionary, path, System.IO.Compression.CompressionLevel.Fastest);
         }
     
+        /// <summary>
+        /// Loads the Terms' dictionary form disk to memory
+        /// </summary>
         public void LoadDictionery()
         {
             string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
             path += "\\dictionary.gz";
-            if (File.Exists(path))
+            if (File.Exists(path))  
             {
                 //StringBuilder dictionary = PostingsSet.Unzip(File.ReadAllBytes(path));
                 string dictionary = (File.ReadAllText(path, Encoding.ASCII));
                 string[] del = {"\r\n"};
-                string[] lineByLine = dictionary/*.ToString()*/.Split(del, StringSplitOptions.RemoveEmptyEntries);
+                string[] lineByLine = dictionary.ToString().Split(del, StringSplitOptions.RemoveEmptyEntries);
                 this.postingPathForSearch = lineByLine[0];
                 for (int i = 1; i < lineByLine.Length; i++)
                 {
@@ -190,6 +193,7 @@ namespace Model2
                 }
             }
         }
+
 
         public void getDictionary()
         {
@@ -215,6 +219,9 @@ namespace Model2
             }
         }
 
+        /// <summary>
+        /// Writes the Docs index to the disk
+        /// </summary>
         public void writeDocPosting()
         {
             StringBuilder allDocPosting = new StringBuilder();
@@ -227,41 +234,6 @@ namespace Model2
             path += "\\docIndexer.gz";
             PostingsSet.Zip(allDocPosting, path);
             allDocPosting = null;
-        }
-
-        /// <summary>
-        /// Given a <paramref name="term"/>, returns the term's posting StringBuilder
-        /// </summary>
-        /// <param name="term"></param>
-        /// <param name="isStemmed"></param>
-        /// <returns></returns>
-        public StringBuilder GetTermPosting(string term)
-        {
-            string[] postingFile;
-            term = term.ToLower();
-            string firstLetter = "\\" + (term.ElementAt(0) >= 'a' && term.ElementAt(0) <= 'z' ? term.ElementAt(0).ToString() : "other");
-            string postingPath = _initialPathForPosting +  (isStemming ? postingWithStemmingDirectory + (firstLetter + "FINAL.gz") : postingDirectory + "FINAL.gz");
-            postingFile = GetFile(postingPath).ToString().Split('\n');
-
-            foreach (string posting in postingFile)
-            {
-                if (term == posting.Split(',')[0])
-                {
-                    return new StringBuilder(posting);
-                }
-            }
-            return null;
-        }
-
-        public StringBuilder GetFile(string path)
-        {
-            //if (_cachedPath != path)
-            //{
-            //    _cachedFile = PostingsSet.Unzip(File.ReadAllBytes(path));
-            //    _cachedPath = path;
-            //}
-            //return _cachedFile;
-            return null;
         }
     }
 }

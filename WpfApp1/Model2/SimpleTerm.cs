@@ -30,6 +30,7 @@ namespace Model2
             int.TryParse(splited[2], out int tf);
             Tf = tf;
             long.TryParse(splited[3], out long Position);
+            this.position = Position;
             //_postingPath = splited[3];
             _isLowerCase = splited[4] == "1" ? true : false;
         }
