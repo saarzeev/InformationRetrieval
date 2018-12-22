@@ -34,14 +34,21 @@ namespace Model2
         char[] trimDelimiters = { '.', ':', '/' , '-'};
         Dictionary<string, string> months = new Dictionary<string, string>();
 
-        public static Parse Instance()
+        public static Parse Instance(HashSet<string> stopWords = null)
         {
-
-            if (parse == null)
+            if (stopWords == null)
             {
-                parse = new Parse();
+                if (parse == null)
+                {
+                    parse = new Parse();
+                }
+                return parse;
             }
-            return parse;
+            else
+            {
+                return new Parse(stopWords);
+            }
+           
 
         }
 
@@ -64,6 +71,14 @@ namespace Model2
             InitHeapVariables();
             
          }
+        private Parse(HashSet<string> stopWords)
+        {
+            stopWords = stopWords;
+            bigNumbersHash = new HashSet<string>();
+            months = new Dictionary<string, string>();
+            InitHeapVariables();
+
+        }
 
         /// <summary>
         /// Invoke a new thread to iterate entire sub-tree, starting from the given <paramref name="filesPath"/>.

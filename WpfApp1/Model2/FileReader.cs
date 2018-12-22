@@ -22,10 +22,10 @@ namespace Model2
             {
                 _files.Enqueue(file);
             }
-            UpdateStopWords(stopWordPath);
+            this.stopWords = UpdateStopWords(stopWordPath);
         }
 
-        public void UpdateStopWords(string stopWordPath)
+        public static HashSet<string> UpdateStopWords(string stopWordPath)
         {
             using (var streamReader = new StreamReader(stopWordPath))
             {
@@ -40,7 +40,7 @@ namespace Model2
                     }
                   
                 }
-                this.stopWords = stopWord;
+                return stopWord;
             }
         }
         public List<Doc> ReadNextDoc()

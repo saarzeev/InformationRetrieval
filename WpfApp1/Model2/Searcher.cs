@@ -11,11 +11,14 @@ namespace Model2
     {
         private string path;
         private bool isStemming;
-        
-        public Searcher(string path, bool isStemming)
+        private HashSet<string> cities;
+
+
+        public Searcher(string path, bool isStemming, HashSet<string> cities)
         {
             this.path = path;
             this.isStemming = isStemming;
+            this.cities = cities;
         }
 
         /// <summary>

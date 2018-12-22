@@ -74,6 +74,7 @@
     <Compile Include="Indexer.cs" />
     <Compile Include="Posting.cs" />
     <Compile Include="PostingsSet.cs" />
+    <Compile Include="Query.cs" />
     <Compile Include="Searcher.cs" />
     <Compile Include="SimpleTerm.cs" />
     <Compile Include="Doc.cs" />
