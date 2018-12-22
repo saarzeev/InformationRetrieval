@@ -20,6 +20,7 @@ namespace Controllers
             string totalTime = (DateTime.Now - start).TotalSeconds.ToString();
             string[] values = { totalTime, indexer.docsCount.ToString(), indexer.termCount.ToString() };
             Model2.Parse.DestructParse();
+            Model2.Indexer.DestructIndexer();
             return values;
         }
 
@@ -46,6 +47,38 @@ namespace Controllers
             Model2.Indexer.DestructIndexer();
             indexer = null;
             parser = null;
+        }
+
+        public void runQuerie(string stopWordDirectory, string postingDistination, string queriesFilePath, string singleQuerie,
+            bool? isStemming, bool? withSemantic)
+        {
+
+            if (Parse.stopWords == null)
+            {
+                parser = Parse.Instance(FileReader.UpdateStopWords(stopWordDirectory + "\\stopwords.txt"));
+            }
+
+            if(indexer == null)
+            {
+                indexer = Indexer.Instance(postingDistination, (bool)isStemming);
+            }
+            indexer.LoadDictionery();
+            //TODO
+            indexer.loadDocDictionary();
+            //TODO i think tha should be in the init of the program for showing if there is a posting files
+            indexer.loadCitiesDictionary();
+            Query query = new Query(null, (bool)isStemming, (bool)withSemantic);
+            if (queriesFilePath!= "")
+            {
+                query.runQueriesFromPath(queriesFilePath);
+            }
+            else
+            {
+                query.runSingleQuery(singleQuerie);
+            }
+            Searcher searcher = new Searcher(query);
+            searcher.initSearch();
+            //TODO return files to show
         }
 
         /*public Dictionary<string,string> getLaguages()

@@ -7,38 +7,28 @@ using System.Threading.Tasks;
 
 namespace Model2
 {
-    class Query
+    public class Query
     {
         private static int randomID = 0;
-        private static HashSet<string> stopWords = new HashSet<string>();
         private HashSet<string> cities;
         private bool isStemming;
         private bool withSemantic;
         private Dictionary<int, StringBuilder> queries;
 
-        Query(HashSet<string> cities, bool isStemming, bool withSemantic)
+       public Query(HashSet<string> cities, bool isStemming, bool withSemantic)
         {
             this.cities = cities;
             this.isStemming = isStemming;
             this.withSemantic = withSemantic;
             queries = new Dictionary<int, StringBuilder>();
         }
-
-        private void setStatic(string stopWordsPath)
-        {
-            if(stopWords.Count() > 1) {
-                return;
-            }
-            stopWords = FileReader.UpdateStopWords(stopWordsPath);
-            Parse.Instance(stopWords);
-        }
-
+  
         public bool IsStemming { get => isStemming; set => isStemming = value; }
         public bool WithSemantic { get => withSemantic; set => withSemantic = value; }
         public HashSet<string> Cities { get => cities; set => cities = value; }
         public Dictionary<int, StringBuilder> Queries { get => queries; set => queries = value; }
 
-        private void runQueriesFromPath(string path)
+        public void runQueriesFromPath(string path)
         {
             StringBuilder query = new StringBuilder();
             using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
@@ -62,10 +52,10 @@ namespace Model2
                                         //id
                                         if (line.StartsWith("<num>"))
                                         {
-                                            string[] splited = line.Split(' ');
+                                            string[] splited = line.Split(':');
                                             if (splited.Length > 0)
                                             {
-                                                int.TryParse(splited.Last(),out queryID) ;
+                                                int.TryParse(splited.Last().Trim(),out queryID) ;
                                                 Query = true;
                                             }
                                         }
@@ -75,7 +65,14 @@ namespace Model2
                                         //query
                                         if (!line.StartsWith("<narr>"))
                                         {
-                                            query.AppendFormat("{0}{1}", line, " ");
+                                            //TODO maybe read titel
+                                            //TODO maybe parse query if question or regular text
+                                            //TODO mayby try read narr
+                                            if (!line.StartsWith("<"))
+                                            {
+                                                query.AppendFormat("{0}{1}", line, " ");
+                                            }
+                                               
                                         }
                                         //narative for now erelevant
                                         else
@@ -97,10 +94,14 @@ namespace Model2
             }
         }
 
-        private void runSingleQuery(string query)
+        public void runSingleQuery(string query)
         {
             this.queries.Add(randomID, new StringBuilder(query));
+            randomID++;
         }
-
+        public void addSemantic()
+        {
+            //TODO
+        }
     }
 }

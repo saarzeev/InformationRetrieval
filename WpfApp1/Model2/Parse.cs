@@ -23,7 +23,7 @@ namespace Model2
         private SemaphoreSlim _semaphore1;
         private SemaphoreSlim _semaphore2;
         private bool done = false;
-        private HashSet<string> stopWords;
+        public static HashSet<string> stopWords;
         private HashSet<string> bigNumbersHash;
         private HashSet<String> counters = new HashSet<string>();
         private string destinationPath;
@@ -34,9 +34,9 @@ namespace Model2
         char[] trimDelimiters = { '.', ':', '/' , '-'};
         Dictionary<string, string> months = new Dictionary<string, string>();
 
-        public static Parse Instance(HashSet<string> stopWords = null)
+        public static Parse Instance(HashSet<string> StopWords = null)
         {
-            if (stopWords == null)
+            if (StopWords == null)
             {
                 if (parse == null)
                 {
@@ -46,7 +46,8 @@ namespace Model2
             }
             else
             {
-                return new Parse(stopWords);
+                parse = new Parse(StopWords);
+                return parse;
             }
            
 
@@ -69,11 +70,10 @@ namespace Model2
             bigNumbersHash = new HashSet<string>();
             months = new Dictionary<string, string>();
             InitHeapVariables();
-            
          }
         private Parse(HashSet<string> stopWords)
         {
-            stopWords = stopWords;
+            Parse.stopWords = stopWords;
             bigNumbersHash = new HashSet<string>();
             months = new Dictionary<string, string>();
             InitHeapVariables();
@@ -286,7 +286,73 @@ namespace Model2
          
         }
 
+        public HashSet<string> ParseQuery(StringBuilder query,bool shouldStem)
+        {
+            //saving suspicious words Indexes by theme
+            Queue<int> dates = new Queue<int>();
+            Queue<int> money = new Queue<int>();
+            Queue<int> specificBigNums = new Queue<int>();
+            Queue<int> bigNums = new Queue<int>();
+            Queue<int> betweens = new Queue<int>();
+            Queue<int> times = new Queue<int>();
+            HashSet<int> numPositions = new HashSet<int>();
+            Queue<int> cities = new Queue<int>();
 
+            StringBuilder text = query.Replace("'", "");
+            query = null;
+            text = text.Replace("--", "-");
+            string toParse = ParsePercent(text.ToString());
+            text = null;
+            string[] splitedText = toParse.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+            splitedText = splitedText.Where((newWord) => ((newWord.Length > 1) &&
+            (newWord == "between" || newWord == "Between" || newWord == "and" || !stopWords.Contains(newWord.ToLower())))).ToArray();
+            
+            PopulateQueueWithPositions(splitedText, months, dates, money, specificBigNums, bigNums, betweens, times);
+
+            //check and parse if the words meet the conditions
+
+            while (dates.Count != 0)
+            {
+                int position = dates.Dequeue();
+                splitedText = ParseDate(position, months[splitedText[position].ToLower()], splitedText);
+            }
+            while (times.Count != 0)
+            {
+                splitedText = ParseTimeTerms(times.Dequeue(), splitedText);
+            }
+            while (money.Count != 0)
+            {
+                splitedText = ParseMoney(money.Dequeue(), splitedText);
+            }
+            while (specificBigNums.Count != 0)
+            {
+                splitedText = ParseSpecificNumbers(specificBigNums.Dequeue(), splitedText, numPositions);
+            }
+            while (bigNums.Count != 0)
+            {
+                splitedText = ParseNumbers(bigNums.Dequeue(), splitedText, numPositions);
+            }
+
+            while (betweens.Count != 0)
+            {
+                splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText, numPositions);
+            }
+
+            numPositions.Clear();
+
+            HashSet<string> parsed = new HashSet<string>();
+            StemmerInterface stm = new Stemmer();
+            foreach (string word in splitedText)
+            {
+                string toLower = word.ToLower();
+                if (toLower.Length > 1 && toLower != "betweens" && toLower != "and")
+                {
+                   bool isNumber = Char.IsDigit(toLower[0]);
+                   parsed.Add((shouldStem && !isNumber) ? stm.stemTerm(toLower) : toLower);
+                }
+            }
+            return parsed;
+        }
 
         /// <summary>
         /// Populates given queues with position of suspected actionable terms;

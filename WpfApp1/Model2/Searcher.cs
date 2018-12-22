@@ -7,18 +7,35 @@ using System.Threading.Tasks;
 
 namespace Model2
 {
-    class Searcher
+   public class Searcher
     {
         private string path;
         private bool isStemming;
         private HashSet<string> cities;
 
+        private Query query;
 
         public Searcher(string path, bool isStemming, HashSet<string> cities)
         {
             this.path = path;
             this.isStemming = isStemming;
             this.cities = cities;
+        }
+
+        public Searcher(Query query)
+        {
+            this.query = query;
+        }
+
+        public List<HashSet<string>> parseQuery()
+        {
+            List<HashSet<string>> parsed = new List<HashSet<string>>();
+            Parse parser = Parse.Instance();
+            foreach(StringBuilder quer in query.Queries.Values)
+            {
+                parsed.Add(parser.ParseQuery(quer,query.IsStemming));
+            }
+            return parsed;
         }
 
         /// <summary>
@@ -29,22 +46,16 @@ namespace Model2
         public List<string> GetTermsPosting(List<string> terms)
         {
             List<string> ans = new List<string>();
-            Indexer.Instance(this.path, this.isStemming);
-            if ( Indexer.fullDictionary == null || Indexer.fullDictionary.Count == 0)
-            {
-                Indexer.indexer.LoadDictionery();
-            }
-            //DateTime startingTime = DateTime.Now;
+           
             for (int i = 0; i < terms.Count; i++)
             {
                 string term = terms[i].ToLower();
                 char firstChar = term[0];
                 string firstLetter = "\\" + (term.ElementAt(0) >= 'a' && term.ElementAt(0) <= 'z' ? term.ElementAt(0).ToString() : "other");
-                string postingPath = Indexer.indexer._initialPathForPosting + (Indexer.indexer.isStemming ? Indexer.indexer.postingWithStemmingDirectory : Indexer.indexer.postingDirectory) + ("\\" + firstLetter + "FINAL.txt");
+                string postingPath = Indexer.indexer.postingPathForSearch + ("\\" + firstLetter + "FINAL.txt");
 
                 using (FileStream infile = new FileStream(postingPath, FileMode.Open, FileAccess.Read))
                 {
-                    StringBuilder posting = null;
                     if (Indexer.fullDictionary.ContainsKey(term))
                     {
                         long position = Indexer.fullDictionary[term].Position;
@@ -58,6 +69,17 @@ namespace Model2
             }
             //Console.WriteLine("Search duration: " + (DateTime.Now - startingTime));
             return ans;
+        }
+
+        public void initSearch()
+        {
+           List<HashSet<string>> parsed = parseQuery();
+
+            for(int i = 0; i < parsed.Count(); i++)
+            {
+                //TODO renker? dictionary?
+                GetTermsPosting(parsed[i].ToList());
+            }
         }
 
         public StringBuilder GetFile(string path)

@@ -14,8 +14,8 @@ namespace Model2
     /// </summary>
     public class Indexer
     {
-        static public ConcurrentDictionary<string, SimpleTerm> fullDictionary = new ConcurrentDictionary<string, SimpleTerm>();
-        static public ConcurrentQueue<Doc> docsIndexer = new ConcurrentQueue<Doc>();
+        static public ConcurrentDictionary<string, SimpleTerm> fullDictionary;
+        static public ConcurrentQueue<Doc> docsIndexer;
         static public Mutex dictionaryMutex = new Mutex();
         public string _initialPathForPosting;
         public string postingPathForSearch;
@@ -63,6 +63,16 @@ namespace Model2
             indexer = null;
         }
 
+        public void loadDocDictionary()
+        {
+            //throw new NotImplementedException();
+        }
+
+        public void loadCitiesDictionary()
+        {
+            //throw new NotImplementedException();
+        }
+
 
         /// <summary>
         /// Delete files and directories required for operation
@@ -96,7 +106,8 @@ namespace Model2
             this._initialPathForPosting = path;
             currenPostingSet = new PostingsSet(path, isStemming);
             dead = new List<PostingsSet>();
-
+            docsIndexer = new ConcurrentQueue<Doc>();
+            fullDictionary = new ConcurrentDictionary<string, SimpleTerm>();
             System.IO.Directory.CreateDirectory(path + postingWithStemmingDirectory);
             System.IO.Directory.CreateDirectory(path + postingDirectory);
             System.IO.Directory.CreateDirectory(path + tmpDirectory);

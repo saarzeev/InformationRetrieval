@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Model2
 {
-    class FileReader
+   public class FileReader
     {
         public string path { get; private set; }
         private Queue<string> _files = new Queue<string>();

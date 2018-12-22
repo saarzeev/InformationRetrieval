@@ -156,10 +156,17 @@ namespace WpfApp1
             var dialog = System.Windows.Forms.MessageBox.Show("Please choose the path of the folder containing the files to index and " +
                 "the path of the folder for posting files", "Missing path!", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Stop);
         }
-       
 
+        private void browse_quries_Click(object sender, RoutedEventArgs e)
+        {
+            bindButtonWithTextBox(source_for_queries);
+        }
 
-
+        private void run_queire_Click(object sender, RoutedEventArgs e)
+        {
+           //TODO cities
+            mainController.runQuerie(path_from.Text, path_to.Text, source_for_queries.Text, single_querie.Text, is_stemming.IsChecked, with_semantic.IsChecked/*,cities*/);
+        }
     }
 
 }

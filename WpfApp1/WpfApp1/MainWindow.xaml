@@ -5,16 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="Information Retrieval" Height="249.5" Width="525"
+        Title="Information Retrieval" Height="650
+        
+" Width="525"
         ResizeMode="NoResize">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-            
+            <RowDefinition Height="39*"/>
+            <RowDefinition Height="95*"/>
+            <RowDefinition Height="77*"/>
+            <RowDefinition Height="28*"/>
+            <RowDefinition Height="79*"/>
+            <RowDefinition Height="49*"/>
+            <RowDefinition Height="43*"/>
+
+            <RowDefinition Height="77*"/>
+            <RowDefinition Height="24*"/>
+            <RowDefinition Height="75*"/>
+            <RowDefinition Height="35*"/>
+            <RowDefinition Height="0*"/>
+
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -22,35 +32,45 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
+        <Label Content="BuildIndex:" Grid.Row="1" VerticalContentAlignment="Top" Margin="0,42,14,26" />
+        <Label Content="Source:" Grid.Column="0" Grid.Row="1" VerticalContentAlignment="Bottom" Margin="0,69,0,0" />
+        <TextBox Margin="4,26" Grid.Row="2" Grid.ColumnSpan="2" Name="path_from" VerticalContentAlignment="Center" TextChanged="OnTextChanged"/>
+        <Button Margin="4,26" Content="Browse" Grid.Row="2" Grid.Column="2" Name="browse_from" Click="browse_from_Click" />
 
-        <Label Content="Source:" Grid.Column="0" Grid.Row="0" VerticalContentAlignment="Bottom" />
-        <TextBox Margin="4" Grid.Row="1" Grid.ColumnSpan="2" Name="path_from" Height="30" VerticalContentAlignment="Center" TextChanged="OnTextChanged"/>
-        <Button Margin="4" Content="Browse" Grid.Row="1" Grid.Column="2" Name="browse_from" Height="30" Click="browse_from_Click" />
 
+        <Label Content="Destination:" Grid.Column="0" Grid.Row="3" VerticalContentAlignment="Center"/>
+        <TextBox Margin="4,26" Grid.Row="4" Grid.ColumnSpan="2" Name="path_to" VerticalContentAlignment="Center" TextChanged="OnTextChanged" />
+        <Button Margin="4,26" Content="Browse" Grid.Row="4" Grid.Column="2" Name="browse_to" Click="browse_to_Click"/>
 
-        <Label Content="Destination:" Grid.Column="0" Grid.Row="2" VerticalContentAlignment="Bottom"/>
-        <TextBox Margin="4" Grid.Row="3" Grid.ColumnSpan="2" Height="30" Name="path_to" VerticalContentAlignment="Center" TextChanged="OnTextChanged" />
-        <Button Margin="4" Content="Browse" Grid.Row="3" Grid.Column="2" Height="30" Name="browse_to" Click="browse_to_Click"/>
-
-        <StackPanel Margin="10" Grid.IsSharedSizeScope="True" Grid.RowSpan="3" Grid.Column="3">
-            <Label Content="Language" />
-            <ComboBox Name="laguages">
+        <StackPanel Margin="10,56,10,51" Grid.IsSharedSizeScope="True" Grid.Column="3" Grid.Row="2" Grid.RowSpan="3">
+            <CheckBox Margin="5" Content="stemming" IsChecked="False" x:Name="is_stemming"/>
+            <Label Content="Cities" />
+            <ComboBox x:Name="laguages">
                 <ComboBox.ItemTemplate>
-                <DataTemplate>
-                        <TextBlock Text="{Binding Path=Key}"/>
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Key}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
             </ComboBox>
-            <CheckBox Margin="5" Content="stemming" IsChecked="False" Name="is_stemming"/>
         </StackPanel>
 
-        
-        <Button Margin="10" Content="Start" Grid.Row="4" Grid.Column="0" Name="start" Click="start_Click" ToolTip="Start Indexing" />
-        <Button Margin="10" Content="Reset" Grid.Row="4" Grid.Column="1" Name="reset" Click="reset_Click"/>
-        <Button Margin="10" Content="Load Dictionary" Grid.Row="4" Grid.Column="2" Name="load_dictionary" Click="load_dictionary_Click" />
-        <Button Margin="10" Content="Show Dictionary" Grid.Row="4" Grid.Column="3" Name="show_dictionary" Click="show_dictionary_Click" />
 
+        <Button Margin="10" Content="Start" Grid.Row="5" Grid.Column="0" Name="start" Click="start_Click" ToolTip="Start Indexing" />
+        <Button Margin="10" Content="Reset" Grid.Row="5" Grid.Column="1" Name="reset" Click="reset_Click"/>
+        <Button Margin="10" Content="Load Dictionary" Grid.Row="5" Grid.Column="2" Name="load_dictionary" Click="load_dictionary_Click" />
+        <Button Margin="10" Content="Show Dictionary" Grid.Row="5" Grid.Column="3" Name="show_dictionary" Click="show_dictionary_Click" />
+
+        <Label Content="Query:" Grid.Column="0" Grid.Row="6" VerticalContentAlignment="Top" />
+        <Label Content="Source:" Grid.Column="0" Grid.Row="6" VerticalContentAlignment="Bottom" />
+        <TextBox Margin="4,26" Grid.Row="7" Grid.ColumnSpan="2" Name="source_for_queries" VerticalContentAlignment="Center" TextChanged="OnTextChanged"/>
+        <Button Margin="4,26" Content="Browse" Grid.Row="7" Grid.Column="2" Name="browse_quries" Click="browse_quries_Click" />
+
+        <CheckBox Margin="10,9,23,50" Grid.Row="7" Content="semmantic" IsChecked="False" x:Name="with_semantic" Grid.Column="3"/>
+        <Label Content="Enter Queire:" Grid.Column="0" Grid.Row="8" VerticalContentAlignment="Bottom"/>
+        <TextBox Margin="29,10,23,20" Grid.Row="9" Grid.ColumnSpan="4" Name="single_querie" VerticalContentAlignment="Center" TextChanged="OnTextChanged" />
+
+        <Button Margin="65,0,73,0" Content="Run Qurie" Grid.Row="10" Name="run_queire" Click="run_queire_Click" Grid.ColumnSpan="2" Grid.Column="1"/>
     </Grid>
-    
+
 </Window>
     

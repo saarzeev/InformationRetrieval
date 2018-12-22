@@ -14,12 +14,12 @@ namespace Model2
             //City.initCities();
             //Parse.Instance().FromFilesToDocs(@"d:\documents\users\kovalkov\Downloads\mini", @"d:\documents\users\kovalkov\Downloads\miniOutput", @"d:\documents\users\kovalkov\Downloads\mini\stopwords.txt", false);
             //DateTime startingTime = DateTime.Now;
-            Parse.Instance().FromFilesToDocs(@"C:\minicorpus",@"c:\minicorpusoutput", @"C:\minicorpus\stopwords.txt", false);
-            //Console.WriteLine(DateTime.Now - startingTime);
-            Searcher searcher = new Searcher(@"c:\minicorpusoutput", false);
-            List<string> nu = new List<string>();
-            nu.AddRange(new string[] { "fellow", "founder-states", "potala", "szymanski", "szymanski", "szymanski", "szymanski" });
-            searcher.GetTermsPosting(nu);
+            //Parse.Instance().FromFilesToDocs(@"C:\minicorpus",@"c:\minicorpusoutput", @"C:\minicorpus\stopwords.txt", false);
+            ////Console.WriteLine(DateTime.Now - startingTime);
+            //Searcher searcher = new Searcher(@"c:\minicorpusoutput", false);
+            //List<string> nu = new List<string>();
+            //nu.AddRange(new string[] { "fellow", "founder-states", "potala", "szymanski", "szymanski", "szymanski", "szymanski" });
+            //searcher.GetTermsPosting(nu);
             ////string[] delimiters = { " - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "\\", "," };
             //City.initCities();
            // string path = @"C:\Users\nastia\source\posting\{0}FINAL.gz";
