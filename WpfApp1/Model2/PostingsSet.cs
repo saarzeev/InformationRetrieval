@@ -228,7 +228,7 @@ namespace Model2
             string fileName = (firstLetter >= 'a' && firstLetter <= 'z') ? "" + firstLetter : "other";
             string postPath = (isFinalPostingFile ? _mergePath :_path)  + "\\" + fileName + (isFinalPostingFile ? "FINAL" : this.id.ToString() )+ ".gz";
 
-            Zip(postingString, postPath);
+            Write(postingString, postPath);
         }
 
         /// <summary>
@@ -238,7 +238,7 @@ namespace Model2
         /// <param name="str"></param>
         /// <param name="path"></param>
         /// <param name="compressionLevel"></param>
-        public static void Zip(StringBuilder str, string path, CompressionLevel compressionLevel = CompressionLevel.Fastest)
+        public static void Write(StringBuilder str, string path, CompressionLevel compressionLevel = CompressionLevel.Fastest)
         {
             //string k = str.ToString();
             using (FileStream fs = new FileStream(path, FileMode.Append, FileAccess.Write))
@@ -409,8 +409,8 @@ namespace Model2
             }
             _citiesDictionary.Clear();
             orderedKeys = null;
-            string cityIndexPath = _mergePath + "\\" + "CityIndex.gz";
-            Zip(postingString, cityIndexPath);
+            string cityIndexPath = _mergePath + Resources.Resource.cityIndexFileName; /*"\\" + "CityIndex.txt"*/;
+            Write(postingString, cityIndexPath);
             postingString.Clear();
             GC.Collect();
         }

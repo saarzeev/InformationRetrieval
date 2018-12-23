@@ -180,7 +180,7 @@ namespace Model2
             //merging
 
             Task tasker6 = Task.Run(() => { indexer.currenPostingSet.mergeFiles(_cities); });
-            Task tasker8 = Task.Run(() => { indexer.writeDocPosting(); });
+            Task tasker8 = Task.Run(() => { indexer.WriteDocPosting(); });
             tasker8.Wait();
             indexer.docsCount = Indexer.docsIndexer.Count();
             tasker6.Wait();
@@ -282,7 +282,7 @@ namespace Model2
 
             SortedDictionary<string,Term> docVovabulary = AddTermsToVocabulry(splitedText, shouldStem, doc);
             Indexer index = Indexer.Instance(destinationPath,shouldStem);
-            index.initIndex(doc ,docVovabulary);
+            index.InitIndex(doc ,docVovabulary);
          
         }
 

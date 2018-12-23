@@ -97,6 +97,15 @@ namespace Model2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to \\CityIndex.txt.
+        /// </summary>
+        internal static string cityIndexFileName {
+            get {
+                return ResourceManager.GetString("cityIndexFileName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to /F.
         /// </summary>
         internal static string closeCity {

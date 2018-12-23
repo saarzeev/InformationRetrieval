@@ -63,21 +63,85 @@ namespace Model2
             indexer = null;
         }
 
-        public void loadDocDictionary()
+        /// <summary>
+        /// Load Docs' dictionary from disk to memory
+        /// </summary>
+        public void LoadDocDictionary()
         {
-            //throw new NotImplementedException();
+            docsIndexer = new ConcurrentQueue<Doc>();
+            string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
+            path += "\\docIndexer.txt";
+
+            if (File.Exists(path))
+            {
+                string docDictionaryFile = (File.ReadAllText(path, Encoding.UTF8));
+                string[] del = { "\r\n" };
+                string[] lineByLine = docDictionaryFile.ToString().Split(del, StringSplitOptions.RemoveEmptyEntries);
+
+                for (int i = 0; i < lineByLine.Length; i++)
+                {
+                    if (lineByLine[i].Length > 1)
+                    {
+                        docsIndexer.Enqueue(new Doc(lineByLine[i]));
+                    }
+                }
+            }
         }
 
-        public void loadCitiesDictionary()
+        /// <summary>
+        /// Loads the cities index from disk to memory
+        /// </summary>
+        public void LoadCitiesDictionary()
         {
-            //throw new NotImplementedException();
+
+            string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
+            path += Resources.Resource.cityIndexFileName;
+            //_city,_country,_currency,population,(docID,[gaps],)*
+
+            if (File.Exists(path))
+            {
+                string cityIndex = (File.ReadAllText(path, Encoding.UTF8));
+                string[] del = { "\n" };
+                string[] lineByLine = cityIndex.ToString().Split(del, StringSplitOptions.RemoveEmptyEntries);
+                currenPostingSet = new PostingsSet(_initialPathForPosting, isStemming);
+
+                for (int i = 0; i < lineByLine.Length; i++)
+                {
+                    if (lineByLine[i].Length > 1)
+                    {
+                        string[] splitted = lineByLine[i].Split(',');
+                        string city = splitted[0];
+                        string country = splitted[1];
+                        string currency = splitted[2];
+                        string population = splitted[3];
+
+                        City tmpCity = new City(city, population, currency, country);
+                        for (int j = 4; j < splitted.Length; j++)
+                        {
+                            StringBuilder cityPostingRep = new StringBuilder(splitted[j++]); //DocID
+
+                            //[gap,*]
+                            while (!splitted[j].Contains("]"))
+                            {
+                                cityPostingRep.AppendFormat(",{0}", splitted[j++]);
+                            }
+                            cityPostingRep.AppendFormat(",{0}", splitted[j]);
+
+                            currenPostingSet.AddCity(city, new CityPosting(cityPostingRep));
+                        }
+
+                    }
+                }
+            }
+
+
         }
 
 
         /// <summary>
         /// Delete files and directories required for operation
         /// </summary>
-        public void reset()
+        public void Reset()
         {
             if(Directory.Exists(_initialPathForPosting + tmpDirectory)) {
                 Directory.Delete(_initialPathForPosting + tmpDirectory, true);
@@ -119,7 +183,7 @@ namespace Model2
         /// <param name="doc"></param>
         /// <param name="docDictionary"></param>
         /// <returns></returns>
-        public Queue<Posting> setDocVocabularytoFullVocabulary(Doc doc, SortedDictionary<string, Term> docDictionary)
+        public Queue<Posting> SetDocVocabularyToFullVocabulary(Doc doc, SortedDictionary<string, Term> docDictionary)
         {
            // string[] docPath = doc._path.Split('\\');
             Queue<Posting> docsPosting = new Queue<Posting>();
@@ -142,14 +206,19 @@ namespace Model2
                     fullDictionary.TryAdd(key, newTerm);
                     doc.entities.Add(new KeyValuePair<int, SimpleTerm>(docDictionary[key].Tf, newTerm));
                 }
-                docsPosting.Enqueue(new Posting(/*docPath[docPath.Length - 1],*/ doc._indexInFile, docDictionary[key]));
+                docsPosting.Enqueue(new Posting(/*docPath[docPath.Length - 1],*/ doc._docID, docDictionary[key]));
             }
             return docsPosting;
         }
 
-        public void initIndex(Doc doc, SortedDictionary<string, Term> docDictionary)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <param name="docDictionary"></param>
+        public void InitIndex(Doc doc, SortedDictionary<string, Term> docDictionary)
         {
-           Queue<Posting> postingOfDoc = setDocVocabularytoFullVocabulary(doc, docDictionary);
+           Queue<Posting> postingOfDoc = SetDocVocabularyToFullVocabulary(doc, docDictionary);
 
             this.postingSetMutex.WaitOne();
             while (postingOfDoc.Count > 0)
@@ -165,6 +234,10 @@ namespace Model2
             this.postingSetMutex.ReleaseMutex();
         }
 
+
+        /// <summary>
+        /// Write dictionary to disk - the string representation can be used to rebuild the dictionary.
+        /// </summary>
         public void WriteDictionary()
         {
             string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
@@ -172,25 +245,23 @@ namespace Model2
             dictionary.AppendLine(path);
             foreach (SimpleTerm term in fullDictionary.Values)
             {
-                //string fileName = term.GetTerm[0] < 'a' || term.GetTerm[0] > 'z' ? "otherFINAL.txt" : term.GetTerm[0] + "FINAL.txt";
-                //term.PostingPath = path + "\\" + fileName;
                 dictionary.AppendLine(term.ToString());
             }
-            path += "\\dictionary.gz";
-            PostingsSet.Zip(dictionary, path, System.IO.Compression.CompressionLevel.Fastest);
+            path += "\\dictionary.txt";
+            PostingsSet.Write(dictionary, path, System.IO.Compression.CompressionLevel.Fastest);
         }
     
         /// <summary>
         /// Loads the Terms' dictionary form disk to memory
         /// </summary>
-        public void LoadDictionery()
+        public void LoadDictionary()
         {
             string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
-            path += "\\dictionary.gz";
+            path += "\\dictionary.txt";
             if (File.Exists(path))  
             {
                 //StringBuilder dictionary = PostingsSet.Unzip(File.ReadAllBytes(path));
-                string dictionary = (File.ReadAllText(path, Encoding.ASCII));
+                string dictionary = (File.ReadAllText(path, Encoding.UTF8));
                 string[] del = {"\r\n"};
                 string[] lineByLine = dictionary.ToString().Split(del, StringSplitOptions.RemoveEmptyEntries);
                 this.postingPathForSearch = lineByLine[0];
@@ -206,7 +277,10 @@ namespace Model2
         }
 
 
-        public void getDictionary()
+        /// <summary>
+        /// Write a representation of the Dictionary to disk
+        /// </summary>
+        public void GetDictionary()
         {
             SortedDictionary<string, Tuple<string, string>> dictionary = new SortedDictionary<string, Tuple<string,string>>();
             foreach(SimpleTerm term in fullDictionary.Values)
@@ -233,7 +307,7 @@ namespace Model2
         /// <summary>
         /// Writes the Docs index to the disk
         /// </summary>
-        public void writeDocPosting()
+        public void WriteDocPosting()
         {
             StringBuilder allDocPosting = new StringBuilder();
             foreach(Doc doc in docsIndexer)
@@ -242,8 +316,8 @@ namespace Model2
                 allDocPosting.AppendLine(doc.ToStringBuilder().ToString());
             }
             string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
-            path += "\\docIndexer.gz";
-            PostingsSet.Zip(allDocPosting, path);
+            path += "\\docIndexer.txt";
+            PostingsSet.Write(allDocPosting, path);
             allDocPosting = null;
         }
     }

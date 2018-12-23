@@ -19,6 +19,10 @@ namespace Model2
             _pop = pop;
             _currency = currency;
             _country = country;
+            if(City.citiesInfo == null)
+            {
+                City.citiesInfo = new Dictionary<string, City>();
+            }
             if (!City.citiesInfo.ContainsKey(_city))
             {
                 City.citiesInfo.Add(_city, this);

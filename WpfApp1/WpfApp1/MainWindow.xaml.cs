@@ -74,11 +74,22 @@ namespace WpfApp1
         {
             bindButtonWithTextBox(path_to);
         }
-        private void bindButtonWithTextBox(System.Windows.Controls.TextBox textBox)
+        private void bindButtonWithTextBox(System.Windows.Controls.TextBox textBox, bool isFile = false )
         {
-            var dialog = new FolderBrowserDialog();
-            dialog.ShowDialog();
-            textBox.Text = dialog.SelectedPath;
+           
+            if (isFile)
+            {
+              var dialog = new OpenFileDialog();
+                dialog.ShowDialog();
+                textBox.Text = dialog.FileName;
+            }
+            else
+            {
+                var dialog = new FolderBrowserDialog();
+                dialog.ShowDialog();
+                textBox.Text = dialog.SelectedPath;
+            }
+            
         }
 
         private void start_Click(object sender, RoutedEventArgs e)
@@ -159,7 +170,7 @@ namespace WpfApp1
 
         private void browse_quries_Click(object sender, RoutedEventArgs e)
         {
-            bindButtonWithTextBox(source_for_queries);
+            bindButtonWithTextBox(source_for_queries,true);
         }
 
         private void run_queire_Click(object sender, RoutedEventArgs e)

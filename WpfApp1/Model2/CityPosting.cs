@@ -11,9 +11,9 @@ namespace Model2
         public StringBuilder gaps;
         
 
-        //_city + "," + _country + "," +_currency + "," + _population + "," + relPath+ "," + docID + "," + [gaps]
+        //_city + "," + _country + "," +_currency + "," + _population + "," + docID + "," + [gaps]
 
-        public CityPosting(string stringRep) //stringRep =relPath + docID + [gaps]
+        public CityPosting(string stringRep) //stringRep = docID + [gaps]
         {
             //city = city;
             string[] strArr = stringRep.Split(',');

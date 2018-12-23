@@ -28,12 +28,12 @@ namespace Controllers
         public void LoadDictionary( string destination, bool stemming)
         {
             indexer = Model2.Indexer.Instance(destination, stemming);
-            indexer.LoadDictionery();
+            indexer.LoadDictionary();
         }
 
         public void getDictionary()
         {
-             indexer.getDictionary();
+             indexer.GetDictionary();
         }
 
         public void reset(string path)
@@ -42,7 +42,7 @@ namespace Controllers
             {
                 indexer = Model2.Indexer.Instance(path, true);
             }
-            indexer.reset();
+            indexer.Reset();
             Model2.Parse.DestructParse();
             Model2.Indexer.DestructIndexer();
             indexer = null;
@@ -62,11 +62,11 @@ namespace Controllers
             {
                 indexer = Indexer.Instance(postingDistination, (bool)isStemming);
             }
-            indexer.LoadDictionery();
-            //TODO
-            indexer.loadDocDictionary();
+            indexer.LoadDictionary();
+            //TODO 
+            indexer.LoadDocDictionary();
             //TODO i think tha should be in the init of the program for showing if there is a posting files
-            indexer.loadCitiesDictionary();
+            indexer.LoadCitiesDictionary();
             Query query = new Query(null, (bool)isStemming, (bool)withSemantic);
             if (queriesFilePath!= "")
             {
