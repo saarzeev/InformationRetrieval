@@ -14,7 +14,7 @@ namespace Model2
         private bool isStemming;
         private bool withSemantic;
         private Dictionary<int, StringBuilder> queries;
-        private Dictionary<int, StringBuilder> simToQuery;
+       
 
         public Query(HashSet<string> cities, bool isStemming, bool withSemantic)
         {
@@ -28,7 +28,7 @@ namespace Model2
         public bool WithSemantic { get => withSemantic; set => withSemantic = value; }
         public HashSet<string> Cities { get => cities; set => cities = value; }
         public Dictionary<int, StringBuilder> Queries { get => queries; set => queries = value; }
-        public Dictionary<int, StringBuilder> SimToQuery { get => simToQuery; set => simToQuery = value; }
+
 
         public void runQueriesFromPath(string path)
         {
@@ -47,6 +47,7 @@ namespace Model2
                             bool queryEnd = false;
                             while ((line = streamReader.ReadLine()) != null && line != "</top>")
                             {
+                               
                                 if (!queryEnd && line.Length > 1)
                                 {
                                     if (!Query)
@@ -85,16 +86,18 @@ namespace Model2
                             if (line != null)
                             {
                                 this.queries.Add(queryID, query);
-                                query.Clear();
+                                
+                                query = new StringBuilder();
+                                if (this.withSemantic)
+                                {
+                                    addSemantic(queryID);
+                                }
                             }
                         }
                     }
                 }
             }
-            if (this.withSemantic)
-            {
-                addSemantic();
-            }
+            
         }
 
         public void runSingleQuery(string query)
@@ -102,11 +105,11 @@ namespace Model2
             this.queries.Add(randomID, new StringBuilder(query));
             if (this.withSemantic)
             {
-                addSemantic();
+                addSemantic(randomID);
             }
             randomID++;
         }
-        public void addSemantic()
+        public void addSemantic(int id)
         {
             //TODO
         }

@@ -27,13 +27,13 @@ namespace Model2
             this.query = query;
         }
 
-        public List<HashSet<string>> parseQuery()
+        public Dictionary<int, HashSet<string>> parseQuery()
         {
-            List<HashSet<string>> parsed = new List<HashSet<string>>();
+            Dictionary<int, HashSet<string>> parsed = new Dictionary<int, HashSet<string>>();
             Parse parser = Parse.Instance();
-            foreach(StringBuilder quer in query.Queries.Values)
+            foreach(int querID in query.Queries.Keys)
             {
-                parsed.Add(parser.ParseQuery(quer,query.IsStemming));
+                parsed[querID] = parser.ParseQuery(query.Queries[querID], query.IsStemming);
             }
             return parsed;
         }
@@ -73,15 +73,52 @@ namespace Model2
             return ans;
         }
 
-        public void initSearch()
+        public void initSearch(Indexer indexer)
         {
-           List<HashSet<string>> parsed = parseQuery();
-
-            for(int i = 0; i < parsed.Count(); i++)
+           Dictionary<int, HashSet<string>> parsed = parseQuery();
+           Dictionary<int, List<Tuple<string, double>>> rankingForQuery = new Dictionary<int, List<Tuple<string, double>>>();
+           foreach(int queryId in parsed.Keys)
             {
-                //TODO renker? dictionary?
-                GetTermsPosting(parsed[i].ToList());
+                rankingForQuery.Add(queryId, new List<Tuple<string, double>>());
+                 List<string> posting =  GetTermsPosting(parsed[queryId].ToList());
+                //[[term:df]:[docid:tf:is100]]
+                Dictionary<string, Dictionary<string, Tuple<int, int, bool>>> allInfo = getAllInfoFromPosting(posting);
+                posting.Clear();
+                //ranking
+                Ranker ranker = new Ranker(indexer);
+                foreach(string docId in allInfo.Keys)
+                {
+                    rankingForQuery[queryId].Add(ranker.rankingDocs(docId, parsed[queryId], allInfo[docId]));
+                }
             }
+           //TODO puke somewere sorted by rank! only 50 rancks for each query
+        }
+
+        private Dictionary<string, Dictionary<string, Tuple<int, int, bool>>> getAllInfoFromPosting(List<string> posting)
+        {
+           
+            //[docid: <term,df,tf,is100>
+            Dictionary<string, Dictionary<string, Tuple<int, int, bool>>> allInfo = new Dictionary<string, Dictionary<string, Tuple<int, int, bool>>>();
+            for (int i = 0; i < posting.Count; i++)
+            {
+                string[] splited = posting[i].Split(',');
+                int.TryParse(splited[1], out int df);
+                //moves on the docID int the posting
+                for (int j = 2; j + 2 < splited.Length; j = j + 4)
+                {
+                    if (!allInfo.Keys.Contains(splited[j]))
+                    {
+                        allInfo.Add(splited[j], new Dictionary<string, Tuple<int, int, bool>>());
+                    }
+
+                    int.TryParse(splited[j + 1], out int tf);
+                    bool is100 = splited[j + 2] == "1" ? true : false;
+
+                    allInfo[splited[j]].Add(splited[0], new Tuple<int, int, bool>(df, tf, is100));
+                }
+                
+            }
+            return allInfo;
         }
 
         public StringBuilder GetFile(string path)

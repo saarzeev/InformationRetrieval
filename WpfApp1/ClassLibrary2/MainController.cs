@@ -77,7 +77,7 @@ namespace Controllers
                 query.runSingleQuery(singleQuerie);
             }
             Searcher searcher = new Searcher(query);
-            searcher.initSearch();
+            searcher.initSearch(indexer);
             //TODO return files to show
         }
 

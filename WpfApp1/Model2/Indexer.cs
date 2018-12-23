@@ -27,8 +27,19 @@ namespace Model2
         public string tmpDirectory = "\\tmpPostingFiles";
         public string postingDirectory = "\\posting";
         public string postingWithStemmingDirectory = "\\postingWithStemming";
+
+        public double getAverDocLength()
+        {
+            double ans = 0.0;
+            foreach(Doc doc in docIndexDictionary.Values) {
+                ans += doc.length;
+            }
+            return ans / docIndexDictionary.Keys.Count;
+        }
+
         public HashSet<string> _cities = new HashSet<string>();
         public StringBuilder citiesIndex = new StringBuilder();
+        public Dictionary<string, Doc> docIndexDictionary;
         public int termCount = 0;
         public int docsCount = 0;
 
@@ -71,7 +82,7 @@ namespace Model2
             docsIndexer = new ConcurrentQueue<Doc>();
             string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
             path += "\\docIndexer.txt";
-
+            this.docIndexDictionary = new Dictionary<string, Doc>();
             if (File.Exists(path))
             {
                 string docDictionaryFile = (File.ReadAllText(path, Encoding.UTF8));
@@ -82,7 +93,8 @@ namespace Model2
                 {
                     if (lineByLine[i].Length > 1)
                     {
-                        docsIndexer.Enqueue(new Doc(lineByLine[i]));
+                        Doc doc = new Doc(lineByLine[i]);
+                        this.docIndexDictionary.Add(doc._docID,doc);
                     }
                 }
             }
