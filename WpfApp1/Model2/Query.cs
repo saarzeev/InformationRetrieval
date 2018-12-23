@@ -63,7 +63,7 @@ namespace Model2
                                     else
                                     {
                                         //query
-                                        if (!line.StartsWith("<narr>"))
+                                        if (!line.StartsWith("<title>"))
                                         {
                                             //TODO maybe read titel
                                             //TODO maybe parse query if question or regular text

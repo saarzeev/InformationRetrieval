@@ -54,6 +54,8 @@ namespace Model2
                 string firstLetter = "\\" + (term.ElementAt(0) >= 'a' && term.ElementAt(0) <= 'z' ? term.ElementAt(0).ToString() : "other");
                 string postingPath = Indexer.indexer.postingPathForSearch + ("\\" + firstLetter + "FINAL.txt");
 
+                //TODO Maybe stay in the same file for every term within that file. (Sort query terms first)
+
                 using (FileStream infile = new FileStream(postingPath, FileMode.Open, FileAccess.Read))
                 {
                     if (Indexer.fullDictionary.ContainsKey(term))
