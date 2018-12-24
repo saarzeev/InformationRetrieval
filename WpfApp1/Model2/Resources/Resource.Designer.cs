@@ -214,6 +214,16 @@ namespace Model2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] semantics {
+            get {
+                object obj = ResourceManager.GetObject("semantics", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to thousand.
         /// </summary>
         internal static string thousand {

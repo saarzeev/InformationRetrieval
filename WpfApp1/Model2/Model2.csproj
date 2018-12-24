@@ -104,6 +104,7 @@
     <None Include="packages\Newtonsoft.Json.12.0.1\Newtonsoft.Json.12.0.1.nupkg" />
     <None Include="packages\RestSharp.106.5.4\.signature.p7s" />
     <None Include="packages\RestSharp.106.5.4\RestSharp.106.5.4.nupkg" />
+    <EmbeddedResource Include="Resources\semantics.json" />
     <None Include="Resources\stopwords.txt" />
   </ItemGroup>
   <ItemGroup>
