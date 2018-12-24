@@ -106,10 +106,15 @@ namespace Model2
                     rankingForQuery[queryId].Add(ranker.rankingDocs(docId, parsed[queryId], allInfo[docId]));
                 }
             }
+
             foreach(int item in rankingForQuery.Keys)
             {
                 rankingForQuery[item].Sort((x, y) => x.Item2.CompareTo(y.Item2));
-                rankingForQuery[item].Take(50);
+                rankingForQuery[item].Reverse();
+                if (rankingForQuery[item].Count > 50) {
+                    var ans = rankingForQuery[item].Take(50);
+                    rankingForQuery[item].RemoveAll((x) => !ans.Contains(x));
+                }
             }
             //TODO puke somewere sorted by rank! only 50 rancks for each query
         }
