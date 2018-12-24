@@ -81,7 +81,7 @@ namespace Model2
             {
                 rankingForQuery.Add(queryId, new List<Tuple<string, double>>());
                  List<string> posting =  GetTermsPosting(parsed[queryId].ToList());
-                //[[term:df]:[docid:tf:is100]]
+                //[docid: <term,df,tf,is100>
                 Dictionary<string, Dictionary<string, Tuple<int, int, bool>>> allInfo = getAllInfoFromPosting(posting);
                 posting.Clear();
                 //ranking

@@ -45,15 +45,11 @@ namespace Model2
                     ans += a * (bb / (c + (k * d))) * Math.Log(e / f);
 
                     //is100
-                    ans *= term_Df_TF_Is100[word].Item3 ? 0.4 * ((docLength / 100)) : 1;
-
-                    //tf/uniqWords
-                    ans *= (double)term_Df_TF_Is100[word].Item2 / (double)indexer.docIndexDictionary[docId].uniqWords;
+                    ans *= !term_Df_TF_Is100[word].Item3 && docLength >= 100 ? 0.8 : 1;
                 }
                 ans += 0;
             }
             return ans;
         }
-
     }
 }
