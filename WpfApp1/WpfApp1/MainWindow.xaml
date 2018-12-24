@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:eo="http://schemas.essentialobjects.com/wpf/"
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
         Title="Information Retrieval" Height="650
@@ -44,16 +45,31 @@
 
         <StackPanel Margin="10,56,10,51" Grid.IsSharedSizeScope="True" Grid.Column="3" Grid.Row="2" Grid.RowSpan="3">
             <CheckBox Margin="5" Content="stemming" IsChecked="False" x:Name="is_stemming"/>
-            <Label Content="Cities" />
-            <ComboBox x:Name="laguages">
+            <Button x:Name="show_Cities" Margin="4,26" Content="cities" Click="Button_Click_1"/>
+            <Popup IsOpen="False" StaysOpen="True" PlacementTarget="{Binding ElementName=show_Cities}" Name="cities" >
+                <ScrollViewer HorizontalScrollBarVisibility="Auto">
+                    <ListBox x:Name="citiesList" SelectionMode="Multiple">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Width="auto">
+                                    <TextBlock Text="{Binding Path=Key}" />
+                                    <TextBlock Text=" " />
+                                    <TextBlock Text="{Binding Path=Value}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </ScrollViewer>
+            </Popup>
+            <!--<ComboBox x:Name="laguages">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding Key}"/>
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
-            </ComboBox>
+            </ComboBox>-->
         </StackPanel>
-
+       
 
         <Button Margin="10" Content="Start" Grid.Row="5" Grid.Column="0" Name="start" Click="start_Click" ToolTip="Start Indexing" />
         <Button Margin="10" Content="Reset" Grid.Row="5" Grid.Column="1" Name="reset" Click="reset_Click"/>

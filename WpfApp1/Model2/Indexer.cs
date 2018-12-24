@@ -145,8 +145,6 @@ namespace Model2
                     }
                 }
             }
-
-
         }
 
 

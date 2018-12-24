@@ -21,6 +21,8 @@ namespace Model2
         private string _path = "";
         private string _mergePath = "";
 
+        public Dictionary<string, List<CityPosting>> CitiesDictionary { get => _citiesDictionary; }
+
         public PostingsSet(string destPath, bool isStemming)
         {
             id = counter;

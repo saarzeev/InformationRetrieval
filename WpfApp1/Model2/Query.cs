@@ -10,13 +10,13 @@ namespace Model2
     public class Query
     {
         private static int randomID = 0;
-        private HashSet<string> cities;
+        private Dictionary<string, List<CityPosting>> cities;
         private bool isStemming;
         private bool withSemantic;
         private Dictionary<int, StringBuilder> queries;
        
 
-        public Query(HashSet<string> cities, bool isStemming, bool withSemantic)
+        public Query(Dictionary<string, List<CityPosting>> cities, bool isStemming, bool withSemantic)
         {
             this.cities = cities;
             this.isStemming = isStemming;
@@ -26,7 +26,7 @@ namespace Model2
 
         public bool IsStemming { get => isStemming; set => isStemming = value; }
         public bool WithSemantic { get => withSemantic; set => withSemantic = value; }
-        public HashSet<string> Cities { get => cities; set => cities = value; }
+        public Dictionary<string, List<CityPosting>> Cities { get => cities; set => cities = value; }
         public Dictionary<int, StringBuilder> Queries { get => queries; set => queries = value; }
 
 

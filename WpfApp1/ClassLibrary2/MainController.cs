@@ -50,7 +50,7 @@ namespace Controllers
         }
 
         public void runQuerie(string stopWordDirectory, string postingDistination, string queriesFilePath, string singleQuerie,
-            bool? isStemming, bool? withSemantic)
+            bool? isStemming, bool? withSemantic, System.Collections.IList cities)
         {
 
             if (Parse.stopWords == null)
@@ -66,8 +66,8 @@ namespace Controllers
             //TODO 
             indexer.LoadDocDictionary();
             //TODO i think tha should be in the init of the program for showing if there is a posting files
-            indexer.LoadCitiesDictionary();
-            Query query = new Query(null, (bool)isStemming, (bool)withSemantic);
+            //indexer.LoadCitiesDictionary();
+            Query query = new Query((Dictionary<string, List<CityPosting>>)cities, (bool)isStemming, (bool)withSemantic);
             if (queriesFilePath!= "")
             {
                 query.runQueriesFromPath(queriesFilePath);
@@ -79,6 +79,26 @@ namespace Controllers
             Searcher searcher = new Searcher(query);
             searcher.initSearch(indexer);
             //TODO return files to show
+        }
+
+        public Dictionary<string, List<CityPosting>> getCities(string path, bool isStemming)
+        {
+            if (indexer != null)
+            {
+                if(indexer.currenPostingSet != null)
+                {
+                    if (indexer.currenPostingSet.CitiesDictionary != null && indexer.currenPostingSet.CitiesDictionary.Count > 0)
+                    {
+                        return indexer.currenPostingSet.CitiesDictionary;
+                    }
+                }
+
+                indexer.LoadCitiesDictionary();
+                return indexer.currenPostingSet.CitiesDictionary;
+            }
+            indexer = Indexer.Instance(path, isStemming);
+            indexer.LoadCitiesDictionary();
+            return indexer.currenPostingSet.CitiesDictionary;
         }
 
         /*public Dictionary<string,string> getLaguages()

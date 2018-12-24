@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -20,13 +21,13 @@ namespace WpfApp1
         string time;
         string termNum;
         string docNum;
-        public Dictionary<string,string> laguagesD = new Dictionary<string, string>() ;
+        public IList chosenCities;
 
         public MainWindow()
         {
-            laguagesD.Add("loading...", "loading...");
+            //laguagesD.Add("loading...", "loading...");
             InitializeComponent();
-            laguages.ItemsSource = laguagesD;
+            //laguages.ItemsSource = laguagesD;
             mainController = new Controllers.MainController();
         }
 
@@ -108,7 +109,7 @@ namespace WpfApp1
                     termNum = "Number of terms: " + values[2];
                     System.Windows.Forms.MessageBox.Show(time + "\n" + docNum + "\n" + termNum, "process ended!", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
                     //laguagesD = mainController.getLaguages();
-                    laguages.ItemsSource = laguagesD;
+                    //laguages.ItemsSource = laguagesD;
                 /*}
                 catch (Exception exception)
                 {
@@ -176,7 +177,29 @@ namespace WpfApp1
         private void run_queire_Click(object sender, RoutedEventArgs e)
         {
            //TODO cities
-            mainController.runQuerie(path_from.Text, path_to.Text, source_for_queries.Text, single_querie.Text, is_stemming.IsChecked, with_semantic.IsChecked/*,cities*/);
+            mainController.runQuerie(path_from.Text, path_to.Text, source_for_queries.Text, single_querie.Text, is_stemming.IsChecked, with_semantic.IsChecked, chosenCities);
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            if (!cities.IsOpen)
+            {
+                var dictionary = mainController.getCities(path_to.Text, (bool)is_stemming.IsChecked);
+                if (dictionary != null && dictionary.Count > 0)
+                {
+                    citiesList.ItemsSource = (IDictionary)dictionary;
+                    cities.IsOpen = true;
+                }
+                else
+                {
+                    var dialog = System.Windows.Forms.MessageBox.Show("There is not cities to choose from yet. try start index first", "Something is Missing", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Stop);
+                }
+            }
+            else
+            {
+                this.chosenCities = citiesList.SelectedItems;
+                cities.IsOpen = false;
+            }
         }
     }
 
