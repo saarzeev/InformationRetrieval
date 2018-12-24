@@ -232,7 +232,9 @@ namespace Model2
             Queue<int> times = new Queue<int>();
             HashSet<int> numPositions = new HashSet<int>();
             Queue<int> cities = new Queue<int>();
-           
+
+            Dictionary<string, List<int>> addedTerms = new Dictionary<string, List<int>>();
+
             StringBuilder text = doc._text.Replace("'", "");
             doc._text = null;
             text = text.Replace("--", "-");
@@ -275,12 +277,12 @@ namespace Model2
           
             while (betweens.Count != 0)
             {
-                splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText, numPositions);
+                splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText, numPositions, addedTerms);
             }
 
             numPositions.Clear();
 
-            SortedDictionary<string,Term> docVovabulary = AddTermsToVocabulry(splitedText, shouldStem, doc);
+            SortedDictionary<string,Term> docVovabulary = AddTermsToVocabulry(splitedText, shouldStem, doc, addedTerms);
             Indexer index = Indexer.Instance(destinationPath,shouldStem);
             index.InitIndex(doc ,docVovabulary);
          
@@ -297,6 +299,8 @@ namespace Model2
             Queue<int> times = new Queue<int>();
             HashSet<int> numPositions = new HashSet<int>();
             Queue<int> cities = new Queue<int>();
+
+            Dictionary<string, List<int>> addedTerms = new Dictionary<string, List<int>>();
 
             StringBuilder text = query.Replace("'", "");
             query = null;
@@ -335,7 +339,7 @@ namespace Model2
 
             while (betweens.Count != 0)
             {
-                splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText, numPositions);
+                splitedText = ParseBetweenTerms(betweens.Dequeue(), splitedText, numPositions, addedTerms);
             }
 
             numPositions.Clear();
@@ -902,15 +906,16 @@ namespace Model2
         string replacement = "${number}%";
         return Regex.Replace(text, pattern, replacement, RegexOptions.IgnoreCase);
     }
-        private SortedDictionary<string, Term> AddTermsToVocabulry(string[] splitedText, bool shouldStem, Doc doc)
+        private SortedDictionary<string, Term> AddTermsToVocabulry(string[] splitedText, bool shouldStem, Doc doc, Dictionary<string, List<int>> addedTerms)
         {
+            //addedTerms = new Dictionary<string, List<int>>();
             StemmerInterface stm = new Stemmer();
             SortedDictionary<string, Term> thisDocVocabulary = new SortedDictionary<string, Term>();
             int pos = 0;
             foreach (string word in splitedText)
             {
                 string toLower = word.ToLower();
-                if (toLower.Length > 1 && toLower != "betweens" && toLower != "and" )
+                if (toLower.Length > 1 && toLower != "between" && toLower != "and" )
                 {
 
                     bool isNumber = Char.IsDigit(word[0]);
@@ -942,6 +947,63 @@ namespace Model2
                     pos++;
                 }
             }
+
+            List<string> addTermsList = addedTerms.Keys.ToList();
+            for (int i = 0; i < addTermsList.Count; i++)
+            {
+                string word = addTermsList[i];
+                string toLower = word.ToLower();
+                if (toLower.Length > 1 && toLower != "between" && toLower != "and")
+                {
+
+                    bool isNumber = Char.IsDigit(word[0]);
+                    string term = (shouldStem && !isNumber) ? stm.stemTerm(word).ToLower() : word.ToLower();
+                    if (thisDocVocabulary.ContainsKey(term))
+                    {
+                        if (isNumber)
+                        {
+                            for(int j = 0; j< addedTerms[addTermsList[i]].Count; j++)
+                            {
+                                thisDocVocabulary[term].addPosition(addedTerms[addTermsList[i]][j]);
+                            }
+                        }
+                        else
+                        {
+                            for (int j = 0; j < addedTerms[addTermsList[i]].Count; j++)
+                            {
+                                thisDocVocabulary[term].addPosition(addedTerms[addTermsList[i]][j], word[0]);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Term newTerm;
+                        if (isNumber)
+                        {
+                            newTerm = new Term(term, addedTerms[addTermsList[i]][0]);
+                            thisDocVocabulary.Add(term, newTerm);
+
+                            for (int j = 1; j < addedTerms[addTermsList[i]].Count ; j++)
+                            {
+                                thisDocVocabulary[term].addPosition(addedTerms[addTermsList[i]][j]);
+                            }
+                        }
+                        else
+                        {
+                            newTerm = new Term(term, addedTerms[addTermsList[i]][0], word[0]);
+                            thisDocVocabulary.Add(term, newTerm);
+
+                            for (int j = 1; j < addedTerms[addTermsList[i]].Count; j++)
+                            {
+                                thisDocVocabulary[term].addPosition(addedTerms[addTermsList[i]][j], word[0]);
+                            }
+                        }
+
+                        
+                    }
+                }
+            }
+
             if (thisDocVocabulary != null && thisDocVocabulary.Count() > 0)
             {
                 doc.uniqWords = thisDocVocabulary.Count();

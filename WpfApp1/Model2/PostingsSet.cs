@@ -245,7 +245,7 @@ namespace Model2
             //string k = str.ToString();
             using (FileStream fs = new FileStream(path, FileMode.Append, FileAccess.Write))
             {
-                using (StreamWriter sw = new StreamWriter(fs, Encoding.ASCII))
+                using (StreamWriter sw = new StreamWriter(fs, Encoding.UTF8))
                 {
                     sw.Write(str);
                 }
@@ -262,35 +262,7 @@ namespace Model2
             //}
         }
 
-        /// <summary>
-        /// Given a file path in <paramref name="bytes"/>, returns a unzipped StringBuilder of the file
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        public static StringBuilder Unzip(byte[] /*StringBuilder*/ bytes)
-        {
-            //return null;
-            using (GZipStream stream = new GZipStream(new MemoryStream(bytes),
-             CompressionMode.Decompress))
-            {
-                const int size = 4096;
-                byte[] buffer = new byte[size];
-                using (MemoryStream memory = new MemoryStream())
-                {
-                    int count = 0;
-                    do
-                    {
-                        count = stream.Read(buffer, 0, size);
-                        if (count > 0)
-                        {
-                            memory.Write(buffer, 0, count);
-                        }
-                    }
-                    while (count > 0);
-                    return new StringBuilder(Encoding.UTF8.GetString(memory.ToArray()));
-                }
-            }
-        }
+       
         /// <summary>
         /// Merges all temporary posting files into final posting files.
         /// Running this method during the population of the temporary posting files will result in data loss and undesired behaviour.
@@ -306,7 +278,7 @@ namespace Model2
                 foreach (string file in allTempFilesOfLetter)
                 {
                     //StringBuilder currFile = Unzip(File.ReadAllBytes(file));
-                    string currFile = File.ReadAllText(file, Encoding.ASCII);
+                    string currFile = File.ReadAllText(file, Encoding.UTF8);
                     string[] lines = currFile./*ToString().*/Split('\n');
                     //currFile.Clear();
                     foreach (string line in lines)
