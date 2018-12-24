@@ -67,7 +67,8 @@ namespace Controllers
             indexer.LoadDocDictionary();
             //TODO i think tha should be in the init of the program for showing if there is a posting files
             //indexer.LoadCitiesDictionary();
-            Query query = new Query((Dictionary<string, List<CityPosting>>)cities, (bool)isStemming, (bool)withSemantic);
+           
+            Query query = new Query(cities, (bool)isStemming, (bool)withSemantic);
             if (queriesFilePath!= "")
             {
                 query.runQueriesFromPath(queriesFilePath);
@@ -83,6 +84,7 @@ namespace Controllers
 
         public Dictionary<string, List<CityPosting>> getCities(string path, bool isStemming)
         {
+          
             if (indexer != null)
             {
                 if(indexer.currenPostingSet != null)

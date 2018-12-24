@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,9 +17,17 @@ namespace Model2
         private Dictionary<int, StringBuilder> queries;
        
 
-        public Query(Dictionary<string, List<CityPosting>> cities, bool isStemming, bool withSemantic)
+        public Query(IList cities, bool isStemming, bool withSemantic)
         {
-            this.cities = cities;
+            this.cities = new Dictionary<string, List<CityPosting>>();
+            if (cities != null)
+            {
+                for (int i = 0; i < cities.Count; i++)
+                {
+                    KeyValuePair<string, List<CityPosting>> keyValue = (KeyValuePair<string, List<CityPosting>>)cities[i];
+                    this.cities.Add(keyValue.Key, keyValue.Value);
+                }
+            }
             this.isStemming = isStemming;
             this.withSemantic = withSemantic;
             queries = new Dictionary<int, StringBuilder>();

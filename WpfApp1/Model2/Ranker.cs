@@ -16,8 +16,6 @@ namespace Model2
 
         public Tuple<string, double> rankingDocs(string docId, HashSet<string> query, Dictionary<string, Tuple<int, int, bool>> term_Df_TF_Is100)
         {
-            //TODO isCity?!
-
             //bm25
             double bm25 = getSuperDuperBm25(docId, query, term_Df_TF_Is100);
             return new Tuple<string, double>(docId, bm25);

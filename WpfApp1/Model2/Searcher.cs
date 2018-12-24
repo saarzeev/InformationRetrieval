@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Model2
 {
-   public class Searcher
+    public class Searcher
     {
         private string path;
         private bool isStemming;
@@ -31,7 +31,7 @@ namespace Model2
         {
             Dictionary<int, HashSet<string>> parsed = new Dictionary<int, HashSet<string>>();
             Parse parser = Parse.Instance();
-            foreach(int querID in query.Queries.Keys)
+            foreach (int querID in query.Queries.Keys)
             {
                 parsed[querID] = parser.ParseQuery(query.Queries[querID], query.IsStemming);
             }
@@ -46,7 +46,7 @@ namespace Model2
         public List<string> GetTermsPosting(List<string> terms)
         {
             List<string> ans = new List<string>();
-           
+
             for (int i = 0; i < terms.Count; i++)
             {
                 string term = terms[i].ToLower();
@@ -75,28 +75,48 @@ namespace Model2
 
         public void initSearch(Indexer indexer)
         {
-           Dictionary<int, HashSet<string>> parsed = parseQuery();
-           Dictionary<int, List<Tuple<string, double>>> rankingForQuery = new Dictionary<int, List<Tuple<string, double>>>();
-           foreach(int queryId in parsed.Keys)
+            Dictionary<int, HashSet<string>> parsed = parseQuery();
+            Dictionary<int, List<Tuple<string, double>>> rankingForQuery = new Dictionary<int, List<Tuple<string, double>>>();
+            foreach (int queryId in parsed.Keys)
             {
                 rankingForQuery.Add(queryId, new List<Tuple<string, double>>());
-                 List<string> posting =  GetTermsPosting(parsed[queryId].ToList());
+                List<string> posting = GetTermsPosting(parsed[queryId].ToList());
                 //[docid: <term,df,tf,is100>
-                Dictionary<string, Dictionary<string, Tuple<int, int, bool>>> allInfo = getAllInfoFromPosting(posting);
+                HashSet<string> docs = new HashSet<string>();
+                //remove by citises
+                if (query.Cities != null && query.Cities.Count > 0)
+                {
+                    foreach (string city in query.Cities.Keys)
+                    {
+                        for (int i = 0; i < query.Cities[city].Count; i++)
+                        {
+                            if (!docs.Contains(query.Cities[city][i].docID))
+                            {
+                                docs.Add(query.Cities[city][i].docID);
+                            }
+                        }
+                    }
+                }
+                Dictionary<string, Dictionary<string, Tuple<int, int, bool>>> allInfo = getAllInfoFromPosting(posting, docs);
                 posting.Clear();
                 //ranking
                 Ranker ranker = new Ranker(indexer);
-                foreach(string docId in allInfo.Keys)
+                foreach (string docId in allInfo.Keys)
                 {
                     rankingForQuery[queryId].Add(ranker.rankingDocs(docId, parsed[queryId], allInfo[docId]));
                 }
             }
-           //TODO puke somewere sorted by rank! only 50 rancks for each query
+            foreach(int item in rankingForQuery.Keys)
+            {
+                rankingForQuery[item].Sort((x, y) => x.Item2.CompareTo(y.Item2));
+                rankingForQuery[item].Take(50);
+            }
+            //TODO puke somewere sorted by rank! only 50 rancks for each query
         }
 
-        private Dictionary<string, Dictionary<string, Tuple<int, int, bool>>> getAllInfoFromPosting(List<string> posting)
+        private Dictionary<string, Dictionary<string, Tuple<int, int, bool>>> getAllInfoFromPosting(List<string> posting, HashSet<string> docsByCities)
         {
-           
+
             //[docid: <term,df,tf,is100>
             Dictionary<string, Dictionary<string, Tuple<int, int, bool>>> allInfo = new Dictionary<string, Dictionary<string, Tuple<int, int, bool>>>();
             for (int i = 0; i < posting.Count; i++)
@@ -106,17 +126,20 @@ namespace Model2
                 //moves on the docID int the posting
                 for (int j = 2; j + 2 < splited.Length; j = j + 4)
                 {
-                    if (!allInfo.Keys.Contains(splited[j]))
+                    if (docsByCities.Count == 0 || docsByCities.Contains(splited[j]))
                     {
-                        allInfo.Add(splited[j], new Dictionary<string, Tuple<int, int, bool>>());
+                        if (!allInfo.Keys.Contains(splited[j]))
+                        {
+                            allInfo.Add(splited[j], new Dictionary<string, Tuple<int, int, bool>>());
+                        }
+
+                        int.TryParse(splited[j + 1], out int tf);
+                        bool is100 = splited[j + 2] == "1" ? true : false;
+
+                        allInfo[splited[j]].Add(splited[0], new Tuple<int, int, bool>(df, tf, is100));
                     }
-
-                    int.TryParse(splited[j + 1], out int tf);
-                    bool is100 = splited[j + 2] == "1" ? true : false;
-
-                    allInfo[splited[j]].Add(splited[0], new Tuple<int, int, bool>(df, tf, is100));
                 }
-                
+
             }
             return allInfo;
         }
@@ -133,3 +156,4 @@ namespace Model2
         }
     }
 }
+

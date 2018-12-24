@@ -182,23 +182,30 @@ namespace WpfApp1
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            if (!cities.IsOpen)
+            if (path_to.Text != "")
             {
-                var dictionary = mainController.getCities(path_to.Text, (bool)is_stemming.IsChecked);
-                if (dictionary != null && dictionary.Count > 0)
+                if (!cities.IsOpen)
                 {
-                    citiesList.ItemsSource = (IDictionary)dictionary;
-                    cities.IsOpen = true;
+                    var dictionary = mainController.getCities(path_to.Text, (bool)is_stemming.IsChecked);
+                    if (dictionary != null && dictionary.Count > 0)
+                    {
+                        citiesList.ItemsSource = (IDictionary)dictionary;
+                        cities.IsOpen = true;
+                    }
+                    else
+                    {
+                        var dialog = System.Windows.Forms.MessageBox.Show("There is not cities to choose from yet. try start index first", "Something is Missing", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Stop);
+                    }
                 }
                 else
                 {
-                    var dialog = System.Windows.Forms.MessageBox.Show("There is not cities to choose from yet. try start index first", "Something is Missing", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Stop);
+                    this.chosenCities = citiesList.SelectedItems;
+                    cities.IsOpen = false;
                 }
             }
             else
             {
-                this.chosenCities = citiesList.SelectedItems;
-                cities.IsOpen = false;
+                MyMessageBox();
             }
         }
     }
