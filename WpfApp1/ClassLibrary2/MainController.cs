@@ -50,12 +50,7 @@ namespace Controllers
             parser = null;
         }
 
-        public Dictionary<string, int> getEnteties(string docID)
-        {
-            return indexer.getEntities(docID);
-        }
-
-        public Dictionary<int, List<Tuple<string, double>>> runQuerie(string stopWordDirectory, string postingDistination, string queriesFilePath, string singleQuerie,
+        public void runQuerie(string stopWordDirectory, string postingDistination, string queriesFilePath, string singleQuerie,
             bool? isStemming, bool? withSemantic, System.Collections.IList cities)
         {
 
@@ -84,7 +79,7 @@ namespace Controllers
                 query.runSingleQuery(singleQuerie);
             }
             Searcher searcher = new Searcher(query);
-            return searcher.initSearch(indexer);
+            searcher.initSearch(indexer);
             //TODO return files to show
         }
 

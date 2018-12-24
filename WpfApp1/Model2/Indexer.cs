@@ -43,17 +43,6 @@ namespace Model2
         public int termCount = 0;
         public int docsCount = 0;
 
-        public Dictionary<string, int> getEntities(string docID)
-        {
-            Doc doc = docIndexDictionary[docID];
-            Dictionary<string, int> ans = new Dictionary<string, int>();
-            foreach(KeyValuePair<int, SimpleTerm> entety in doc.entities)
-            {
-                ans.Add(entety.Value.GetTerm, entety.Key);
-            }
-            return ans;
-        }
-
         /// <summary>
         /// Get the Indexer's instance
         /// </summary>

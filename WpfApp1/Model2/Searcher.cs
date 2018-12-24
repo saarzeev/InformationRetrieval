@@ -73,7 +73,7 @@ namespace Model2
             return ans;
         }
 
-        public Dictionary<int, List<Tuple<string, double>>> initSearch(Indexer indexer)
+        public void initSearch(Indexer indexer)
         {
             Dictionary<int, HashSet<string>> parsed = parseQuery();
             Dictionary<int, List<Tuple<string, double>>> rankingForQuery = new Dictionary<int, List<Tuple<string, double>>>();
@@ -116,7 +116,6 @@ namespace Model2
                     rankingForQuery[item].RemoveAll((x) => !ans.Contains(x));
                 }
             }
-            return rankingForQuery;
             //TODO puke somewere sorted by rank! only 50 rancks for each query
         }
 

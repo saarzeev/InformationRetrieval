@@ -176,18 +176,8 @@ namespace WpfApp1
 
         private void run_queire_Click(object sender, RoutedEventArgs e)
         {
-            Dictionary<int, List<Tuple<string, double>>> ans = mainController.runQuerie(path_from.Text, path_to.Text, source_for_queries.Text, single_querie.Text, is_stemming.IsChecked, with_semantic.IsChecked, chosenCities);
-            Dictionary<int, List<string>> dic = new Dictionary<int, List<string>>();
-            foreach(int quer in ans.Keys)
-            {
-                dic.Add(quer, new List<string>());
-                foreach(Tuple<string,double> item in ans[quer])
-                {
-                    dic[quer].Add(item.Item1);
-                }
-            }
-            Window window = new ResultsWindow(dic,mainController);
-            window.Show();
+           //TODO cities
+            mainController.runQuerie(path_from.Text, path_to.Text, source_for_queries.Text, single_querie.Text, is_stemming.IsChecked, with_semantic.IsChecked, chosenCities);
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
