@@ -20,12 +20,13 @@ namespace Model2
         /// <param name="pos"></param>
         /// <param name="splitedText"></param>
         /// <param name="numPositions"></param>
+        /// <param name="addedTerms"></param>
         /// <returns></returns>
-        public string[] ParseBetweenTerms(int pos, string[] splitedText, HashSet<int> numPositions)
+        public string[] ParseBetweenTerms(int pos, string[] splitedText, HashSet<int> numPositions, Dictionary<string, List<int>> addedTerms)
         {
             if (splitedText[pos].ToLower() == "between")
             {
-                splitedText[pos] = BetweenAndTerm(ref pos, splitedText, numPositions);
+                splitedText[pos] = BetweenAndTerm(ref pos, splitedText, numPositions, addedTerms);
             }
             else
             {
@@ -39,14 +40,14 @@ namespace Model2
                 }
                 else
                 {
-                    splitedText[pos] = HyphenTerm(pos, splitedText, numPositions);
+                    splitedText[pos] = HyphenTerm(pos, splitedText, numPositions, addedTerms);
                 }
 
             }
             return splitedText;
         }
 
-        private string HyphenTerm(int pos, string[] splitedText, HashSet<int> numPositions)
+        private string HyphenTerm(int pos, string[] splitedText, HashSet<int> numPositions, Dictionary<string, List<int>> addedTerms)
         {
             string concatHyphenTerm = "";
             string[] hyphenExpr = splitedText[pos].Split('-');
@@ -80,7 +81,17 @@ namespace Model2
                 }
 
                 hyphenExpr[0] = TreatHyphenTermsNumbers(pos, splitedText, leftSubstr, Side.Left, leftSubstrPossibleChange, numPositions);
+                if(!(addedTerms.ContainsKey(hyphenExpr[0])))
+                {
+                    addedTerms[hyphenExpr[0]] = new List<int>();
+                }
+                addedTerms[hyphenExpr[0]].Add(pos);
                 hyphenExpr[1] = TreatHyphenTermsNumbers(pos, splitedText, rightSubstr, Side.Right, rightSubstrPossibleChange, numPositions);
+                if (!(addedTerms.ContainsKey(hyphenExpr[1])))
+                {
+                    addedTerms[hyphenExpr[1]] = new List<int>();
+                }
+                addedTerms[hyphenExpr[1]].Add(pos);
 
                 for (int i = 0; i < hyphenExpr.Length; i++)
                 {
@@ -128,7 +139,7 @@ namespace Model2
                 return substr[0];
             }
         }
-        private string BetweenAndTerm(ref int pos, string[] splitedText, HashSet<int> numPositions)
+        private string BetweenAndTerm(ref int pos, string[] splitedText, HashSet<int> numPositions, Dictionary<string, List<int>> addedTerms)
         {
             string concatBetweenTerm = "";
             int origPos = pos;
@@ -158,6 +169,14 @@ namespace Model2
                         commitChanges = true;
                         while (pos > origPos)
                         {
+                            if(splitedText[pos].ToLower() != "between" && splitedText[pos].ToLower() != "and" )
+                            {
+                                if (!addedTerms.ContainsKey(splitedText[pos]))
+                                {
+                                    addedTerms[splitedText[pos]] = new List<int>();
+                                }
+                                addedTerms[splitedText[pos]].Add(pos);
+                            }
                             splitedText[pos] = " ";
                             pos--;
                         }

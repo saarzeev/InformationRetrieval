@@ -80,7 +80,7 @@ namespace Model2
             {
                 using (var fileStream = File.OpenRead(path))
                 {
-                    using (var streamReader = new StreamReader(path, Encoding.ASCII))
+                    using (var streamReader = new StreamReader(path, Encoding.UTF8))
                     {
                         String line;
                         while (!streamReader.EndOfStream)
