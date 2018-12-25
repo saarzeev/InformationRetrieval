@@ -82,6 +82,17 @@ namespace Model2
                     var ans = rankingForQuery[item].Take(50);
                     rankingForQuery[item].RemoveAll((x) => !ans.Contains(x));
                 }
+                using (FileStream fs = new FileStream(@"d:\documents\users\saarzeev\results.txt", FileMode.Append, FileAccess.Write))
+                {
+                    using (StreamWriter sw = new StreamWriter(fs, Encoding.ASCII))
+
+                    {
+                        foreach (var entry in rankingForQuery[item])
+                        {
+                            sw.WriteLine("{0} {1} {2} {3} {4} {5}", item, 0, entry.Item1, 1, 1.1, "a");
+                        }
+                    }
+                }
             }
             return rankingForQuery;
             //TODO puke somewere sorted by rank! only 50 rancks for each query
