@@ -50,14 +50,14 @@ namespace WpfApp1
             {
                 FileAttributes attr = File.GetAttributes(textBox.Text);
 
-                if (!((attr & FileAttributes.Directory) == FileAttributes.Directory))
+                /*if (!((attr & FileAttributes.Directory) == FileAttributes.Directory))
                 {
                     start.IsEnabled = false;
                 }
                 else
-                {
+                {*/
                     isOkEnabled();
-                }
+                //}
             }
             catch
             {

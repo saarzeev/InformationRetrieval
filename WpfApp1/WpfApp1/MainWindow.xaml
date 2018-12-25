@@ -30,12 +30,12 @@
         </Grid.ColumnDefinitions>
         <Label Content="BuildIndex:" Grid.Row="1" VerticalContentAlignment="Top" Margin="0,42,14,26" />
         <Label Content="Source:" Grid.Column="0" Grid.Row="1" VerticalContentAlignment="Bottom" Margin="0,69,0,0" />
-        <TextBox Margin="4,26" Grid.Row="2" Grid.ColumnSpan="2" Name="path_from" VerticalContentAlignment="Center" TextChanged="OnTextChanged"/>
+        <TextBox Margin="4,26" Grid.Row="2" Grid.ColumnSpan="2" Name="path_from" VerticalContentAlignment="Center"/> <!--TextChanged="OnTextChanged"-->
         <Button Margin="4,26" Content="Browse" Grid.Row="2" Grid.Column="2" Name="browse_from" Click="browse_from_Click" />
 
 
         <Label Content="Destination:" Grid.Column="0" Grid.Row="3" VerticalContentAlignment="Center"/>
-        <TextBox Margin="4,26" Grid.Row="4" Grid.ColumnSpan="2" Name="path_to" VerticalContentAlignment="Center" TextChanged="OnTextChanged" />
+        <TextBox Margin="4,26" Grid.Row="4" Grid.ColumnSpan="2" Name="path_to" VerticalContentAlignment="Center" /> <!--TextChanged="OnTextChanged"-->
         <Button Margin="4,26" Content="Browse" Grid.Row="4" Grid.Column="2" Name="browse_to" Click="browse_to_Click"/>
 
         <StackPanel Margin="10,56,10,51" Grid.IsSharedSizeScope="True" Grid.Column="3" Grid.Row="2" Grid.RowSpan="3">
