@@ -174,7 +174,7 @@ namespace Model2
                     string postPath = (_mergePath  + "\\" + fileName + "FINAL.txt");
                     using (FileStream fs = new FileStream(postPath, FileMode.Append, FileAccess.Write))
                     {
-                        using (StreamWriter sw = new StreamWriter(fs))
+                        using (StreamWriter sw = new StreamWriter(fs,Encoding.ASCII))
                         {
                             sw.Write(postingString);
                         }
@@ -189,8 +189,14 @@ namespace Model2
                 //term,df,(relPath,docID,tf,is100,[gaps],isLower,)*
                 foreach (Posting posting in list)
                 {
-                    postingString.Append(posting.GetPostingStringFinal().Remove(0, term.Length + 1) + ",");
+                    if (term == "hybler" || term == "hybrid")
+                    {
+                        int i = 9;
+                    }
+                    StringBuilder ans = posting.GetPostingStringFinal().Remove(0, term.Length + 1);
+                    postingString.Append(/*posting.GetPostingStringFinal().Remove(0, term.Length + 1)*/ans + ",");
                 }
+               
                 postingString.Append('\n');
                 pos = postingString.Length;
                 finalTerm = term;
@@ -202,7 +208,7 @@ namespace Model2
                 string postPath = (_mergePath + "\\" + fileName + "FINAL.txt");
                 using (FileStream fs = new FileStream(postPath, FileMode.Append, FileAccess.Write))
                 {
-                    using (StreamWriter sw = new StreamWriter(fs))
+                    using (StreamWriter sw = new StreamWriter(fs,Encoding.ASCII))
                     {
                         sw.Write(postingString);
                     }
@@ -245,12 +251,12 @@ namespace Model2
             //string k = str.ToString();
             using (FileStream fs = new FileStream(path, FileMode.Append, FileAccess.Write))
             {
-                using (StreamWriter sw = new StreamWriter(fs, Encoding.UTF8))
+                using (StreamWriter sw = new StreamWriter(fs, Encoding.ASCII))
                 {
                     sw.Write(str);
                 }
             }
-            //byte[] raw = Encoding.UTF8.GetBytes(k);
+            //byte[] raw = Encoding.ASCII.GetBytes(k);
             //using (MemoryStream memory = new MemoryStream())
             //{
             //    using (GZipStream gzip = new GZipStream(memory,
@@ -278,7 +284,7 @@ namespace Model2
                 foreach (string file in allTempFilesOfLetter)
                 {
                     //StringBuilder currFile = Unzip(File.ReadAllBytes(file));
-                    string currFile = File.ReadAllText(file, Encoding.UTF8);
+                    string currFile = File.ReadAllText(file, Encoding.ASCII);
                     string[] lines = currFile./*ToString().*/Split('\n');
                     //currFile.Clear();
                     foreach (string line in lines)

@@ -32,7 +32,7 @@ namespace Model2
                     if (Indexer.fullDictionary.ContainsKey(term))
                     {
                         long position = Indexer.fullDictionary[term].Position;
-                        using (StreamReader file = new StreamReader(infile))
+                        using (StreamReader file = new StreamReader(infile,Encoding.ASCII))
                         {
                             infile.Seek(position, SeekOrigin.Begin);
                             ans.Add(file.ReadLine());

@@ -61,7 +61,7 @@ namespace Model2
                 var assembly = Assembly.GetExecutingAssembly();
                 string resourceName = assembly.GetManifestResourceNames().Single(str => str.EndsWith(".json"));
                 using (Stream stream = assembly.GetManifestResourceStream(resourceName))
-                using (StreamReader reader = new StreamReader(stream))
+                using (StreamReader reader = new StreamReader(stream,Encoding.ASCII))
                 {
                     string result = reader.ReadToEnd();
                     semanticsDict = JsonConvert.DeserializeObject<Dictionary<string, List<KeyValuePair<string, double>>>>(result);
@@ -80,7 +80,7 @@ namespace Model2
             {
                 using (var fileStream = File.OpenRead(path))
                 {
-                    using (var streamReader = new StreamReader(path, Encoding.UTF8))
+                    using (var streamReader = new StreamReader(path, Encoding.ASCII))
                     {
                         String line;
                         while (!streamReader.EndOfStream)

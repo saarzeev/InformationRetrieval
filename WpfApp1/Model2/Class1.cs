@@ -43,7 +43,7 @@ namespace Model2
             {
                 using (var fileStream = File.OpenRead(_currentFile))
                 {
-                    using (var streamReader = new StreamReader(_currentFile, Encoding.UTF8))
+                    using (var streamReader = new StreamReader(_currentFile, Encoding.ASCII))
                     {
                         Dictionary<string, int> numOfSim = new Dictionary<string, int>();
                         Dictionary<string, List<KeyValuePair<string, double>>> simDict = new Dictionary<string, List<KeyValuePair<string, double>>>();

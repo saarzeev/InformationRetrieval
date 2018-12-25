@@ -27,7 +27,7 @@ namespace Model2
 
         public static HashSet<string> UpdateStopWords(string stopWordPath)
         {
-            using (var streamReader = new StreamReader(stopWordPath))
+            using (var streamReader = new StreamReader(stopWordPath,Encoding.ASCII))
             {
                 String line;
                 HashSet<string> stopWord = new HashSet<string>();
@@ -59,7 +59,7 @@ namespace Model2
             {
                 //using (var fileStream = File.OpenRead(_currentFile))
                 //{
-                using (var streamReader = new StreamReader(_currentFile, Encoding.UTF8))
+                using (var streamReader = new StreamReader(_currentFile, Encoding.ASCII))
                 {
                     if (_currentFile != path + "\\stopwords.txt")
                     {

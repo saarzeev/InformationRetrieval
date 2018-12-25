@@ -96,7 +96,7 @@ namespace Model2
             this.docIndexDictionary = new Dictionary<string, Doc>();
             if (File.Exists(path))
             {
-                string docDictionaryFile = (File.ReadAllText(path, Encoding.UTF8));
+                string docDictionaryFile = (File.ReadAllText(path, Encoding.ASCII));
                 string[] del = { "\r\n" };
                 string[] lineByLine = docDictionaryFile.ToString().Split(del, StringSplitOptions.RemoveEmptyEntries);
 
@@ -123,7 +123,7 @@ namespace Model2
 
             if (File.Exists(path))
             {
-                string cityIndex = (File.ReadAllText(path, Encoding.UTF8));
+                string cityIndex = (File.ReadAllText(path, Encoding.ASCII));
                 string[] del = { "\n" };
                 string[] lineByLine = cityIndex.ToString().Split(del, StringSplitOptions.RemoveEmptyEntries);
                 currenPostingSet = new PostingsSet(_initialPathForPosting, isStemming);
@@ -282,7 +282,7 @@ namespace Model2
             if (File.Exists(path))  
             {
                 //StringBuilder dictionary = PostingsSet.Unzip(File.ReadAllBytes(path));
-                string dictionary = (File.ReadAllText(path, Encoding.UTF8));
+                string dictionary = (File.ReadAllText(path, Encoding.ASCII));
                 string[] del = {"\r\n"};
                 string[] lineByLine = dictionary.ToString().Split(del, StringSplitOptions.RemoveEmptyEntries);
                 this.postingPathForSearch = lineByLine[0];
@@ -315,7 +315,7 @@ namespace Model2
                 }
             }
             string dictionaryPath = isStemming ? "\\Stemmingshow.txt" : "\\show.txt";
-            using (StreamWriter file = new StreamWriter(_initialPathForPosting + dictionaryPath))
+            using (StreamWriter file = new StreamWriter(_initialPathForPosting + dictionaryPath,true,Encoding.ASCII))
             {
                 file.WriteLine("[{0} {1} {2}]","TERM", " DF " ,"TF");
                 foreach (var entry in dictionary)
