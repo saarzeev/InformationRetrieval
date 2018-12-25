@@ -69,6 +69,8 @@ namespace Model2
                         string docID = "";
                         string city = "";
                         bool notText = true;
+                        string language = "";
+                        bool firstAfterText = false;
                         string[] file = streamReader.ReadToEnd().Split('\n');
                         int numOfLine = 0;
                         //while ((line = streamReader.ReadLine()) != null && line != "</DOC>")
@@ -104,19 +106,34 @@ namespace Model2
                                     {
                                         notText = false;
                                         doc.Append(line);
+                                        firstAfterText = true;
                                     }
                                 }
                                 else
                                 {
+                                    if (firstAfterText)
+                                    {
+                                        if (line.StartsWith("Language"))
+                                        {
+                                            string[] del = { "Language:", "<F P=105>", "</F P=105>", "</F>", " " };
+                                            string[] splited = line.Split(del, StringSplitOptions.RemoveEmptyEntries);
+                                            if (splited.Length > 0)
+                                            {
+                                                language = splited[0];
+                                            }
+                                        }
+                                        firstAfterText = false;
+                                    }
                                     doc.AppendFormat("{0}{1}", line, "\\n");
                                 }
 
                             }
                             if (docID != "") {
-                                retVal = new Doc(doc, docID, city);
+                                retVal = new Doc(doc, docID, city, language);
                                 notText = true;
                                 docID = "";
                                 city = "";
+                                language = "";
                                 retValList.Add(retVal);
                             }
                             doc = new StringBuilder("");

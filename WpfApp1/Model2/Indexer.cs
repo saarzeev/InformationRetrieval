@@ -17,6 +17,7 @@ namespace Model2
         static public ConcurrentDictionary<string, SimpleTerm> fullDictionary;
         static public ConcurrentQueue<Doc> docsIndexer;
         static public Mutex dictionaryMutex = new Mutex();
+        static public Mutex languagesMutex = new Mutex();
         public string _initialPathForPosting;
         public string postingPathForSearch;
         public static Indexer indexer;
@@ -43,16 +44,6 @@ namespace Model2
         public int termCount = 0;
         public int docsCount = 0;
 
-        public Dictionary<string, int> getEntities(string docID)
-        {
-            Doc doc = docIndexDictionary[docID];
-            Dictionary<string, int> ans = new Dictionary<string, int>();
-            foreach(KeyValuePair<int, SimpleTerm> entety in doc.entities)
-            {
-                ans.Add(entety.Value.GetTerm, entety.Key);
-            }
-            return ans;
-        }
 
         /// <summary>
         /// Get the Indexer's instance
@@ -83,6 +74,7 @@ namespace Model2
         public static void DestructIndexer()
         {
             indexer = null;
+            docsIndexer = null;
         }
 
         /// <summary>
@@ -229,6 +221,7 @@ namespace Model2
                 }
                 docsPosting.Enqueue(new Posting(/*docPath[docPath.Length - 1],*/ doc._docID, docDictionary[key]));
             }
+            
             return docsPosting;
         }
 
@@ -237,10 +230,15 @@ namespace Model2
         /// </summary>
         /// <param name="doc"></param>
         /// <param name="docDictionary"></param>
-        public void InitIndex(Doc doc, SortedDictionary<string, Term> docDictionary)
+        public void InitIndex(Doc doc, SortedDictionary<string, Term> docDictionary, Dictionary<string, string> laguagesD)
         {
            Queue<Posting> postingOfDoc = SetDocVocabularyToFullVocabulary(doc, docDictionary);
-
+            if (doc.language != "")
+            {
+                languagesMutex.WaitOne();
+                laguagesD[doc.language] = doc.language;
+                languagesMutex.ReleaseMutex();
+            }
             this.postingSetMutex.WaitOne();
             while (postingOfDoc.Count > 0)
             {
@@ -340,6 +338,20 @@ namespace Model2
             path += "\\docIndexer.txt";
             PostingsSet.Write(allDocPosting, path);
             allDocPosting = null;
+        }
+
+        public Dictionary<string, string> getLaguages()
+        {
+            Dictionary<string, string> languages = new Dictionary<string, string>();
+            for (int i = 0; i < this.docsCount; i++)
+            {
+                string language = docsIndexer.ElementAt(i).language;
+                if (language != "")
+                {
+                    languages[language] = language;
+                }
+            }
+            return languages;
         }
     }
 }

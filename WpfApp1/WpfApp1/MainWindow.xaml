@@ -18,13 +18,8 @@
             <RowDefinition Height="28*"/>
             <RowDefinition Height="79*"/>
             <RowDefinition Height="49*"/>
-            <RowDefinition Height="43*"/>
 
-            <RowDefinition Height="77*"/>
-            <RowDefinition Height="24*"/>
-            <RowDefinition Height="75*"/>
-            <RowDefinition Height="35*"/>
-            <RowDefinition Height="0*"/>
+
 
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -45,7 +40,7 @@
 
         <StackPanel Margin="10,56,10,51" Grid.IsSharedSizeScope="True" Grid.Column="3" Grid.Row="2" Grid.RowSpan="3">
             <CheckBox Margin="5" Content="stemming" IsChecked="False" x:Name="is_stemming"/>
-            <Button x:Name="show_Cities" Margin="4,26" Content="cities" Click="Button_Click_1"/>
+            <!--<Button x:Name="show_Cities" Margin="4,26" Content="cities" Click="Button_Click_1"/>-->
             <Popup IsOpen="False" StaysOpen="True" PlacementTarget="{Binding ElementName=show_Cities}" Name="cities" >
                 <ScrollViewer HorizontalScrollBarVisibility="Auto">
                     <ListBox x:Name="citiesList" SelectionMode="Multiple">
@@ -61,13 +56,13 @@
                     </ListBox>
                 </ScrollViewer>
             </Popup>
-            <!--<ComboBox x:Name="laguages">
+            <ComboBox x:Name="laguages">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding Key}"/>
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
-            </ComboBox>-->
+            </ComboBox>
         </StackPanel>
        
 
@@ -76,16 +71,6 @@
         <Button Margin="10" Content="Load Dictionary" Grid.Row="5" Grid.Column="2" Name="load_dictionary" Click="load_dictionary_Click" />
         <Button Margin="10" Content="Show Dictionary" Grid.Row="5" Grid.Column="3" Name="show_dictionary" Click="show_dictionary_Click" />
 
-        <Label Content="Query:" Grid.Column="0" Grid.Row="6" VerticalContentAlignment="Top" />
-        <Label Content="Source:" Grid.Column="0" Grid.Row="6" VerticalContentAlignment="Bottom" />
-        <TextBox Margin="4,26" Grid.Row="7" Grid.ColumnSpan="2" Name="source_for_queries" VerticalContentAlignment="Center" TextChanged="OnTextChanged"/>
-        <Button Margin="4,26" Content="Browse" Grid.Row="7" Grid.Column="2" Name="browse_quries" Click="browse_quries_Click" />
-
-        <CheckBox Margin="10,9,23,50" Grid.Row="7" Content="semmantic" IsChecked="False" x:Name="with_semantic" Grid.Column="3"/>
-        <Label Content="Enter Queire:" Grid.Column="0" Grid.Row="8" VerticalContentAlignment="Bottom"/>
-        <TextBox Margin="29,10,23,20" Grid.Row="9" Grid.ColumnSpan="4" Name="single_querie" VerticalContentAlignment="Center" TextChanged="OnTextChanged" />
-
-        <Button Margin="65,0,73,0" Content="Run Qurie" Grid.Row="10" Name="run_queire" Click="run_queire_Click" Grid.ColumnSpan="2" Grid.Column="1"/>
     </Grid>
 
 </Window>

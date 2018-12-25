@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace WpfApp1
 {
-    
+
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -21,19 +21,19 @@ namespace WpfApp1
         string time;
         string termNum;
         string docNum;
-        public IList chosenCities;
+        
 
         public MainWindow()
         {
             //laguagesD.Add("loading...", "loading...");
             InitializeComponent();
-            //laguages.ItemsSource = laguagesD;
             mainController = new Controllers.MainController();
+            laguages.ItemsSource = mainController.laguagesD;
         }
 
         private void isOkEnabled()
         {
-           if (path_to.Text == "" || path_from.Text == "")
+            if (path_to.Text == "" || path_from.Text == "")
             {
                 start.IsEnabled = true;
             }
@@ -75,12 +75,12 @@ namespace WpfApp1
         {
             bindButtonWithTextBox(path_to);
         }
-        private void bindButtonWithTextBox(System.Windows.Controls.TextBox textBox, bool isFile = false )
+        private void bindButtonWithTextBox(System.Windows.Controls.TextBox textBox, bool isFile = false)
         {
-           
+
             if (isFile)
             {
-              var dialog = new OpenFileDialog();
+                var dialog = new OpenFileDialog();
                 dialog.ShowDialog();
                 textBox.Text = dialog.FileName;
             }
@@ -90,31 +90,32 @@ namespace WpfApp1
                 dialog.ShowDialog();
                 textBox.Text = dialog.SelectedPath;
             }
-            
+
         }
 
         private void start_Click(object sender, RoutedEventArgs e)
         {
-            if(path_to.Text == "" || path_from.Text == "")
+            if (path_to.Text == "" || path_from.Text == "")
             {
                 MyMessageBox();
             }
             else
             {
-                //try
-                //{
-                    string[] values = mainController.init(path_from.Text, path_to.Text, (bool)is_stemming.IsChecked);
-                    time = "TotalTime: " + values[0] + "seconds";
-                    docNum = "Number of docs: " + values[1];
-                    termNum = "Number of terms: " + values[2];
-                    System.Windows.Forms.MessageBox.Show(time + "\n" + docNum + "\n" + termNum, "process ended!", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
+                try { 
+                
+                string[] values = mainController.init(path_from.Text, path_to.Text, (bool)is_stemming.IsChecked);
+                time = "TotalTime: " + values[0] + "seconds";
+                docNum = "Number of docs: " + values[1];
+                termNum = "Number of terms: " + values[2];
+                System.Windows.Forms.MessageBox.Show(time + "\n" + docNum + "\n" + termNum, "process ended!", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
                     //laguagesD = mainController.getLaguages();
-                    //laguages.ItemsSource = laguagesD;
-                /*}
+                laguages.ItemsSource = mainController.laguagesD;
+                mainController.DestructSingletons();
+                }
                 catch (Exception exception)
                 {
                     System.Windows.Forms.MessageBox.Show(exception.Message, "Error Occured",  MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }*/
+                }
             }
         }
 
@@ -124,7 +125,7 @@ namespace WpfApp1
             {
                 mainController.reset(path_to.Text);
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 System.Windows.Forms.MessageBox.Show(exception.Message, "Error Occured", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -154,10 +155,10 @@ namespace WpfApp1
             try
             {
                 mainController.getDictionary();
-                string dictionaryPath = (bool)is_stemming.IsChecked ? "\\Stemmingshow.txt": "\\show.txt";
+                string dictionaryPath = (bool)is_stemming.IsChecked ? "\\Stemmingshow.txt" : "\\show.txt";
                 Process.Start(path_to.Text + dictionaryPath);
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 System.Windows.Forms.MessageBox.Show(exception.Message, "Error Occured", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -168,56 +169,5 @@ namespace WpfApp1
             var dialog = System.Windows.Forms.MessageBox.Show("Please choose the path of the folder containing the files to index and " +
                 "the path of the folder for posting files", "Missing path!", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Stop);
         }
-
-        private void browse_quries_Click(object sender, RoutedEventArgs e)
-        {
-            bindButtonWithTextBox(source_for_queries,true);
-        }
-
-        private void run_queire_Click(object sender, RoutedEventArgs e)
-        {
-            Dictionary<int, List<Tuple<string, double>>> ans = mainController.runQuerie(path_from.Text, path_to.Text, source_for_queries.Text, single_querie.Text, is_stemming.IsChecked, with_semantic.IsChecked, chosenCities);
-            Dictionary<int, List<string>> dic = new Dictionary<int, List<string>>();
-            foreach(int quer in ans.Keys)
-            {
-                dic.Add(quer, new List<string>());
-                foreach(Tuple<string,double> item in ans[quer])
-                {
-                    dic[quer].Add(item.Item1);
-                }
-            }
-            Window window = new ResultsWindow(dic,mainController);
-            window.Show();
-        }
-
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            if (path_to.Text != "")
-            {
-                if (!cities.IsOpen)
-                {
-                    var dictionary = mainController.getCities(path_to.Text, (bool)is_stemming.IsChecked);
-                    if (dictionary != null && dictionary.Count > 0)
-                    {
-                        citiesList.ItemsSource = (IDictionary)dictionary;
-                        cities.IsOpen = true;
-                    }
-                    else
-                    {
-                        var dialog = System.Windows.Forms.MessageBox.Show("There is not cities to choose from yet. try start index first", "Something is Missing", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Stop);
-                    }
-                }
-                else
-                {
-                    this.chosenCities = citiesList.SelectedItems;
-                    cities.IsOpen = false;
-                }
-            }
-            else
-            {
-                MyMessageBox();
-            }
-        }
     }
-
 }

@@ -28,6 +28,8 @@ namespace Model2
         private HashSet<String> counters = new HashSet<string>();
         private string destinationPath;
         public static List<Task> writingList = new List<Task>();
+        public Dictionary<string, string> laguagesD = new Dictionary<string, string>();
+
 
 
         string[] delimiters = {"=","_", "?" ," - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "," ,"---", "..", "...", " -- ", "\\n", "----", "$$" , "$$$" };
@@ -76,6 +78,8 @@ namespace Model2
             Parse.stopWords = stopWords;
             bigNumbersHash = new HashSet<string>();
             months = new Dictionary<string, string>();
+            laguagesD = new Dictionary<string, string>();
+            laguagesD.Add("loading...", "loading...");
             InitHeapVariables();
 
         }
@@ -184,7 +188,7 @@ namespace Model2
             tasker8.Wait();
             indexer.docsCount = Indexer.docsIndexer.Count();
             tasker6.Wait();
-            Indexer.docsIndexer = null;
+            //Indexer.docsIndexer = null;
             Task tasker7 = Task.Run(() => { indexer.WriteDictionary(); });
             tasker7.Wait();
             indexer.termCount = Indexer.fullDictionary.Count();
@@ -284,7 +288,7 @@ namespace Model2
 
             SortedDictionary<string,Term> docVovabulary = AddTermsToVocabulry(splitedText, shouldStem, doc, addedTerms);
             Indexer index = Indexer.Instance(destinationPath,shouldStem);
-            index.InitIndex(doc ,docVovabulary);
+            index.InitIndex(doc ,docVovabulary, laguagesD);
          
         }
 
