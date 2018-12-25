@@ -77,6 +77,7 @@
     <Compile Include="Query.cs" />
     <Compile Include="Ranker.cs" />
     <Compile Include="Searcher.cs" />
+    <Compile Include="SearcherPartial.cs" />
     <Compile Include="SimpleTerm.cs" />
     <Compile Include="Doc.cs" />
     <Compile Include="FileReader.cs" />
