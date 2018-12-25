@@ -81,17 +81,17 @@ namespace Model2
                 }
 
                 hyphenExpr[0] = TreatHyphenTermsNumbers(pos, splitedText, leftSubstr, Side.Left, leftSubstrPossibleChange, numPositions);
-                if(!(addedTerms.ContainsKey(hyphenExpr[0])))
+                /*if(!(addedTerms.ContainsKey(hyphenExpr[0])))
                 {
                     addedTerms[hyphenExpr[0]] = new List<int>();
                 }
-                addedTerms[hyphenExpr[0]].Add(pos);
+                addedTerms[hyphenExpr[0]].Add(pos);*/
                 hyphenExpr[1] = TreatHyphenTermsNumbers(pos, splitedText, rightSubstr, Side.Right, rightSubstrPossibleChange, numPositions);
-                if (!(addedTerms.ContainsKey(hyphenExpr[1])))
+                /*if (!(addedTerms.ContainsKey(hyphenExpr[1])))
                 {
                     addedTerms[hyphenExpr[1]] = new List<int>();
                 }
-                addedTerms[hyphenExpr[1]].Add(pos);
+                addedTerms[hyphenExpr[1]].Add(pos);*/
 
                 for (int i = 0; i < hyphenExpr.Length; i++)
                 {
@@ -169,14 +169,14 @@ namespace Model2
                         commitChanges = true;
                         while (pos > origPos)
                         {
-                            if(splitedText[pos].ToLower() != "between" && splitedText[pos].ToLower() != "and" )
+                            /*if(splitedText[pos].ToLower() != "between" && splitedText[pos].ToLower() != "and" )
                             {
                                 if (!addedTerms.ContainsKey(splitedText[pos]))
                                 {
                                     addedTerms[splitedText[pos]] = new List<int>();
                                 }
                                 addedTerms[splitedText[pos]].Add(pos);
-                            }
+                            }*/
                             splitedText[pos] = " ";
                             pos--;
                         }

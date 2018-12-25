@@ -59,16 +59,20 @@ namespace Model2
             {
                 using (var fileStream = File.OpenRead(_currentFile))
                 {
-                    using (var streamReader = new StreamReader(_currentFile,Encoding.ASCII))
+                    using (var streamReader = new StreamReader(_currentFile, Encoding.UTF8))
                     {
-                        String line;
+                        String line = "";
                         while (!streamReader.EndOfStream && _currentFile != path + "\\stopwords.txt")
                         {
                             string docID = "";
                             string city = "";
                             bool notText = true;
-                            while ((line = streamReader.ReadLine()) != null && line != "</DOC>")
+                            string[] file = streamReader.ReadToEnd().Split('\n');
+
+                            //while ((line = streamReader.ReadLine()) != null && line != "</DOC>")
+                            for (int i = 0; i < file.Length; i++)
                             {
+                                line = file[i];
                                 if (notText)
                                 {
                                     //id

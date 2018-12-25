@@ -908,7 +908,7 @@ namespace Model2
     }
         private SortedDictionary<string, Term> AddTermsToVocabulry(string[] splitedText, bool shouldStem, Doc doc, Dictionary<string, List<int>> addedTerms)
         {
-            //addedTerms = new Dictionary<string, List<int>>();
+            addedTerms = new Dictionary<string, List<int>>();
             StemmerInterface stm = new Stemmer();
             SortedDictionary<string, Term> thisDocVocabulary = new SortedDictionary<string, Term>();
             int pos = 0;
