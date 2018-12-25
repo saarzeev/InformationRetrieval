@@ -38,7 +38,7 @@ namespace Model2
             return parsed;
         }
 
-        W
+        
 
         public Dictionary<int, List<Tuple<string, double>>> initSearch(Indexer indexer)
         {
@@ -47,7 +47,7 @@ namespace Model2
             foreach (int queryId in parsed.Keys)
             {
                 rankingForQuery.Add(queryId, new List<Tuple<string, double>>());
-                List<string> posting = GetTermsPosting(parsed[queryId].ToList());
+                List<string> posting = GetTermsPosting(parsed[queryId].ToList(), indexer);
                 //[docid: <term,df,tf,is100>
                 HashSet<string> docs = new HashSet<string>();
                 //remove by citises

@@ -14,7 +14,7 @@ namespace Model2
         /// </summary>
         /// <param name="terms"></param>
         /// <returns></returns>
-        public List<string> GetTermsPosting(List<string> terms)
+        public List<string> GetTermsPosting(List<string> terms,Indexer index)
         {
             List<string> ans = new List<string>();
 
@@ -23,7 +23,7 @@ namespace Model2
                 string term = terms[i].ToLower();
                 char firstChar = term[0];
                 string firstLetter = "\\" + (term.ElementAt(0) >= 'a' && term.ElementAt(0) <= 'z' ? term.ElementAt(0).ToString() : "other");
-                string postingPath = Indexer.indexer.postingPathForSearch + ("\\" + firstLetter + "FINAL.txt");
+                string postingPath = index.postingPathForSearch + ("\\" + firstLetter + "FINAL.txt");
 
                 //TODO Maybe stay in the same file for every term within that file. (Sort query terms first)
 

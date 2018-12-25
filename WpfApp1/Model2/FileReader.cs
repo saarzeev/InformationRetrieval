@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Model2
 {
-   public class FileReader
+    public class FileReader
     {
         public string path { get; private set; }
         private Queue<string> _files = new Queue<string>();
@@ -14,10 +14,10 @@ namespace Model2
         private long _docINdexInFile;
         public HashSet<string> stopWords;
 
-        public FileReader(string filePath,string stopWordPath )
+        public FileReader(string filePath, string stopWordPath)
         {
             this.path = filePath;
-            string[] allfiles = Directory.GetFiles(this.path, "*.*", SearchOption.AllDirectories);
+            string[] allfiles = Directory.GetFiles(this.path, ".", SearchOption.AllDirectories);
             foreach (var file in allfiles)
             {
                 _files.Enqueue(file);
@@ -30,7 +30,7 @@ namespace Model2
             using (var streamReader = new StreamReader(stopWordPath))
             {
                 String line;
-                HashSet<string> stopWord = new HashSet<string>(); 
+                HashSet<string> stopWord = new HashSet<string>();
                 while (!streamReader.EndOfStream)
                 {
                     while ((line = streamReader.ReadLine()) != null)
@@ -38,7 +38,7 @@ namespace Model2
                         line = line.Replace("'", "");
                         stopWord.Add(line.ToLower());
                     }
-                  
+
                 }
                 return stopWord;
             }
@@ -57,22 +57,30 @@ namespace Model2
 
             using (FileStream fs = new FileStream(_currentFile, FileMode.Open, FileAccess.Read))
             {
-                using (var fileStream = File.OpenRead(_currentFile))
+                //using (var fileStream = File.OpenRead(_currentFile))
+                //{
+                using (var streamReader = new StreamReader(_currentFile, Encoding.UTF8))
                 {
-                    using (var streamReader = new StreamReader(_currentFile, Encoding.UTF8))
+                    if (_currentFile != path + "\\stopwords.txt")
                     {
-                        String line = "";
-                        while (!streamReader.EndOfStream && _currentFile != path + "\\stopwords.txt")
+                        string line = "";
+                        //while (!streamReader.EndOfStream && _currentFile != path + "\\stopwords.txt")
+                        //{
+                        string docID = "";
+                        string city = "";
+                        bool notText = true;
+                        string[] file = streamReader.ReadToEnd().Split('\n');
+                        int numOfLine = 0;
+                        //while ((line = streamReader.ReadLine()) != null && line != "</DOC>")
+                        //for (int i = 0; i < file.Length; i++)
+                        while (numOfLine < file.Length)
                         {
-                            string docID = "";
-                            string city = "";
-                            bool notText = true;
-                            string[] file = streamReader.ReadToEnd().Split('\n');
-
-                            //while ((line = streamReader.ReadLine()) != null && line != "</DOC>")
-                            for (int i = 0; i < file.Length; i++)
+                            
+                            
+                            while (line != "</DOC>" && numOfLine < file.Length)
                             {
-                                line = file[i];
+                                line = file[numOfLine];
+                                numOfLine++;
                                 if (notText)
                                 {
                                     //id
@@ -104,25 +112,27 @@ namespace Model2
                                 }
 
                             }
-
-                            if (line != null)
-                            {
-                                retVal = new Doc( doc, docID, city);
+                            if (docID != "") {
+                                retVal = new Doc(doc, docID, city);
                                 notText = true;
                                 docID = "";
                                 city = "";
-                                _docINdexInFile++;
                                 retValList.Add(retVal);
-                                doc = new StringBuilder("");
                             }
+                            doc = new StringBuilder("");
+                            if (numOfLine < file.Length) { line = file[numOfLine]; }
+                            // _docINdexInFile++;
+
                         }
                     }
+                    //}
                 }
+                //}
             }
             _currentFile = "";
-            
             return retValList;
         }
+
         /// <summary>
         /// Returns whether or not there is another file to read.
         /// </summary>
