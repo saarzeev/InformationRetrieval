@@ -17,13 +17,15 @@ namespace Model2
         public List<string> GetTermsPosting(List<string> terms,Indexer index)
         {
             List<string> ans = new List<string>();
+            terms.Sort();
+            string currFirstLetter = "";
 
             for (int i = 0; i < terms.Count; i++)
             {
                 string term = terms[i].ToLower();
                 char firstChar = term[0];
-                string firstLetter = "\\" + (term.ElementAt(0) >= 'a' && term.ElementAt(0) <= 'z' ? term.ElementAt(0).ToString() : "other");
-                string postingPath = index.postingPathForSearch + ("\\" + firstLetter + "FINAL.txt");
+                currFirstLetter = GetFirstLetter(term);
+                string postingPath = index.postingPathForSearch + ("\\" + currFirstLetter + "FINAL.txt");
 
                 //TODO Maybe stay in the same file for every term within that file. (Sort query terms first)
 
@@ -32,16 +34,32 @@ namespace Model2
                     if (Indexer.fullDictionary.ContainsKey(term))
                     {
                         long position = Indexer.fullDictionary[term].Position;
-                        using (StreamReader file = new StreamReader(infile,Encoding.ASCII))
+                        using (StreamReader file = new StreamReader(infile, Encoding.ASCII))
                         {
-                            infile.Seek(position, SeekOrigin.Begin);
-                            ans.Add(file.ReadLine());
+                            while (true)
+                            {
+                                infile.Seek(position, SeekOrigin.Begin);
+                                ans.Add(file.ReadLine());
+                                if(i + 1 <terms.Count && GetFirstLetter(terms[i + 1]) == GetFirstLetter(terms[i]))
+                                {
+                                    i++;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
             }
             //Console.WriteLine("Search duration: " + (DateTime.Now - startingTime));
             return ans;
+        }
+
+        private string GetFirstLetter(string term)
+        {
+            return "\\" + (term.ElementAt(0) >= 'a' && term.ElementAt(0) <= 'z' ? term.ElementAt(0).ToString() : "other");
         }
     }
 }

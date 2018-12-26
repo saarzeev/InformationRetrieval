@@ -82,7 +82,8 @@ namespace Model2
                     var ans = rankingForQuery[item].Take(50);
                     rankingForQuery[item].RemoveAll((x) => !ans.Contains(x));
                 }
-                using (FileStream fs = new FileStream(@"d:\documents\users\saarzeev\results.txt", FileMode.Append, FileAccess.Write))
+                string nu = Directory.GetCurrentDirectory();
+                using (FileStream fs = new FileStream(Directory.GetCurrentDirectory() + @"\results.txt", FileMode.Append, FileAccess.Write))
                 {
                     using (StreamWriter sw = new StreamWriter(fs, Encoding.ASCII))
 

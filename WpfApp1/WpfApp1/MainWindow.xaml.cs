@@ -23,6 +23,9 @@ namespace WpfApp1
         string docNum;
         public IList chosenCities;
 
+        /// <summary>
+        /// MainWindow C'tor
+        /// </summary>
         public MainWindow()
         {
             //laguagesD.Add("loading...", "loading...");
@@ -95,7 +98,7 @@ namespace WpfApp1
 
         private void start_Click(object sender, RoutedEventArgs e)
         {
-            if(path_to.Text == "" || path_from.Text == "")
+            if (path_to.Text == "" || path_from.Text == "" || !Directory.Exists(path_from.Text) || !Directory.Exists(path_to.Text))
             {
                 MyMessageBox();
             }
@@ -166,7 +169,7 @@ namespace WpfApp1
         public void MyMessageBox()
         {
             var dialog = System.Windows.Forms.MessageBox.Show("Please choose the path of the folder containing the files to index and " +
-                "the path of the folder for posting files", "Missing path!", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Stop);
+                "the path of the folder for posting files.", "Wrong path detected!", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Stop);
         }
 
         private void browse_quries_Click(object sender, RoutedEventArgs e)
