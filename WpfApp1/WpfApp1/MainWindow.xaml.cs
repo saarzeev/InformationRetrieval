@@ -110,7 +110,7 @@ namespace WpfApp1
                     time = "TotalTime: " + values[0] + "seconds";
                     docNum = "Number of docs: " + values[1];
                     termNum = "Number of terms: " + values[2];
-                    System.Windows.Forms.MessageBox.Show(time + "\n" + docNum + "\n" + termNum, "process ended!", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
+                    System.Windows.Forms.MessageBox.Show(time + "\n" + docNum + "\n" + termNum, "Process Finished", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
                     //laguagesD = mainController.getLaguages();
                     //laguages.ItemsSource = laguagesD;
                 /*}
@@ -125,7 +125,9 @@ namespace WpfApp1
         {
             try
             {
+                DateTime start = DateTime.Now;
                 mainController.reset(path_to.Text);
+                System.Windows.Forms.MessageBox.Show("Reset process was successfully completed.\nIt took "  + (DateTime.Now - start) + ".", "Process Finished", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
             }
             catch(Exception exception)
             {
@@ -143,7 +145,9 @@ namespace WpfApp1
             {
                 try
                 {
+                    DateTime start = DateTime.Now;
                     mainController.LoadDictionary(path_to.Text, (bool)is_stemming.IsChecked);
+                    System.Windows.Forms.MessageBox.Show("Loading dictionary process was successfully completed.\nIt took " + (DateTime.Now - start) + ".", "Process Finished", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
                 }
                 catch (Exception exception)
                 {
@@ -169,7 +173,7 @@ namespace WpfApp1
         public void MyMessageBox()
         {
             var dialog = System.Windows.Forms.MessageBox.Show("Please choose the path of the folder containing the files to index and " +
-                "the path of the folder for posting files.", "Wrong path detected!", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Stop);
+                "the path of the folder for posting files.", "Wrong path detected", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Stop);
         }
 
         private void browse_quries_Click(object sender, RoutedEventArgs e)
@@ -179,7 +183,9 @@ namespace WpfApp1
 
         private void run_queire_Click(object sender, RoutedEventArgs e)
         {
+            DateTime start = DateTime.Now;
             Dictionary<int, List<Tuple<string, double>>> ans = mainController.runQuerie(path_from.Text, path_to.Text, source_for_queries.Text, single_querie.Text, is_stemming.IsChecked, with_semantic.IsChecked, chosenCities);
+            System.Windows.Forms.MessageBox.Show("Query process was successfully completed.\nIt took " + (DateTime.Now - start) + ".", "Process Finished", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
             Dictionary<int, List<string>> dic = new Dictionary<int, List<string>>();
             foreach(int quer in ans.Keys)
             {
@@ -207,7 +213,7 @@ namespace WpfApp1
                     }
                     else
                     {
-                        var dialog = System.Windows.Forms.MessageBox.Show("There is not cities to choose from yet. try start index first", "Something is Missing", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Stop);
+                        var dialog = System.Windows.Forms.MessageBox.Show("Either the corpus contains no cities, or no indexing was done yet. Please try start index, or choose a different corpus.", "Something is Missing", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Stop);
                     }
                 }
                 else
