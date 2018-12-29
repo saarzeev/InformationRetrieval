@@ -51,12 +51,6 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="RestSharp, Version=106.5.4.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
-      <HintPath>..\packages\RestSharp.106.5.4\lib\net452\RestSharp.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
@@ -99,7 +93,6 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="packages\Newtonsoft.Json.12.0.1\.signature.p7s" />
     <None Include="packages\Newtonsoft.Json.12.0.1\LICENSE.md" />
     <None Include="packages\Newtonsoft.Json.12.0.1\Newtonsoft.Json.12.0.1.nupkg" />
@@ -161,6 +154,14 @@
     <Content Include="packages\RestSharp.106.5.4\lib\net452\RestSharp.xml" />
     <Content Include="packages\RestSharp.106.5.4\lib\netstandard2.0\RestSharp.dll" />
     <Content Include="packages\RestSharp.106.5.4\lib\netstandard2.0\RestSharp.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>12.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="RestSharp">
+      <Version>106.5.4</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

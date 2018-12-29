@@ -43,7 +43,7 @@ namespace Model2
                     ans += a * (bb / (c + (k * d))) * Math.Log(e / f);
 
                     //is100
-                    ans *= !term_Df_TF_Is100[word].Item3 && docLength >= 100 ? 0.8 : 1;
+                    //ans *= !term_Df_TF_Is100[word].Item3 && docLength >= 100 ? 0.8 : 1;
                 }
                 ans += 0;
             }
