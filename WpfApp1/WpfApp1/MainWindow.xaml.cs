@@ -197,7 +197,7 @@ namespace WpfApp1
                     dic[quer].Add(item.Item1);
                 }
             }
-            Window window = new ResultsWindow(dic,mainController);
+            Window window = new ResultsWindow(dic,mainController, ans);
             window.Show();
         }
 

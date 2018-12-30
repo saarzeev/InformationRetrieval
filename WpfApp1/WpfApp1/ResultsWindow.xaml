@@ -5,27 +5,38 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="Window1" Height="500" Width="1500">
+        Title="Window1"
+        Loaded="Window_Loaded"
+        ScrollViewer.HorizontalScrollBarVisibility="Auto"
+        ScrollViewer.VerticalScrollBarVisibility="Auto"
+        ScrollViewer.CanContentScroll="True"
+        SizeToContent="WidthAndHeight"
+        MaxWidth="700" d:DesignWidth="483" d:DesignHeight="289">
+    <!--<StackPanel Width="Auto">-->
+    
     <Grid>
-        <DataGrid x:Name="dg" ItemsSource="{Binding Dic}" AutoGenerateColumns="False" SelectionMode="Single" SelectionChanged="dg_Selected">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Query ID" Binding="{Binding Key}"/>
-            </DataGrid.Columns>
-        </DataGrid>
-        <Popup IsOpen="False" StaysOpen="True" Placement="Mouse" Name="entities" Focusable="True" MouseLeave ="entities_MouseLeave" >
-            <ScrollViewer HorizontalScrollBarVisibility="Auto">
-                <ListBox x:Name="entitiesList" >
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" Width="auto">
-                                <TextBlock Text="{Binding Path=Key}" />
-                                <TextBlock Text=" " />
-                                <TextBlock Text="{Binding Path=Value}" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </ScrollViewer>
-        </Popup>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <DataGrid x:Name="ResultsDataGrid" Grid.Row="1" SelectionMode="Single" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalScrollBarVisibility="Auto" RenderTransformOrigin="2.083,1.154" Grid.Column="1" CanUserSortColumns="False" CanUserDeleteRows="False" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" MouseDoubleClick="ResultsDataGrid_MouseDoubleClick" />
+        <DataGrid x:Name="QueriesDataGrid" Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Center" CanUserSortColumns="False" CanUserDeleteRows="False" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False"/>
+
+        <DockPanel Grid.Row="0">
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="File">
+                    <MenuItem Header="_Close" Click="MenuItem_Click_Close"/>
+                    <MenuItem Header="_Save" Click="MenuItem_Click_Save"/>
+                </MenuItem>
+            </Menu>
+            <StackPanel></StackPanel>
+        </DockPanel>
     </Grid>
+    
+    <!--</StackPanel>-->
+
 </Window>
