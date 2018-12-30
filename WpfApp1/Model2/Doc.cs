@@ -16,7 +16,7 @@ namespace Model2
         //public SortedDictionary<int, Term> entities = new SortedDictionary<int, Term>(new DescendingComparer<int>());
         public List<KeyValuePair<int, SimpleTerm>> entities = new List<KeyValuePair<int, SimpleTerm>>();
         //public string countery;
-        //public string language { get; set; }
+        public string language { get; set; }
 
         /// <summary>
         /// C'tor
@@ -27,7 +27,7 @@ namespace Model2
         /// <param name="city"></param>
         /// <param name="countery"></param>
         /// <param name="language"></param>
-        public Doc(/*string path,*/ StringBuilder text, string docID, string city, string countery = "", string language = "")
+        public Doc(/*string path,*/ StringBuilder text, string docID, string city, string language = "")
         {
             this.max_tf = 0;
             this.uniqWords = 0;
@@ -35,6 +35,7 @@ namespace Model2
             this._text = text;
             this._docID = docID;
             this.length = 0;
+            this.language = language;
         }
         
         /// <summary>
@@ -50,9 +51,10 @@ namespace Model2
             Int32.TryParse(splitted[2], out this.uniqWords);
             Int32.TryParse(splitted[3], out this.length);
             this.city = splitted[4];
+            this.language = splitted[5];
 
             entities = new List<KeyValuePair<int, SimpleTerm>>();
-            int i = 5;
+            int i = 6;
             while(i < splitted.Length)
             {
                 int tf;
@@ -72,7 +74,7 @@ namespace Model2
         /// <returns></returns>
         public StringBuilder ToStringBuilder() {
             StringBuilder doc = new StringBuilder();
-            doc.AppendFormat("{0},{1},{2},{3},{4}", this._docID, this.max_tf, this.uniqWords, this.length, this.city);
+            doc.AppendFormat("{0},{1},{2},{3},{4},{5}", this._docID, this.max_tf, this.uniqWords, this.length, this.city, this.language);
 
             for (int i = 0; i < entities.Count; i++)
             {

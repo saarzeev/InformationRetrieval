@@ -28,6 +28,7 @@ namespace Model2
         private HashSet<String> counters = new HashSet<string>();
         private string destinationPath;
         public static List<Task> writingList = new List<Task>();
+        public Dictionary<string, string> languagesD = new Dictionary<string, string>();
 
 
         string[] delimiters = {"=","_", "?" ," - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "," ,"---", "..", "...", " -- ", "\\n", "----", "$$" , "$$$" };
@@ -76,6 +77,7 @@ namespace Model2
             Parse.stopWords = stopWords;
             bigNumbersHash = new HashSet<string>();
             months = new Dictionary<string, string>();
+            languagesD.Add("loading...", "loading...");
             InitHeapVariables();
 
         }
@@ -284,7 +286,7 @@ namespace Model2
 
             SortedDictionary<string,Term> docVovabulary = AddTermsToVocabulry(splitedText, shouldStem, doc, addedTerms);
             Indexer index = Indexer.Instance(destinationPath,shouldStem);
-            index.InitIndex(doc ,docVovabulary);
+            index.InitIndex(doc ,docVovabulary, languagesD);
          
         }
 

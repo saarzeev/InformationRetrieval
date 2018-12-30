@@ -27,7 +27,7 @@ namespace Model2
 
         public static HashSet<string> UpdateStopWords(string stopWordPath)
         {
-            using (var streamReader = new StreamReader(stopWordPath,Encoding.ASCII))
+            using (var streamReader = new StreamReader(stopWordPath))
             {
                 String line;
                 HashSet<string> stopWord = new HashSet<string>();
@@ -59,7 +59,7 @@ namespace Model2
             {
                 //using (var fileStream = File.OpenRead(_currentFile))
                 //{
-                using (var streamReader = new StreamReader(_currentFile, Encoding.ASCII))
+                using (var streamReader = new StreamReader(_currentFile, Encoding.UTF8))
                 {
                     if (_currentFile != path + "\\stopwords.txt")
                     {
@@ -69,14 +69,16 @@ namespace Model2
                         string docID = "";
                         string city = "";
                         bool notText = true;
+                        string language = "";
+                        bool firstAfterText = false;
                         string[] file = streamReader.ReadToEnd().Split('\n');
                         int numOfLine = 0;
                         //while ((line = streamReader.ReadLine()) != null && line != "</DOC>")
                         //for (int i = 0; i < file.Length; i++)
                         while (numOfLine < file.Length)
                         {
-                            
-                            
+
+
                             while (line != "</DOC>" && numOfLine < file.Length)
                             {
                                 line = file[numOfLine];
@@ -104,19 +106,35 @@ namespace Model2
                                     {
                                         notText = false;
                                         doc.Append(line);
+                                        firstAfterText = true;
                                     }
                                 }
                                 else
                                 {
+                                    if (firstAfterText)
+                                    {
+                                        if (line.StartsWith("Language"))
+                                        {
+                                            string[] del = { "Language:", "<F P=105>", "</F P=105>", "</F>", " " };
+                                            string[] splited = line.Split(del, StringSplitOptions.RemoveEmptyEntries);
+                                            if (splited.Length > 0)
+                                            {
+                                                language = splited[0];
+                                            }
+                                        }
+                                        firstAfterText = false;
+                                    }
                                     doc.AppendFormat("{0}{1}", line, "\\n");
                                 }
 
                             }
-                            if (docID != "") {
-                                retVal = new Doc(doc, docID, city);
+                            if (docID != "")
+                            {
+                                retVal = new Doc(doc, docID, city, language);
                                 notText = true;
                                 docID = "";
                                 city = "";
+                                language = "";
                                 retValList.Add(retVal);
                             }
                             doc = new StringBuilder("");

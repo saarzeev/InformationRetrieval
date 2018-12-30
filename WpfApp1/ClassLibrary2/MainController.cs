@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Controllers
 {
@@ -12,16 +13,23 @@ namespace Controllers
     {
         Model2.Parse parser;
         Model2.Indexer indexer;
+        public Dictionary<string, string> languagesD;
+
         public string[] init(string sourcePath, string destination, bool stemming)
         {
             DateTime start = DateTime.Now;
             parser = Model2.Parse.Instance();
+            languagesD = parser.languagesD;
             indexer = Model2.Indexer.Instance(destination, stemming);
             parser.FromFilesToDocs(sourcePath, destination, sourcePath + "\\stopwords.txt", stemming);
             string totalTime = (DateTime.Now - start).TotalSeconds.ToString();
             string[] values = { totalTime, indexer.docsCount.ToString(), indexer.termCount.ToString() };
+            languagesD = new Dictionary<string, string>(parser.languagesD);
+            string json = JsonConvert.SerializeObject(languagesD, Formatting.Indented);
+            File.WriteAllText(destination + "\\languages.json", json);
             Model2.Parse.DestructParse();
             Model2.Indexer.DestructIndexer();
+            
             return values;
         }
 
@@ -109,11 +117,22 @@ namespace Controllers
             return indexer.currenPostingSet.CitiesDictionary;
         }
 
-        /*public Dictionary<string,string> getLaguages()
+        public Dictionary<string, string> getLaguages()
         {
-            Dictionary < string,string> languages = indexer.getLaguages();
+            Dictionary<string, string> languages = indexer.getLanguages();
             Model2.Indexer.DestructIndexer();
             return languages;
+        }
+
+        /*public Dictionary<string, string> LoadLanguages(string destinationPath)
+        {
+            string nu = destinationPath + "\\languages.json";
+            if (File.Exists(destinationPath + "\\languages.json")) {
+                
+                languagesD = JsonConvert.DeserializeObject<Dictionary<string, string>>(destinationPath + "\\languages.json");
+                return languagesD;
+            }
+            return new Dictionary<string, string>();
         }*/
     }
 }
