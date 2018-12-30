@@ -37,19 +37,89 @@ namespace Model2
             }
             return parsed;
         }
+        public Dictionary<int, HashSet<string>> parseSemi()
+        {
+            if (query.WithSemantic || query.SemiToQueries!=null )
+            {
+                Dictionary<int, HashSet<string>> parsed = new Dictionary<int, HashSet<string>>();
+                Parse parser = Parse.Instance();
+                foreach (int querID in query.SemiToQueries.Keys)
+                {
+                    if (query.SemiToQueries[querID].Length > 0)
+                    {
+                        parsed[querID] = parser.ParseQuery(query.SemiToQueries[querID], query.IsStemming);
+                    }
+                }
+                return parsed;
+            }
+           
+            return null;
+        }
 
-        
+        public Dictionary<int, HashSet<string>> parseDescAndNarr()
+        {
+            if ( query.DescriptionAndNarrative != null)
+            {
+                Dictionary<int, HashSet<string>> parsed = new Dictionary<int, HashSet<string>>();
+                Parse parser = Parse.Instance();
+                foreach (int querID in query.DescriptionAndNarrative.Keys)
+                {
+                    if (query.DescriptionAndNarrative[querID].Length > 0)
+                    {
+                        parsed[querID] = parser.ParseQuery(query.DescriptionAndNarrative[querID], query.IsStemming);
+                    }
+                }
+                return parsed;
+            }
+
+            return null;
+        }
+
 
         public Dictionary<int, List<Tuple<string, double>>> initSearch(Indexer indexer)
         {
-            Dictionary<int, HashSet<string>> parsed = parseQuery();
+            //all parsed 
+            Dictionary<int, HashSet<string>> parsedQuery = parseQuery();
+            Dictionary<int, HashSet<string>> parsedSemi = parseSemi();
+            Dictionary<int, HashSet<string>> parsedDescriptionAndNarr = parseDescAndNarr();
+
+            //remove duplication from description and naarative
+            if (parsedDescriptionAndNarr != null)
+            {
+                foreach (int queryId in parsedQuery.Keys)
+                {
+                    foreach (string word in parsedQuery[queryId])
+                    {
+                        if (parsedDescriptionAndNarr.Keys.Contains(queryId) && parsedDescriptionAndNarr[queryId].Contains(word))
+                        {
+                            parsedDescriptionAndNarr[queryId].Remove(word);
+                        }
+                    }
+
+                }
+            }
             Dictionary<int, List<Tuple<string, double>>> rankingForQuery = new Dictionary<int, List<Tuple<string, double>>>();
-            foreach (int queryId in parsed.Keys)
+
+            foreach (int queryId in parsedQuery.Keys)
             {
                 rankingForQuery.Add(queryId, new List<Tuple<string, double>>());
-                List<string> posting = GetTermsPosting(parsed[queryId].ToList(), indexer);
+                List<string> posting = GetTermsPosting(parsedQuery[queryId].ToList(), indexer);
+
+                //posting for semi
+                List<string> postingSemi = new List<string>();
+                if (parsedSemi != null && parsedSemi.Keys.Contains(queryId))
+                {
+                    postingSemi = GetTermsPosting(parsedSemi[queryId].ToList(), indexer);
+                }
+                //posting for description and narr 
+                List<string> postingDescriptionAndNarrative = new List<string>();
+                if (parsedDescriptionAndNarr != null && parsedDescriptionAndNarr.Keys.Contains(queryId))
+                {
+                    postingDescriptionAndNarrative = GetTermsPosting(parsedDescriptionAndNarr[queryId].ToList(), indexer);
+                }
                 //[docid: <term,df,tf,is100>
                 HashSet<string> docs = new HashSet<string>();
+
                 //remove by citises
                 if (query.Cities != null && query.Cities.Count > 0)
                 {
@@ -64,13 +134,49 @@ namespace Model2
                         }
                     }
                 }
-                Dictionary<string, Dictionary<string, Tuple<int, int, bool>>> allInfo = getAllInfoFromPosting(posting, docs);
+
+                Dictionary<string, Dictionary<string, Tuple<int, int, bool>>> allInfoOfQuery = getAllInfoFromPosting(posting, docs);
+                Dictionary<string, Dictionary<string, Tuple<int, int, bool>>> allInfoOfSemi = new Dictionary<string, Dictionary<string, Tuple<int, int, bool>>>();
+                Dictionary<string, Dictionary<string, Tuple<int, int, bool>>> allInfoOfDescAndNarr = new Dictionary<string, Dictionary<string, Tuple<int, int, bool>>>();
                 posting.Clear();
+
+                //all info for ranking for semi and add docs to check
+                if (postingSemi.Count > 0) {
+                    allInfoOfSemi = getAllInfoFromPosting(postingSemi, docs);
+                    postingSemi.Clear();
+                    //foreach (string docID in allInfoOfSemi.Keys)
+                    //{
+                    //    if (!allInfoOfQuery.ContainsKey(docID))
+                    //    {
+                    //        allInfoOfQuery.Add(docID, new Dictionary<string, Tuple<int, int, bool>>());
+                    //    }
+                    //}
+                }
+
+                //all info for ranking for description and narr and add docs to check
+                if (postingDescriptionAndNarrative.Count > 0)
+                {
+                    allInfoOfDescAndNarr = getAllInfoFromPosting(postingDescriptionAndNarrative, docs);
+                    postingDescriptionAndNarrative.Clear();
+                    //foreach (string docID in allInfoOfDescAndNarr.Keys)
+                    //{
+                    //    if (!allInfoOfQuery.ContainsKey(docID))
+                    //    {
+                    //        allInfoOfQuery.Add(docID, new Dictionary<string, Tuple<int, int, bool>>());
+                    //    }
+                    //}
+                }
+          
                 //ranking
                 Ranker ranker = new Ranker(indexer);
-                foreach (string docId in allInfo.Keys)
+                foreach (string docId in allInfoOfQuery.Keys)
                 {
-                    rankingForQuery[queryId].Add(ranker.rankingDocs(docId, parsed[queryId], allInfo[docId]));
+                    HashSet<string> parsedSemiforDoc = parsedSemi != null && parsedSemi.ContainsKey(queryId) ? parsedSemi[queryId] : null;
+                    HashSet<string> parsedDescAndNarrforDoc = parsedDescriptionAndNarr != null && parsedDescriptionAndNarr.ContainsKey(queryId) ? parsedDescriptionAndNarr[queryId] : null;
+
+                    rankingForQuery[queryId].Add(ranker.rankingDocs(docId, parsedQuery[queryId], allInfoOfQuery[docId],
+                        parsedSemiforDoc, allInfoOfSemi.Keys.Contains(docId)? allInfoOfSemi[docId]:null,
+                        parsedDescAndNarrforDoc, allInfoOfDescAndNarr.Keys.Contains(docId) ? allInfoOfDescAndNarr[docId] : null));
                 }
             }
 

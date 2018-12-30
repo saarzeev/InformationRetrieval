@@ -193,6 +193,7 @@ namespace Model2
             this._initialPathForPosting = path;
             currenPostingSet = new PostingsSet(path, isStemming);
             dead = new List<PostingsSet>();
+            this.isStemming = isStemming;
             docsIndexer = new ConcurrentQueue<Doc>();
             fullDictionary = new ConcurrentDictionary<string, SimpleTerm>();
             System.IO.Directory.CreateDirectory(path + postingWithStemmingDirectory);
@@ -281,13 +282,15 @@ namespace Model2
         {
             string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
             path += "\\dictionary.txt";
+            this.postingPathForSearch = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
             if (File.Exists(path))  
             {
                 //StringBuilder dictionary = PostingsSet.Unzip(File.ReadAllBytes(path));
                 string dictionary = (File.ReadAllText(path, Encoding.ASCII));
                 string[] del = {"\r\n"};
                 string[] lineByLine = dictionary.ToString().Split(del, StringSplitOptions.RemoveEmptyEntries);
-                this.postingPathForSearch = lineByLine[0];
+
+                
                 for (int i = 1; i < lineByLine.Length; i++)
                 {
                     if (lineByLine[i].Length > 1)

@@ -19,12 +19,16 @@ namespace Model2
         private bool isStemming;
         private bool withSemantic;
         private Dictionary<int, StringBuilder> queries;
+        private Dictionary<int, StringBuilder> semiToQueries;
+        private Dictionary<int, StringBuilder> descriptionAndNarrative;
         private static Dictionary<string, List<KeyValuePair<string, double>>> semanticsDict; //origWord -> (simWord, score)*
 
         public bool IsStemming { get => isStemming; set => isStemming = value; }
         public bool WithSemantic { get => withSemantic; set => withSemantic = value; }
         public Dictionary<string, List<CityPosting>> Cities { get => cities; set => cities = value; }
         public Dictionary<int, StringBuilder> Queries { get => queries; set => queries = value; }
+        public Dictionary<int, StringBuilder> SemiToQueries { get => semiToQueries; set => semiToQueries = value; }
+        public Dictionary<int, StringBuilder> DescriptionAndNarrative { get => descriptionAndNarrative; set => descriptionAndNarrative = value; }
 
         /// <summary>
         /// Query C'tor
@@ -46,8 +50,12 @@ namespace Model2
             this.isStemming = isStemming;
             this.withSemantic = withSemantic;
             queries = new Dictionary<int, StringBuilder>();
-
-            InitSemantics();
+            if (withSemantic)
+            {
+                semiToQueries = new Dictionary<int, StringBuilder>();
+                InitSemantics();
+            }
+           
         }
 
         /// <summary>
@@ -74,6 +82,9 @@ namespace Model2
         /// <param name="path">Path from which queries will be loaded</param>
         public void runQueriesFromPath(string path)
         {
+            this.descriptionAndNarrative = new Dictionary<int, StringBuilder>();
+            String[] additionalStopWords = { "etc.", "i.e", "considered", "information", "documents", "document",
+                "discussing", "discuss", "following", "issues", "identify", "find", "so-called","impact"};
             StringBuilder query = new StringBuilder();
             using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
@@ -87,10 +98,14 @@ namespace Model2
                             int queryID = 0;
                             bool Query = false;
                             bool queryEnd = false;
+                            bool description = false;
+                            bool narr = false;
+                            StringBuilder narrative = new StringBuilder("") ;
+                            StringBuilder desc = new StringBuilder("");
                             while ((line = streamReader.ReadLine()) != null && line != "</top>")
                             {
                                
-                                if (!queryEnd && line.Length > 1)
+                                if (line.Length > 1)
                                 {
                                     if (!Query)
                                     {
@@ -110,15 +125,40 @@ namespace Model2
                                         //query
                                         if (line.StartsWith("<title>"))
                                         {
-                                            //TODO maybe read titel
-                                            //TODO maybe parse query if question or regular text
                                             //TODO mayby try read narr
                                             string[] del = { "<title>"," "};
                                             string[] splited = line.Split(del, StringSplitOptions.RemoveEmptyEntries);
                                             if (splited.Length > 0)
                                             {
                                                 query.Append(String.Join(" ",splited));
-                                                queryEnd = true;
+                                                continue;
+                                                //queryEnd = true;
+                                            }
+                                        }
+
+                                        if (description|| line.StartsWith("<desc>"))
+                                        {
+                                            description = true;
+
+                                            if (narr || line.StartsWith("<narr>"))
+                                            {
+                                                narr = true;
+                                                narrative.AppendLine(line);
+                                                continue;
+                                            }
+                                            else
+                                            {
+                                                if(!line.StartsWith("<desc>") /*&& line.Length > 1*/)
+                                                {
+                                                    string[] splited = line.ToLower().Split(additionalStopWords, StringSplitOptions.RemoveEmptyEntries);
+                                                    if (splited.Length > 0)
+                                                    {
+                                                        desc.AppendLine(" " + String.Join(" ", splited));
+                                                        // query.Append(" " + String.Join(" ", splited));
+                                                        continue; 
+                                                        //queryEnd = true;
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -127,8 +167,12 @@ namespace Model2
 
                             if (line != null)
                             {
+                                string [] narativeSplitted = this.GetNarrative(narrative.ToString());
+                                //query.Append(" " + String.Join(" ", narativeSplitted));
                                 this.queries.Add(queryID, query);
-                                
+                                String[] arr = { "\r\n", "\n\r" , " "};
+                                this.AddNarr(queryID, desc.ToString().Split(arr, StringSplitOptions.RemoveEmptyEntries));
+                                this.AddNarr(queryID, narativeSplitted);
                                 query = new StringBuilder();
                                 if (this.withSemantic)
                                 {
@@ -170,12 +214,53 @@ namespace Model2
                 if (semanticsDict.ContainsKey(word))
                 {
                     List<KeyValuePair<string, double>> words = semanticsDict[word];
-                    for (int j = 0; j < words.Count; j++)
+                    if (!semiToQueries.ContainsKey(id))
                     {
-                        queries[id].AppendFormat(" {0}", words[j].Key);
+                        semiToQueries.Add(id, new StringBuilder(""));
+                    }
+;                   for (int j = 0; j < words.Count; j++)
+                    {
+                        semiToQueries[id].AppendFormat("{0} ", words[j].Key);
                     }
                 }
             }
+        }
+
+        public void AddNarr(int id,string[] narr)
+        {
+            for (int i = 0; i < narr.Length; i++)
+            {
+                string word = narr[i];
+                    if (!descriptionAndNarrative.ContainsKey(id))
+                    {
+                        descriptionAndNarrative.Add(id, new StringBuilder(""));
+                    }
+                   descriptionAndNarrative[id].AppendFormat("{0} ", word);
+            }
+        }
+
+        public string[] GetNarrative(string narrative)
+        {
+            string[] splitedRelevant;
+            String[] additionalStopWords = { "etc.", "i.e", "considered", "information", "documents", "document",
+                "discussing", "discuss", "following", "issues", "identify", "find", "so-called","impact", " ",
+                "<narr>","Narrative","relevant" ,"focus", "topic", "shows", "mention","requierd" ,"mentions", "purpose", "includ", "concentrate","factor","\r\n"};
+            String[] arr = { "\r\n" , "\n\r" };
+            if (narrative.Contains("relevant:") || narrative.Contains("Relevant:"))
+            {
+                string[] splited = narrative.Split(arr, StringSplitOptions.RemoveEmptyEntries);
+                var relevant = splited.SkipWhile(word => word.Contains("are relevant")).TakeWhile(word => !word.Contains("not relevant") && !word.Contains("non relevant") && !word.Contains("non-relevant")).ToArray();
+                
+                splitedRelevant = String.Join(" ", relevant).Split(additionalStopWords, StringSplitOptions.RemoveEmptyEntries);
+            }
+
+            else
+            {
+                string[] splitedByDot = narrative.Split('.');
+                var relevant = splitedByDot.Where(word => !word.Contains("not relevant") && !word.Contains("non relevant") && !word.Contains("non-relevant")).ToArray();
+                splitedRelevant = String.Join(" ", relevant).Split(additionalStopWords, StringSplitOptions.RemoveEmptyEntries);
+            }
+            return splitedRelevant;
         }
     }
 }

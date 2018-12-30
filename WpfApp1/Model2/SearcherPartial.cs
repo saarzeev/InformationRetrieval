@@ -21,13 +21,13 @@ namespace Model2
                 int i = 0;
             }
             List<string> ans = new List<string>();
-            terms.Sort();
+            //terms.Sort();
             string currFirstLetter = "";
 
             for (int i = 0; i < terms.Count; i++)
             {
                 string term = terms[i].ToLower();
-                char firstChar = term[0];
+               // char firstChar = term[0];
                 currFirstLetter = GetFirstLetter(term);
                 string postingPath = index.postingPathForSearch + ("\\" + currFirstLetter + "FINAL.txt");
 
