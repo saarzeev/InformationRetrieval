@@ -76,6 +76,15 @@ namespace Controllers
             {
                 indexer = Indexer.Instance(postingDistination, (bool)isStemming);
             }
+            else
+            {
+                if(postingDistination!=indexer._initialPathForPosting || isStemming!= indexer.isStemming)
+                {
+                    Indexer.DestructIndexer();
+                    indexer = Indexer.Instance(postingDistination, (bool)isStemming);
+                }
+            }
+           
             indexer.LoadDictionary();
             //TODO 
             indexer.LoadDocDictionary();

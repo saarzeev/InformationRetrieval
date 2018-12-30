@@ -287,23 +287,26 @@ namespace Model2
         /// </summary>
         public void LoadDictionary()
         {
-            string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
-            path += "\\dictionary.txt";
-            this.postingPathForSearch = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
-            if (File.Exists(path))  
+            if (fullDictionary.Count < 1)
             {
-                //StringBuilder dictionary = PostingsSet.Unzip(File.ReadAllBytes(path));
-                string dictionary = (File.ReadAllText(path, Encoding.ASCII));
-                string[] del = {"\r\n"};
-                string[] lineByLine = dictionary.ToString().Split(del, StringSplitOptions.RemoveEmptyEntries);
-
-                
-                for (int i = 1; i < lineByLine.Length; i++)
+                string path = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
+                path += "\\dictionary.txt";
+                this.postingPathForSearch = this.isStemming ? this._initialPathForPosting + postingWithStemmingDirectory : this._initialPathForPosting + postingDirectory;
+                if (File.Exists(path))
                 {
-                    if (lineByLine[i].Length > 1)
+                    //StringBuilder dictionary = PostingsSet.Unzip(File.ReadAllBytes(path));
+                    string dictionary = (File.ReadAllText(path, Encoding.ASCII));
+                    string[] del = { "\r\n" };
+                    string[] lineByLine = dictionary.ToString().Split(del, StringSplitOptions.RemoveEmptyEntries);
+
+
+                    for (int i = 1; i < lineByLine.Length; i++)
                     {
-                        SimpleTerm term = new SimpleTerm(lineByLine[i]);
-                        fullDictionary[term.GetTerm] = term;
+                        if (lineByLine[i].Length > 1)
+                        {
+                            SimpleTerm term = new SimpleTerm(lineByLine[i]);
+                            fullDictionary[term.GetTerm] = term;
+                        }
                     }
                 }
             }
