@@ -113,6 +113,11 @@ namespace Model2
                 {
                     if (docsByCities.Count == 0 || docsByCities.Contains(splited[j]))
                     {
+                        if (splited[j].Contains("winner"))
+                        {
+                            string docID = splited[j];
+                        }
+                        
                         if (!allInfo.Keys.Contains(splited[j]))
                         {
                             allInfo.Add(splited[j], new Dictionary<string, Tuple<int, int, bool>>());
@@ -121,7 +126,9 @@ namespace Model2
                         int.TryParse(splited[j + 1], out int tf);
                         bool is100 = splited[j + 2] == "1" ? true : false;
 
-                        allInfo[splited[j]].Add(splited[0], new Tuple<int, int, bool>(df, tf, is100));
+                        if (!allInfo[splited[j]].Keys.Contains(splited[0])){
+                            allInfo[splited[j]].Add(splited[0], new Tuple<int, int, bool>(df, tf, is100));
+                        }
                     }
                 }
 
