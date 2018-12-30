@@ -13,6 +13,7 @@ namespace WpfApp1
     {
         private Dictionary<int, List<string>> dic;
         private Controllers.MainController mainController;
+
         public Dictionary<int, List<string>> Dic
         {
             get { return dic; }

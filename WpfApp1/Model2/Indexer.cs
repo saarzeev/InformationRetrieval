@@ -16,6 +16,7 @@ namespace Model2
     {
         static public ConcurrentDictionary<string, SimpleTerm> fullDictionary;
         static public ConcurrentQueue<Doc> docsIndexer;
+        static public Mutex languagesMutex = new Mutex();
         static public Mutex dictionaryMutex = new Mutex();
         public string _initialPathForPosting;
         public string postingPathForSearch;
@@ -240,9 +241,15 @@ namespace Model2
         /// </summary>
         /// <param name="doc"></param>
         /// <param name="docDictionary"></param>
-        public void InitIndex(Doc doc, SortedDictionary<string, Term> docDictionary)
+        public void InitIndex(Doc doc, SortedDictionary<string, Term> docDictionary, Dictionary<string, string> languagesD)
         {
            Queue<Posting> postingOfDoc = SetDocVocabularyToFullVocabulary(doc, docDictionary);
+            if (doc.language != "")
+            {
+                languagesMutex.WaitOne();
+                languagesD[doc.language] = doc.language;
+                languagesMutex.ReleaseMutex();
+            }
 
             this.postingSetMutex.WaitOne();
             while (postingOfDoc.Count > 0)
@@ -345,6 +352,20 @@ namespace Model2
             path += "\\docIndexer.txt";
             PostingsSet.Write(allDocPosting, path);
             allDocPosting = null;
+        }
+
+        public Dictionary<string, string> getLanguages()
+        {
+            Dictionary<string, string> languages = new Dictionary<string, string>();
+            for (int i = 0; i < this.docsCount; i++)
+            {
+                string language = docsIndexer.ElementAt(i).language;
+                if (language != "")
+                {
+                    languages[language] = language;
+                }
+            }
+            return languages;
         }
     }
 }

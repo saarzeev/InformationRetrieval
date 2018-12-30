@@ -32,6 +32,7 @@ namespace WpfApp1
             InitializeComponent();
             //laguages.ItemsSource = laguagesD;
             mainController = new Controllers.MainController();
+            laguages.ItemsSource = mainController.languagesD;
         }
 
         private void isOkEnabled()
@@ -111,8 +112,9 @@ namespace WpfApp1
                     docNum = "Number of docs: " + values[1];
                     termNum = "Number of terms: " + values[2];
                     System.Windows.Forms.MessageBox.Show(time + "\n" + docNum + "\n" + termNum, "Process Finished", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
-                    //laguagesD = mainController.getLaguages();
-                    //laguages.ItemsSource = laguagesD;
+                //laguagesD = mainController.getLaguages();
+                //laguages.ItemsSource = laguagesD;
+                laguages.ItemsSource = mainController.languagesD;
                 /*}
                 catch (Exception exception)
                 {
@@ -228,5 +230,4 @@ namespace WpfApp1
             }
         }
     }
-
 }
