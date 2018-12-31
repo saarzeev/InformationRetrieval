@@ -72,7 +72,7 @@ namespace Model2
             if (descAndNarrWords != null)
             {
                 k = 1.85;
-                b = 0.75;
+               
                 foreach (string word in descAndNarrWords)
                 {
                     if (term_Df_TF_Is100OfDescAndNarr != null && term_Df_TF_Is100OfDescAndNarr.Keys.Contains(word))

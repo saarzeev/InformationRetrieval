@@ -28,15 +28,11 @@ namespace Model2
         public string tmpDirectory = "\\tmpPostingFiles";
         public string postingDirectory = "\\posting";
         public string postingWithStemmingDirectory = "\\postingWithStemming";
-        public int avr;
+        public int allDocsLangth;
         public double getAverDocLength()
         {
-            //double ans = 0.0;
-            //foreach(Doc doc in docIndexDictionary.Values) {
-            //    ans += doc.length;
-            //}
-            //return ans / docIndexDictionary.Keys.Count;
-            return avr / docIndexDictionary.Keys.Count;
+
+            return allDocsLangth / docIndexDictionary.Keys.Count;
         }
 
         public HashSet<string> _cities = new HashSet<string>();
@@ -107,7 +103,7 @@ namespace Model2
                     if (lineByLine[i].Length > 1)
                     {
                         Doc doc = new Doc(lineByLine[i]);
-                        this.avr += doc.length;
+                        this.allDocsLangth += doc.length;
                         this.docIndexDictionary.Add(doc._docID,doc);
                     }
                 }
