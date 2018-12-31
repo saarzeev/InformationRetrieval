@@ -197,11 +197,7 @@ namespace Model2
                 {
                     if (docsByCities.Count == 0 || docsByCities.Contains(splited[j]))
                     {
-                        if (splited[j].Contains("winner"))
-                        {
-                            string docID = splited[j];
-                        }
-                        
+
                         if (!allInfo.Keys.Contains(splited[j]))
                         {
                             allInfo.Add(splited[j], new Dictionary<string, Tuple<int, int, bool>>());

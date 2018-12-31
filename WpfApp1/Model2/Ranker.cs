@@ -46,7 +46,6 @@ namespace Model2
                     double f = term_Df_TF_Is100[word].Item1;
                     ans += a * (bb / (c + (k * d))) * Math.Log(e / f);
                 }
-                ans += 0;
             }
             if (semiToQuery != null)
             {
@@ -65,7 +64,6 @@ namespace Model2
                         double j = (0.105) * ((a * (bb / (c + (k * d))) * Math.Log(e / f)));
                         ans += j;
                     }
-                    ans += 0;
                 }
             }
 
@@ -86,7 +84,6 @@ namespace Model2
                         double f = term_Df_TF_Is100OfDescAndNarr[word].Item1;
                         ans += 0.65 * (a * (bb / (c + (k * d))) * Math.Log(e / f));
                     }
-                    ans += 0;
                 }
             }
             return ans;
