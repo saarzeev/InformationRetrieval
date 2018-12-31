@@ -182,8 +182,7 @@ namespace Model2
 
             foreach(int item in rankingForQuery.Keys)
             {
-                rankingForQuery[item].Sort((x, y) => x.Item2.CompareTo(y.Item2));
-                rankingForQuery[item].Reverse();
+                rankingForQuery[item].Sort((x, y) => y.Item2.CompareTo(x.Item2));
                 if (rankingForQuery[item].Count > 50) {
                     var ans = rankingForQuery[item].Take(50);
                     rankingForQuery[item].RemoveAll((x) => !ans.Contains(x));

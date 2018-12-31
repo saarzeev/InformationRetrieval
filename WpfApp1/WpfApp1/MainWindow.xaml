@@ -56,8 +56,6 @@
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Width="auto">
                                     <TextBlock Text="{Binding Path=Key}" />
-                                    <TextBlock Text=" " />
-                                    <TextBlock Text="{Binding Path=Value}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
