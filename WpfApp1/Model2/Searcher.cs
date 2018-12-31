@@ -180,28 +180,16 @@ namespace Model2
                 }
             }
 
-            /*foreach(int item in rankingForQuery.Keys)
+            //sort by ranking and the take top-50
+            foreach(int item in rankingForQuery.Keys)
             {
                 rankingForQuery[item].Sort((x, y) => y.Item2.CompareTo(x.Item2));
                 if (rankingForQuery[item].Count > 50) {
                     var ans = rankingForQuery[item].Take(50);
                     rankingForQuery[item].RemoveAll((x) => !ans.Contains(x));
                 }
-                string nu = Directory.GetCurrentDirectory();
-                using (FileStream fs = new FileStream(Directory.GetCurrentDirectory() + @"\results.txt", FileMode.Append, FileAccess.Write))
-                {
-                    using (StreamWriter sw = new StreamWriter(fs, Encoding.ASCII))
-
-                    {
-                        foreach (var entry in rankingForQuery[item])
-                        {
-                            sw.WriteLine("{0} {1} {2} {3} {4} {5}", item, 0, entry.Item1, 1, 1.1, "a");
-                        }
-                    }
-                }
-            }*/
+            }
             return rankingForQuery;
-            //TODO puke somewere sorted by rank! only 50 rancks for each query
         }
 
         private Dictionary<string, Dictionary<string, Tuple<int, int, bool>>> getAllInfoFromPosting(List<string> posting, HashSet<string> docsByCities)

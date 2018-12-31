@@ -26,7 +26,7 @@
         <DataGrid x:Name="ResultsDataGrid" Grid.Row="1" SelectionMode="Single" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalScrollBarVisibility="Auto" RenderTransformOrigin="2.083,1.154" Grid.Column="1" CanUserSortColumns="False" CanUserDeleteRows="False" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" MouseDoubleClick="ResultsDataGrid_MouseDoubleClick" />
         <DataGrid x:Name="QueriesDataGrid" Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Center" CanUserSortColumns="False" CanUserDeleteRows="False" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False"/>
 
-        <DockPanel Grid.Row="0">
+        <DockPanel Grid.Row="0" Grid.ColumnSpan="2">
             <Menu DockPanel.Dock="Top">
                 <MenuItem Header="File">
                     <MenuItem Header="_Close" Click="MenuItem_Click_Close"/>

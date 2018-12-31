@@ -108,6 +108,14 @@ namespace Model2
 
             //                    }
             //    }
+            string line = ", Chinese,";
+            string[] del = { "Language:", "<F P=105>", "</F P=105>", "</F>", " ", "," };
+            string[] splited = line.Split(del, StringSplitOptions.RemoveEmptyEntries);
+            foreach(string nu in splited)
+            {
+                Console.WriteLine(nu);
+            }
+            Console.WriteLine(splited.Length);
         }
     }
 }

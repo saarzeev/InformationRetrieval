@@ -98,7 +98,7 @@ namespace Model2
                                     //city
                                     else if (line.StartsWith("<F P=104>"))
                                     {
-                                        string[] del = { "<F P=104>", "</F P=104>", "</F>", " " };
+                                        string[] del = { "<F P=104>", "</F P=104>", "</F>", " ", "," };
                                         string[] splited = line.Split(del, StringSplitOptions.RemoveEmptyEntries);
                                         if (splited.Length > 0) { city = splited[0]; }
                                     }
@@ -115,7 +115,7 @@ namespace Model2
                                     {
                                         if (line.StartsWith("Language"))
                                         {
-                                            string[] del = { "Language:", "<F P=105>", "</F P=105>", "</F>", " " };
+                                            string[] del = { "Language:", "<F P=105>", "</F P=105>", "</F>", " ", "," };
                                             string[] splited = line.Split(del, StringSplitOptions.RemoveEmptyEntries);
                                             if (splited.Length > 0)
                                             {
