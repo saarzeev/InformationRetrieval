@@ -103,8 +103,15 @@ namespace Model2
                     if (lineByLine[i].Length > 1)
                     {
                         Doc doc = new Doc(lineByLine[i]);
-                        this.allDocsLangth += doc.length;
-                        this.docIndexDictionary.Add(doc._docID,doc);
+                        if (doc.length > 0)
+                        {
+                            this.allDocsLangth += doc.length;
+                            this.docIndexDictionary.Add(doc._docID, doc);
+                        }
+                        else
+                        {
+                            doc = null;
+                        }
                     }
                 }
             }

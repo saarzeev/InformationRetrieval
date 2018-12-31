@@ -64,8 +64,6 @@ namespace Model2
 
             return null;
         }
-
-
         public Dictionary<int, List<Tuple<string, double>>> initSearch(Indexer indexer)
         {
             //all parsed 
@@ -89,7 +87,6 @@ namespace Model2
                 }
             }
             Dictionary<int, List<Tuple<string, double>>> rankingForQuery = new Dictionary<int, List<Tuple<string, double>>>();
-
             foreach (int queryId in parsedQuery.Keys)
             {
                 rankingForQuery.Add(queryId, new List<Tuple<string, double>>());
@@ -107,24 +104,8 @@ namespace Model2
                 {
                     postingDescriptionAndNarrative = GetTermsPosting(parsedDescriptionAndNarr[queryId].ToList(), indexer);
                 }
-                //[docid: <term,df,tf,is100>
-
-
-                //remove by citises
+               //remove by citises
                 HashSet<string> docs = getDocsOfCities();/*new HashSet<string>();*/
-                //if (query.Cities != null && query.Cities.Count > 0)
-                //{
-                //    foreach (string city in query.Cities.Keys)
-                //    {
-                //        for (int i = 0; i < query.Cities[city].Count; i++)
-                //        {
-                //            if (!docs.Contains(query.Cities[city][i].docID))
-                //            {
-                //                docs.Add(query.Cities[city][i].docID);
-                //            }
-                //        }
-                //    }
-                //}
 
                 Dictionary<string, Dictionary<string, Tuple<int, int, bool>>> allInfoOfQuery = getAllInfoFromPosting(posting, docs);
                 Dictionary<string, Dictionary<string, Tuple<int, int, bool>>> allInfoOfSemi = new Dictionary<string, Dictionary<string, Tuple<int, int, bool>>>();
@@ -135,13 +116,6 @@ namespace Model2
                 if (postingSemi.Count > 0) {
                     allInfoOfSemi = getAllInfoFromPosting(postingSemi, docs);
                     postingSemi.Clear();
-                    //foreach (string docID in allInfoOfSemi.Keys)
-                    //{
-                    //    if (!allInfoOfQuery.ContainsKey(docID))
-                    //    {
-                    //        allInfoOfQuery.Add(docID, new Dictionary<string, Tuple<int, int, bool>>());
-                    //    }
-                    //}
                 }
 
                 //all info for ranking for description and narr and add docs to check
@@ -149,25 +123,20 @@ namespace Model2
                 {
                     allInfoOfDescAndNarr = getAllInfoFromPosting(postingDescriptionAndNarrative, docs);
                     postingDescriptionAndNarrative.Clear();
-                    //foreach (string docID in allInfoOfDescAndNarr.Keys)
-                    //{
-                    //    if (!allInfoOfQuery.ContainsKey(docID))
-                    //    {
-                    //        allInfoOfQuery.Add(docID, new Dictionary<string, Tuple<int, int, bool>>());
-                    //    }
-                    //}
                 }
-          
+                
+
                 //ranking
                 Ranker ranker = new Ranker(indexer);
+               
                 foreach (string docId in allInfoOfQuery.Keys)
                 {
                     HashSet<string> parsedSemiforDoc = parsedSemi != null && parsedSemi.ContainsKey(queryId) ? parsedSemi[queryId] : null;
                     HashSet<string> parsedDescAndNarrforDoc = parsedDescriptionAndNarr != null && parsedDescriptionAndNarr.ContainsKey(queryId) ? parsedDescriptionAndNarr[queryId] : null;
-
                     rankingForQuery[queryId].Add(ranker.rankingDocs(docId, parsedQuery[queryId], allInfoOfQuery[docId],
-                        parsedSemiforDoc, allInfoOfSemi.Keys.Contains(docId)? allInfoOfSemi[docId]:null,
+                        parsedSemiforDoc, allInfoOfSemi.Keys.Contains(docId) ? allInfoOfSemi[docId] : null,
                         parsedDescAndNarrforDoc, allInfoOfDescAndNarr.Keys.Contains(docId) ? allInfoOfDescAndNarr[docId] : null));
+
                 }
             }
 

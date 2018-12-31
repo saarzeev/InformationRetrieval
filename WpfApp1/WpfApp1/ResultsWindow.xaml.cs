@@ -176,6 +176,11 @@ namespace WpfApp1
                 saveDestination = saveFileDialog1.FileName;
             }
 
+            if (File.Exists(saveDestination))
+            {
+                File.Delete(saveDestination);
+            }
+
             foreach (int item in results.Keys)
             {
                 using (FileStream fs = new FileStream(saveDestination, FileMode.Append, FileAccess.Write))
