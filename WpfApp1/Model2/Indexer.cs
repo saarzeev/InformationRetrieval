@@ -237,13 +237,16 @@ namespace Model2
         /// </summary>
         /// <param name="doc"></param>
         /// <param name="docDictionary"></param>
-        public void InitIndex(Doc doc, SortedDictionary<string, Term> docDictionary, Dictionary<string, string> languagesD)
+        public void InitIndex(Doc doc, SortedDictionary<string, Term> docDictionary, List<string> languagesD)
         {
            Queue<Posting> postingOfDoc = SetDocVocabularyToFullVocabulary(doc, docDictionary);
             if (doc.language != "")
             {
                 languagesMutex.WaitOne();
-                languagesD[doc.language] = doc.language;
+                if (!languagesD.Contains(doc.language))
+                {
+                    languagesD.Add(doc.language);
+                }
                 languagesMutex.ReleaseMutex();
             }
 

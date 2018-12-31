@@ -13,7 +13,7 @@ namespace Controllers
     {
         Model2.Parse parser;
         Model2.Indexer indexer;
-        public Dictionary<string, string> languagesD;
+        public List<string> languagesD = new List<string>();
 
         public string[] init(string sourcePath, string destination, bool stemming)
         {
@@ -24,7 +24,7 @@ namespace Controllers
             parser.FromFilesToDocs(sourcePath, destination, sourcePath + "\\stopwords.txt", stemming);
             string totalTime = (DateTime.Now - start).TotalSeconds.ToString();
             string[] values = { totalTime, indexer.docsCount.ToString(), indexer.termCount.ToString() };
-            languagesD = new Dictionary<string, string>(parser.languagesD);
+            languagesD = new List<string>(parser.languagesD);
             string json = JsonConvert.SerializeObject(languagesD, Formatting.Indented);
             File.WriteAllText(destination + "\\languages.json", json);
             Model2.Parse.DestructParse();
@@ -126,11 +126,20 @@ namespace Controllers
             return indexer.currenPostingSet.CitiesDictionary;
         }
 
-        public Dictionary<string, string> getLaguages()
+        public List<string> getLaguages(string path)
         {
-            Dictionary<string, string> languages = indexer.getLanguages();
-            Model2.Indexer.DestructIndexer();
-            return languages;
+            path += "\\languages.json";
+            if (File.Exists(path))
+            {
+                //using (var streamReader = new StreamReader(path, Encoding.ASCII))
+                //{
+                    
+                    List<string> tmp = JsonConvert.DeserializeObject<List<string>>(File.ReadAllText(path));
+                    return tmp;
+                //}
+               
+            }
+            return new List<string>();
         }
 
         /*public Dictionary<string, string> LoadLanguages(string destinationPath)
