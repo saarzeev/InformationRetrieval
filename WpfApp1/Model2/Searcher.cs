@@ -180,7 +180,7 @@ namespace Model2
                 }
             }
 
-            foreach(int item in rankingForQuery.Keys)
+            /*foreach(int item in rankingForQuery.Keys)
             {
                 rankingForQuery[item].Sort((x, y) => y.Item2.CompareTo(x.Item2));
                 if (rankingForQuery[item].Count > 50) {
@@ -199,7 +199,7 @@ namespace Model2
                         }
                     }
                 }
-            }
+            }*/
             return rankingForQuery;
             //TODO puke somewere sorted by rank! only 50 rancks for each query
         }
