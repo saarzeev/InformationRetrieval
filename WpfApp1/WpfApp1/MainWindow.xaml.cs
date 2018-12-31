@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -9,7 +10,7 @@ using System.Windows.Forms;
 
 namespace WpfApp1
 {
-    
+
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -22,17 +23,18 @@ namespace WpfApp1
         string termNum;
         string docNum;
         public IList chosenCities;
+        private ObservableCollection<string> _languages = new ObservableCollection<string>(new List<string>());
 
-        /// <summary>
-        /// MainWindow C'tor
-        /// </summary>
-        public MainWindow()
+    /// <summary>
+    /// MainWindow C'tor
+    /// </summary>
+    public MainWindow()
         {
             //laguagesD.Add("loading...", "loading...");
             InitializeComponent();
             //laguages.ItemsSource = laguagesD;
             mainController = new Controllers.MainController();
-            laguages.ItemsSource = mainController.languagesD;
+            laguages.ItemsSource = new ObservableCollection<string>(mainController.languagesD);
         }
 
         private void isOkEnabled()
@@ -44,6 +46,14 @@ namespace WpfApp1
             else
             {
                 start.IsEnabled = true;
+            }
+        }
+        public ObservableCollection<string> Languages
+        {
+            get { return _languages; }
+            set
+            {
+                _languages = value;
             }
         }
 
@@ -114,7 +124,7 @@ namespace WpfApp1
                     System.Windows.Forms.MessageBox.Show(time + "\n" + docNum + "\n" + termNum, "Process Finished", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
                 //laguagesD = mainController.getLaguages();
                 //laguages.ItemsSource = laguagesD;
-                laguages.ItemsSource = mainController.languagesD;
+                laguages.ItemsSource = new ObservableCollection<string>(mainController.languagesD);
                 /*}
                 catch (Exception exception)
                 {
@@ -129,6 +139,7 @@ namespace WpfApp1
             {
                 DateTime start = DateTime.Now;
                 mainController.reset(path_to.Text);
+                laguages.ItemsSource = new ObservableCollection<string>();
                 System.Windows.Forms.MessageBox.Show("Reset process was successfully completed.\nIt took "  + (DateTime.Now - start) + ".", "Process Finished", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
             }
             catch(Exception exception)
@@ -227,6 +238,14 @@ namespace WpfApp1
             else
             {
                 MyMessageBox();
+            }
+        }
+
+        private void laguages_DropDownOpened(object sender, EventArgs e)
+        {
+            if(path_to.Text != "" && Languages.Count < 1)
+            {
+                laguages.ItemsSource = new ObservableCollection<string>(mainController.getLaguages(path_to.Text));
             }
         }
     }

@@ -62,10 +62,10 @@
                     </ListBox>
                 </ScrollViewer>
             </Popup>
-            <ComboBox x:Name="laguages">
+            <ComboBox x:Name="laguages" DropDownOpened="laguages_DropDownOpened" ItemsSource="{Binding Path=DataContext.Languages}">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Key}"/>
+                        <TextBlock Text="{Binding }"/>
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>

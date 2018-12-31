@@ -28,7 +28,7 @@ namespace Model2
         private HashSet<String> counters = new HashSet<string>();
         private string destinationPath;
         public static List<Task> writingList = new List<Task>();
-        public Dictionary<string, string> languagesD = new Dictionary<string, string>();
+        public List<string> languagesD = new List<string>();
 
 
         string[] delimiters = {"=","_", "?" ," - ", " ", "(", ")", "<", ">", "[", "]", "{", "}", "^", ";", "\"", "'", "`", "|", "*", "#", "+", "?", "!", "&", "@", "," ,"---", "..", "...", " -- ", "\\n", "----", "$$" , "$$$" };
@@ -77,7 +77,6 @@ namespace Model2
             Parse.stopWords = stopWords;
             bigNumbersHash = new HashSet<string>();
             months = new Dictionary<string, string>();
-            languagesD.Add("loading...", "loading...");
             InitHeapVariables();
 
         }
