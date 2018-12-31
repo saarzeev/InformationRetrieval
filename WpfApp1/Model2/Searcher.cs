@@ -9,18 +9,8 @@ namespace Model2
 {
     public partial class Searcher
     {
-        private string path;
-        private bool isStemming;
-        private HashSet<string> cities;
-
+       
         private Query query;
-
-        public Searcher(string path, bool isStemming, HashSet<string> cities)
-        {
-            this.path = path;
-            this.isStemming = isStemming;
-            this.cities = cities;
-        }
 
         public Searcher(Query query)
         {
@@ -118,22 +108,23 @@ namespace Model2
                     postingDescriptionAndNarrative = GetTermsPosting(parsedDescriptionAndNarr[queryId].ToList(), indexer);
                 }
                 //[docid: <term,df,tf,is100>
-                HashSet<string> docs = new HashSet<string>();
+
 
                 //remove by citises
-                if (query.Cities != null && query.Cities.Count > 0)
-                {
-                    foreach (string city in query.Cities.Keys)
-                    {
-                        for (int i = 0; i < query.Cities[city].Count; i++)
-                        {
-                            if (!docs.Contains(query.Cities[city][i].docID))
-                            {
-                                docs.Add(query.Cities[city][i].docID);
-                            }
-                        }
-                    }
-                }
+                HashSet<string> docs = getDocsOfCities();/*new HashSet<string>();*/
+                //if (query.Cities != null && query.Cities.Count > 0)
+                //{
+                //    foreach (string city in query.Cities.Keys)
+                //    {
+                //        for (int i = 0; i < query.Cities[city].Count; i++)
+                //        {
+                //            if (!docs.Contains(query.Cities[city][i].docID))
+                //            {
+                //                docs.Add(query.Cities[city][i].docID);
+                //            }
+                //        }
+                //    }
+                //}
 
                 Dictionary<string, Dictionary<string, Tuple<int, int, bool>>> allInfoOfQuery = getAllInfoFromPosting(posting, docs);
                 Dictionary<string, Dictionary<string, Tuple<int, int, bool>>> allInfoOfSemi = new Dictionary<string, Dictionary<string, Tuple<int, int, bool>>>();
@@ -229,15 +220,23 @@ namespace Model2
             return allInfo;
         }
 
-        public StringBuilder GetFile(string path)
+        private HashSet<string> getDocsOfCities()
         {
-            //if (_cachedPath != path)
-            //{
-            //    _cachedFile = PostingsSet.Unzip(File.ReadAllBytes(path));
-            //    _cachedPath = path;
-            //}
-            //return _cachedFile;
-            return null;
+            HashSet<string> docs = new HashSet<string>();
+            if (query.Cities != null && query.Cities.Count > 0)
+            {
+                foreach (string city in query.Cities.Keys)
+                {
+                    for (int i = 0; i < query.Cities[city].Count; i++)
+                    {
+                        if (!docs.Contains(query.Cities[city][i].docID))
+                        {
+                            docs.Add(query.Cities[city][i].docID);
+                        }
+                    }
+                }
+            }
+            return docs;
         }
     }
 }
