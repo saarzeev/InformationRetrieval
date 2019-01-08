@@ -101,98 +101,136 @@ namespace Model2
             this.destinationPath = destinationPath;
             FileReader fr = new FileReader(filesPath, stopWordsPath);
             stopWords = fr.stopWords;
-            task = Task.Run(() =>
+            if(fr._files.Count > 3)
             {
+                task = Task.Run(() =>
+                {
+                    while (fr.HasNext())
+                    {
+
+                        List<Doc> docs = fr.ReadNextDoc();
+                        foreach (Doc doc in docs)
+                        {
+                            _semaphore2.Wait();
+                            _docs.Enqueue(doc);
+                            _semaphore1.Release();
+                        }
+
+                    }
+                    done = true;
+                });
+                Task loadCities = Task.Run(() => { City.initCities(); });
+                Task tasker1 = Task.Run(() =>
+                {
+                    while (!done || _docs.Count > 0)
+                    {
+                        _semaphore1.Wait();
+                        Doc currentDoc;
+                        _docs.TryDequeue(out currentDoc);
+                        Parser(currentDoc, shouldStem);
+                        _semaphore2.Release();
+                    }
+                });
+
+                Task tasker2 = Task.Run(() =>
+                {
+                    while (!done || _docs.Count > 0)
+                    {
+                        _semaphore1.Wait();
+                        Doc currentDoc;
+                        _docs.TryDequeue(out currentDoc);
+                        Parser(currentDoc, shouldStem);
+                        _semaphore2.Release();
+                    }
+                });
+
+                Task tasker3 = Task.Run(() =>
+                {
+                    while (!done || _docs.Count > 0)
+                    {
+                        _semaphore1.Wait();
+                        Doc currentDoc;
+                        _docs.TryDequeue(out currentDoc);
+                        Parser(currentDoc, shouldStem);
+                        _semaphore2.Release();
+                    }
+                });
+
+                Task tasker4 = Task.Run(() =>
+                {
+                    while (!done || _docs.Count > 0)
+                    {
+                        _semaphore1.Wait();
+                        Doc currentDoc;
+                        _docs.TryDequeue(out currentDoc);
+                        Parser(currentDoc, shouldStem);
+                        _semaphore2.Release();
+                    }
+                });
+
+                loadCities.Wait();
+                task.Wait();
+                tasker1.Wait();
+                tasker2.Wait();
+                tasker3.Wait();
+                tasker4.Wait();
+                Indexer indexer = Indexer.Instance(destinationPath, shouldStem);
+                //final temp writing
+
+
+                Task.WaitAll(writingList.ToArray());
+                Task tasker5 = Task.Run(() => { indexer.currenPostingSet.DumpToDisk(true); });
+                tasker5.Wait();
+                // indexer.dead.Clear();
+                // indexer.dead = null;
+                //merging
+
+                Task tasker6 = Task.Run(() => { indexer.currenPostingSet.mergeFiles(_cities); });
+                Task tasker8 = Task.Run(() => { indexer.WriteDocPosting(); });
+                tasker8.Wait();
+                indexer.docsCount = Indexer.docsIndexer.Count();
+                tasker6.Wait();
+                //Indexer.docsIndexer = null;
+                Task tasker7 = Task.Run(() => { indexer.WriteDictionary(); });
+                tasker7.Wait();
+                indexer.termCount = Indexer.fullDictionary.Count();
+                Indexer.fullDictionary.Clear();
+            }
+            else
+            {
+                Indexer indexer = Indexer.Instance(destinationPath, shouldStem);
+                City.initCities();
                 while (fr.HasNext())
                 {
-
                     List<Doc> docs = fr.ReadNextDoc();
                     foreach (Doc doc in docs)
                     {
-                        _semaphore2.Wait();
                         _docs.Enqueue(doc);
-                        _semaphore1.Release();
                     }
-
                 }
-                done = true;
-            });
-            Task loadCities = Task.Run(() => { City.initCities(); });
-            Task tasker1 = Task.Run(() =>
-            {
-                while (!done || _docs.Count > 0)
+                
+                while (_docs.Count > 0)
                 {
-                    _semaphore1.Wait();
                     Doc currentDoc;
                     _docs.TryDequeue(out currentDoc);
                     Parser(currentDoc, shouldStem);
-                    _semaphore2.Release();
                 }
-            });
 
-            Task tasker2 = Task.Run(() =>
-            {
-                while (!done || _docs.Count > 0)
-                {
-                    _semaphore1.Wait();
-                    Doc currentDoc;
-                    _docs.TryDequeue(out currentDoc);
-                    Parser(currentDoc, shouldStem);
-                    _semaphore2.Release();
-                }
-            });
+                //final temp writing
+                Task.WaitAll(writingList.ToArray());
+                indexer.currenPostingSet.DumpToDisk(true);
 
-            Task tasker3 = Task.Run(() =>
-            {
-                while (!done || _docs.Count > 0)
-                {
-                    _semaphore1.Wait();
-                    Doc currentDoc;
-                    _docs.TryDequeue(out currentDoc);
-                    Parser(currentDoc, shouldStem);
-                    _semaphore2.Release();
-                }
-            });
-
-            Task tasker4 = Task.Run(() =>
-            {
-                while (!done || _docs.Count > 0)
-                {
-                    _semaphore1.Wait();
-                    Doc currentDoc;
-                    _docs.TryDequeue(out currentDoc);
-                    Parser(currentDoc, shouldStem);
-                    _semaphore2.Release();
-                }
-            });
-
-            loadCities.Wait();
-            task.Wait();
-            tasker1.Wait();
-            tasker2.Wait();
-            tasker3.Wait();
-            tasker4.Wait();
-            Indexer indexer = Indexer.Instance(destinationPath, shouldStem);
-            //final temp writing
-           
-           
-            Task.WaitAll(writingList.ToArray());
-            Task tasker5 = Task.Run(() => { indexer.currenPostingSet.DumpToDisk(true); });
-            tasker5.Wait();
-            // indexer.dead.Clear();
-            // indexer.dead = null;
-            //merging
-
-            Task tasker6 = Task.Run(() => { indexer.currenPostingSet.mergeFiles(_cities); });
-            Task tasker8 = Task.Run(() => { indexer.WriteDocPosting(); });
-            tasker8.Wait();
-            indexer.docsCount = Indexer.docsIndexer.Count();
-            tasker6.Wait();
-            //Indexer.docsIndexer = null;
-            Task tasker7 = Task.Run(() => { indexer.WriteDictionary(); });
-            tasker7.Wait();
-            indexer.termCount = Indexer.fullDictionary.Count();
-            Indexer.fullDictionary.Clear();
+                //merging
+                Task tasker6 = Task.Run(() => { indexer.currenPostingSet.mergeFiles(_cities); });
+                Task tasker8 = Task.Run(() => { indexer.WriteDocPosting(); });
+                tasker8.Wait();
+                indexer.docsCount = Indexer.docsIndexer.Count();
+                tasker6.Wait();
+                Task tasker7 = Task.Run(() => { indexer.WriteDictionary(); });
+                tasker7.Wait();
+                indexer.termCount = Indexer.fullDictionary.Count();
+                Indexer.fullDictionary.Clear();
+            }
         }
 
         private void InitHeapVariables()

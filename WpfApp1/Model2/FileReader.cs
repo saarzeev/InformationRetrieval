@@ -9,7 +9,7 @@ namespace Model2
     public class FileReader
     {
         public string path { get; private set; }
-        private Queue<string> _files = new Queue<string>();
+        public Queue<string> _files = new Queue<string>();
         private string _currentFile = "";
         private long _docINdexInFile;
         public HashSet<string> stopWords;
